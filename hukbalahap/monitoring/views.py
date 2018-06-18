@@ -1,7 +1,12 @@
 from django.shortcuts import render
+from .models import Pool
 
 def index(request):
-    return render(request, 'monitoring/pool technician/home.html')
+    pool = Pool.objects.all()
+    content= {
+        'pool':pool
+    }
+    return render(request, 'monitoring/pool technician/home.html', content)
 
 def pool(request):
     return render(request, 'monitoring/pool technician/pool-stat.html')

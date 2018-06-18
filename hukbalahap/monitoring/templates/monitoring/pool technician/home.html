@@ -2,10 +2,11 @@
 
    {% block content %}
    <div class="row">
+      {% for item in pool %}
       <div class="col-md-4">
         <div class="box box-success">
           <div class="box-header with-border">
-            <h3 class="box-title">Pool No. 1</h3>
+            <h3 class="box-title">{{ item.pool_location }}</h3>
             <a href="pool"></a>
           </div>
             <div class="row">
@@ -19,6 +20,7 @@
                   <small >pH</small>
               </div>
             </div>
+            
             <div class="row">
               <div class="col-md-6">
                 <label style="font-size:30px; float: right; padding-right:10px;">0.5 ntu</label>
@@ -32,6 +34,7 @@
 
         </div>
       </div>
+      {% endfor %}
    </div>
 
 

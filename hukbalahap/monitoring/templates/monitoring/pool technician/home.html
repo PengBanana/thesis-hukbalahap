@@ -1,0 +1,39 @@
+{% extends "monitoring/pool technician/starter.html" %}
+
+   {% block content %}
+   <div class="row">
+      <div class="col-md-4">
+        <div class="box box-success">
+          <div class="box-header with-border">
+            <h3 class="box-title">Pool No. 1</h3>
+            <a href="pool"></a>
+          </div>
+            <div class="row">
+              <div class="col-md-6" >
+
+                  <label style="font-size:30px; float: right;padding-right:40px;padding-bottom:20px;">80%</label>
+                    <small>Chlorine</small>
+              </div>
+              <div class="col-md-6">
+                <label style="font-size:30px; float: right; padding-right:90px;">7</label>
+                  <small >pH</small>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <label style="font-size:30px; float: right; padding-right:10px;">0.5 ntu</label>
+                  <small >Turbidity</small>
+              </div>
+              <div class="col-md-6">
+                <label style="font-size:30px; float: right; padding-right:40px;">30°C</label>
+                  <small>Turbidity</small>
+              </div>
+            </div>
+
+        </div>
+      </div>
+   </div>
+
+
+
+{% endblock %}

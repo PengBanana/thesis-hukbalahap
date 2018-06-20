@@ -1,4 +1,4 @@
-{% extends "monitoring/starter.html" %}
+{% extends "monitoring/pool technician/starter.html" %}
 {% block content %}
 
 <div class="row">
@@ -6,34 +6,40 @@
     <div class="box box-primary">
       <div class="box-header with-border">
         <h3 class="box-title">Change Password</h3><br>
-        <small>You need to change your password</small>
+        <small>Before you proceed, you can to change your password for security blablabla</small>
       </div>
       <!-- /.box-header -->
-      <!-- form start -->
-      <form role="form">
-        <div class="box-body">
-          <div class="form-group">
-            <label for="exampleInputPassword1">Current Password</label>
-            <input type="password" class="form-control" id="currentPassword" placeholder="Password">
+      <div class="row">
+        <div class="col-md-4"></div>
+          <div class="col-md-4">
+            <!-- form start -->
+            <form role="form">
+              <div class="box-body">
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Current Password</label>
+                  <input type="password" class="form-control" id="currentPassword" placeholder="Password">
+                </div>
+
+                <div class="form-group">
+                  <label for="exampleInputPassword1">New Password</label>
+                  <input type="password" class="form-control" id="newPassword" placeholder="Password">
+                </div>
+
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Re-type Password</label>
+                  <input type="password" class="form-control" id="retypePassword" placeholder="Password">
+                </div>
+
+              </div>
+              <!-- /.box-body -->
+
+              <div class="box-footer">
+                <button type="password" class="btn btn-primary pull-right">Change Password</button>
+                <button type="password" class="btn btn-default pull-right">Skip Process</button>
+              </div>
+            </form>
           </div>
-
-          <div class="form-group">
-            <label for="exampleInputPassword1">New Password</label>
-            <input type="password" class="form-control" id="newPassword" placeholder="Password">
-          </div>
-
-          <div class="form-group">
-            <label for="exampleInputPassword1">Re-type Password</label>
-            <input type="password" class="form-control" id="retypePassword" placeholder="Password">
-          </div>
-
-        </div>
-        <!-- /.box-body -->
-
-        <div class="box-footer">
-          <button type="changePassword" class="btn btn-primary">Save</button>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
 </div>

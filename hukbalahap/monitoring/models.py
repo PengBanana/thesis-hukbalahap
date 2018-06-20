@@ -32,6 +32,7 @@ class User(models.Model):
 
 class MaintenanceSchedule(models.Model):
 	userID = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+	poolID = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
 	timeStart = models.TimeField(null=True, blank=True)
 	timeEnd = models.TimeField(null=True, blank=True)
 	timeAccomplished = models.TimeField(null=True, blank=True)
@@ -41,7 +42,7 @@ class MaintenanceSchedule(models.Model):
 	act_chlorine = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	act_muriatic = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	act_depowder = models.DecimalField(max_digits=8, decimal_places=2, default="")
-	#pool id
+
 	def __str__(self):
 		return self.userID.username
 

@@ -21,7 +21,7 @@ class Usertype_Ref(models.Model):
 # Dependent Classes
 
 class User(models.Model):
-	usertype_refID = models.ForeignKey(Usertype_Ref, on_delete=models.DO_NOTHING)
+	usertype_ref = models.ForeignKey(Usertype_Ref, on_delete=models.DO_NOTHING)
 	username = models.CharField(max_length=45)
 	password = models.CharField(max_length=45)
 	lastname = models.CharField(max_length=45)
@@ -31,8 +31,8 @@ class User(models.Model):
 		return self.username
 
 class MaintenanceSchedule(models.Model):
-	userID = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-	poolID = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
+	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
 	timeStart = models.TimeField(null=True, blank=True)
 	timeEnd = models.TimeField(null=True, blank=True)
 	timeAccomplished = models.TimeField(null=True, blank=True)
@@ -44,52 +44,52 @@ class MaintenanceSchedule(models.Model):
 	act_depowder = models.DecimalField(max_digits=8, decimal_places=2, default="")
 
 	def __str__(self):
-		return self.userID
+		return self.user
 
 class Temp_Turbidity(models.Model):
-	poolID = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
+	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
 	temp_turbiditylevel = models.DecimalField(max_digits=5, decimal_places=2, default="")
 	temp_turbiditydatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.poolID
+		return self.pool
 
 class Temp_Temperature(models.Model):
-	poolID = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
+	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
 	temp_temperaturelevel = models.DecimalField(max_digits=5, decimal_places=2, default="")
 	temp_temperaturedatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.poolID
+		return self.pool
 
 class Temp_Ph(models.Model):
-	poolID = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
+	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
 	temp_phlevel = models.DecimalField(max_digits=5, decimal_places=2, default="")
 	temp_phdatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.poolID
+		return self.pool
 
 class Final_Turbidity(models.Model):
-	poolID = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
+	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
 	final_turbiditylevel = models.DecimalField(max_digits=5, decimal_places=2, default="")
 	final_turbiditydatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.poolID
+		return self.pool
 
 class Final_Temperature(models.Model):
-	poolID = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
+	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
 	final_temperaturelevel = models.DecimalField(max_digits=5, decimal_places=2, default="")
 	final_temperaturedatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.poolID
+		return self.pool
 
 class Final_Ph(models.Model):
-	poolID = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
+	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
 	final_phlevel = models.DecimalField(max_digits=5, decimal_places=2, default="")
 	final_phdatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.poolID
+		return self.pool

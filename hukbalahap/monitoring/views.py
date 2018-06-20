@@ -1,10 +1,15 @@
 from django.shortcuts import render
-from .models import Pool
+from .models import Pool, Usertype_Ref, User, MaintenanceSchedule, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph
 
 def index(request):
-    pool = Pool.objects.all()
+    #pool = Pool.objects.all()
+    temperature = Temp_Temperature.objects.all()
+    turbidity = Temp_Turbidity.objects.all()
+    ph = Temp_Ph.objects.all()
     content= {
-        'pool':pool
+        'temperature':temperature,
+        'turbidity':turbidity,
+        'ph':ph,
     }
     return render(request, 'monitoring/pool technician/home.html', content)
 

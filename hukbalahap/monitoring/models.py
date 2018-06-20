@@ -41,9 +41,9 @@ class MaintenanceSchedule(models.Model):
 	act_chlorine = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	act_muriatic = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	act_depowder = models.DecimalField(max_digits=8, decimal_places=2, default="")
-
+	#pool id
 	def __str__(self):
-		return self.timeStart
+		return self.userID.username
 
 class Temp_Turbidity(models.Model):
 	poolID = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
@@ -51,7 +51,7 @@ class Temp_Turbidity(models.Model):
 	temp_turbiditydatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.temp_turbiditydatetime
+		return self.poolID.pool_location
 
 class Temp_Temperature(models.Model):
 	pools = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
@@ -59,7 +59,7 @@ class Temp_Temperature(models.Model):
 	temp_temperaturedatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.temp_temperaturedatetime
+		return self.pools.pool_location
 
 class Temp_Ph(models.Model):
 	pools = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
@@ -67,7 +67,7 @@ class Temp_Ph(models.Model):
 	temp_phdatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.temp_phdatetime
+		return self.pools.pool_location
 
 class Final_Turbidity(models.Model):
 	pools = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
@@ -75,7 +75,7 @@ class Final_Turbidity(models.Model):
 	final_turbiditydatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.final_turbiditydatetime
+		return self.pools.pool_location
 
 class Final_Temperature(models.Model):
 	pools = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
@@ -83,7 +83,7 @@ class Final_Temperature(models.Model):
 	final_temperaturedatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.final_temperaturedatetime
+		return self.pools.pool_location
 
 class Final_Ph(models.Model):
 	pools = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
@@ -91,4 +91,4 @@ class Final_Ph(models.Model):
 	final_phdatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.final_phdatetime
+		return self.pools.pool_location

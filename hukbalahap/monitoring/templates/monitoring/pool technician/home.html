@@ -23,11 +23,17 @@
             
             <div class="row">
               <div class="col-md-6">
-                <label style="font-size:30px; float: right; padding-right:10px;">0.5 ntu</label>
+                  {% for turbidity in turbidity %}
+                        {% if turbidity.poolID == item %}
+                  <label style="font-size:30px; float: right; padding-right:10px;">{{ turbidity.temp_turbiditylevel }}</label>
+                        {% else %}
+                            <label style="font-size:30px; float: right; padding-right:10px;">NO VALUE</label>
+                        {% endif %}
+                  {% endfor %}
                   <small >Turbidity</small>
               </div>
               <div class="col-md-6">
-                <label style="font-size:30px; float: right; padding-right:40px;">30°C</label>
+                <label style="font-size:30px; float: right; padding-right:40px;">{{ item.Temp_Temperature.temp_temperaturelevel }}</label>
                   <small>Turbidity</small>
               </div>
             </div>

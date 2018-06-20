@@ -52,7 +52,7 @@ class Temp_Turbidity(models.Model):
 	temp_turbiditydatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.pool
+		return self.poolID.pool_location
 
 class Temp_Temperature(models.Model):
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
@@ -60,7 +60,7 @@ class Temp_Temperature(models.Model):
 	temp_temperaturedatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.pool
+		return self.poolID.pool_location
 
 class Temp_Ph(models.Model):
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
@@ -68,7 +68,7 @@ class Temp_Ph(models.Model):
 	temp_phdatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.pool
+		return self.poolID.pool_location
 
 class Final_Turbidity(models.Model):
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
@@ -84,7 +84,7 @@ class Final_Temperature(models.Model):
 	final_temperaturedatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.pool
+		return self.poolID.pool_location
 
 class Final_Ph(models.Model):
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
@@ -92,4 +92,4 @@ class Final_Ph(models.Model):
 	final_phdatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.pool
+		return self.poolID.pool_location

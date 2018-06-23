@@ -2,30 +2,35 @@
 
    {% block content %}
    <div class="row">
-      {% for item in pool %}
+      {% for poolitem in pool %}
       <div class="col-md-4">
         <div class="box box-success">
           <div class="box-header with-border">
-            <h3 class="box-title">{{ item.pool_location }}</h3>
+            <h3 class="box-title">{{ poolitem.pool_location }}</h3>
             <a href="pool"></a>
           </div>
             <div class="row">
               <div class="col-md-6" >
-
-                  <label style="font-size:30px; float: right;padding-right:40px;padding-bottom:20px;">80%</label>
+                  <label style="font-size:30px; float: right;padding-right:40px;padding-bottom:20px;">Cannot Compute</label>
                     <small>Chlorine</small>
               </div>
               <div class="col-md-6">
-                <label style="font-size:30px; float: right; padding-right:90px;">7</label>
+                  {% for phlevel in ph %}
+                    {%if phlevel.pool == poolitem %}
+                        <label style="font-size:30px; float: right; padding-right:90px;">{{ phlevel.temp_phlevel }} ph</label> 
+                    {% else %}
+                            <label style="font-size:30px; float: right; padding-right:10px;">NO VALUE</label>
+                    {% endif%}
+                  {% endfor %}
                   <small >pH</small>
               </div>
             </div>
             
             <div class="row">
               <div class="col-md-6">
-                  {% for turbidity in turbidity %}
-                        {% if turbidity.poolID == item %}
-                  <label style="font-size:30px; float: right; padding-right:10px;">{{ turbidity.temp_turbiditylevel }}</label>
+                  {% for turbiditylevel in turbidity %}
+                        {% if turbiditylevel.pool == poolitem %}
+                  <label style="font-size:30px; float: right; padding-right:10px;">{{ turbiditylevel.temp_turbiditylevel }} ntu</label>
                         {% else %}
                             <label style="font-size:30px; float: right; padding-right:10px;">NO VALUE</label>
                         {% endif %}
@@ -33,8 +38,14 @@
                   <small >Turbidity</small>
               </div>
               <div class="col-md-6">
-                <label style="font-size:30px; float: right; padding-right:40px;">{{ item.Temp_Temperature.temp_temperaturelevel }}</label>
-                  <small>Turbidity</small>
+                  {% for temperaturelevel in temperature %}
+                    {% if temperaturelevel.pool == poolitem %}
+                <label style="font-size:30px; float: right; padding-right:40px;">{{ temperaturelevel.temp_temperaturelevel }} °C</label>
+                    {% else %}
+                        <label style="font-size:30px; float: right; padding-right:10px;">NO VALUE</label>
+                    {% endif %}
+                  {% endfor %}
+                  <small>Temperature</small>
               </div>
             </div>
 

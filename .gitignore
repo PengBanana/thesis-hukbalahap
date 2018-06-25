@@ -4,3 +4,6 @@
 *.pyc
 *.pyc
 *.pyc
+hukbalahap/monitoring/__pycache__/models.cpython-37.pyc
+hukbalahap/monitoring/__pycache__/urls.cpython-37.pyc
+hukbalahap/monitoring/__pycache__/views.cpython-37.pyc

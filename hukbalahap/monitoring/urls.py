@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^login/', views.login, name='login'),
     url(r'^firstLogin/', views.firstLogin, name='firstLogin'),
     url(r'^indexOwner/', views.indexOwner, name='indexOwner'),
-    url(r'^addUser/', views.addUser, name='addUser')
+    url(r'^addUser/', views.addUser, name='addUser'),
+    url(r'^personnel/', views.personnel, name='personnel'),
 
 ]

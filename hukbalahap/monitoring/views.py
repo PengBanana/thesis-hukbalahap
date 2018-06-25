@@ -24,3 +24,5 @@ def firstLogin(request):
     return render(request, 'monitoring/pool technician/first-login.html')
 def addUser(request):
     return render(request, 'monitoring/pool owner/add-user.html')
+def personnel(request):
+    return render(request, 'monitoring/pool owner/personnel-efficiency.html')

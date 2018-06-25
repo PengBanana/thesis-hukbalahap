@@ -9,6 +9,11 @@
       </div>
       <!-- /.box-header -->
       <!-- form start -->
+        {% if error == 1 %}
+            <p> PASSWORD INVALID</p>
+        {% elif error == 2 %}
+            <p> USERNAME IN USE</p>
+        {% endif %}
       <form action={% url 'monitoring:register_user' %} method="post" role="form">
         {% csrf_token %}
         <div class="box-body">

@@ -15,18 +15,39 @@ def index(request):
     return render(request, 'monitoring/pool technician/home.html', content)
 
 def register_user(request):
-    #check if password match
-    #check if user exist
-    #add errors to string and output errors
-    request.POST['fName']
-    request.POST['lName']
-    #usertype should be pool technician needs fully populated database
+    #get values from form
+    p = request.POST['password']
+    rp = request.POST['repassword']
+    u = request.POST['uname']
+    f =request.POST['fName']
+    l = request.POST['lName']
     uType = get_object_or_404(Usertype_Ref, usertype='admin')
-    addUser = User(username = request.POST['uname'], password = request.POST['password'], lastname = request.POST['lName'], firstname = request.POST['lName'], usertype_ref = uType)
-    addUser.save()
-    #success page
-    return render(request, 'monitoring/register_success.html')
-
+    #check if password match
+    if p == rp: 
+    #check if user exist
+        try:
+            go = User.objects.get(u)
+        except User.DoesNotExist:
+            go = None
+        if go == None:
+            #usertype should be pool technician needs fully populated database
+            addUser = User(username = u, password = p, lastname = l, firstname = f, usertype_ref = uType)
+            addUser.save()
+            #register success display success message
+            return render(request, 'monitoring/register_success.html')
+        #add errors to string and output errors
+        else:
+            error = 2
+            context= {
+                'error': error
+            }
+            return render(request, 'monitoring/pool owner/add-user.html', context)
+    else:
+        error = 1
+        context= {
+            'error': error
+        }
+        return render(request, 'monitoring/pool owner/add-user.html', context)
 
 def pool(request):
     return render(request, 'monitoring/pool technician/pool-stat.html')

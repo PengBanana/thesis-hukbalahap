@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Pool, Usertype_Ref, User, MaintenanceSchedule, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph
 
 def index(request):
@@ -20,16 +20,12 @@ def register_user(request):
     #add errors to string and output errors
     request.POST['fName']
     request.POST['lName']
-    addUser = User(username = request.POST['uname'], password = request.POST['password'], lastname = request.POST['lName'], firstname = request.POST['lName'])
+    #usertype should be pool technician needs fully populated database
+    uType = get_object_or_404(Usertype_Ref, usertype='admin')
+    addUser = User(username = request.POST['uname'], password = request.POST['password'], lastname = request.POST['lName'], firstname = request.POST['lName'], usertype_ref = uType)
     addUser.save()
-    user = User.objects.all()
-    retval = get_object_or_404(User, user_password='peng')
-    content= {
-        'user':user,
-        'alvin': retval
-    }
     #success page
-    return render(request, 'monitoring/personnel.html', content)
+    return render(request, 'monitoring/register_success.html')
 
 
 def pool(request):

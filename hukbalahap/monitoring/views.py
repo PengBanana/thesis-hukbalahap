@@ -14,6 +14,24 @@ def index(request):
     }
     return render(request, 'monitoring/pool technician/home.html', content)
 
+def register_user(request):
+    #check if password match
+    #check if user exist
+    #add errors to string and output errors
+    request.POST['fName']
+    request.POST['lName']
+    addUser = User(username = request.POST['uname'], password = request.POST['password'], lastname = request.POST['lName'], firstname = request.POST['lName'])
+    addUser.save()
+    user = User.objects.all()
+    retval = get_object_or_404(User, user_password='peng')
+    content= {
+        'user':user,
+        'alvin': retval
+    }
+    #success page
+    return render(request, 'monitoring/personnel.html', content)
+
+
 def pool(request):
     return render(request, 'monitoring/pool technician/pool-stat.html')
 def login(request):

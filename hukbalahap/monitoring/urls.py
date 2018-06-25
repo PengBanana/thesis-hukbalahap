@@ -15,15 +15,17 @@ Including another URLconf
 """
 from django.conf.urls import url
 from .import views
+app_name = 'monitoring'
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^index/', views.index, name='index'),
-    url(r'^pool/', views.pool, name='pool'),
-    url(r'^login/', views.login, name='login'),
-    url(r'^firstLogin/', views.firstLogin, name='firstLogin'),
-    url(r'^indexOwner/', views.indexOwner, name='indexOwner'),
-    url(r'^addUser/', views.addUser, name='addUser'),
-    url(r'^personnel/', views.personnel, name='personnel'),
+    url(r'^index/$', views.index, name='index'),
+    url(r'^pool/$', views.pool, name='pool'),
+    url(r'^login/$', views.login, name='login'),
+    url(r'^firstLogin/$', views.firstLogin, name='firstLogin'),
+    url(r'^indexOwner/$', views.indexOwner, name='indexOwner'),
+    url(r'^addUser/$', views.addUser, name='addUser'),
+    url(r'^register/$', views.register_user, name='register_user'),
+    url(r'^personnel/$', views.personnel, name='personnel'),
 
 ]

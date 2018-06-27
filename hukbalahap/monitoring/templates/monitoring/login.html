@@ -5,8 +5,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Huk | Log in</title>
   <!-- Tell the browser to be responsive to screen width -->
-
-
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   {% load staticfiles %}
   <link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css'%}">
@@ -51,6 +49,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
 <body class="hold-transition" style="background: #3c8dbc">
+    <!-- add get login attempts then restrict attempts for the day-->
 <div class="login-box">
   <div class="login-logo">
     <a href="../../index2.html" style="color:white">WQMS</a>
@@ -58,14 +57,17 @@
   <!-- /.login-logo -->
   <div class="login-box-body">
     <p class="login-box-msg">Log In</p>
-
-    <form action="../../index2.html" method="post">
+    {% if error == 1 %}
+    <p>INVALID ENTRY</p>
+    {% endif %}
+    <form action={% url 'monitoring:attemptlogin' %} method="post">
+      {% csrf_token %}
       <div class="form-group has-feedback">
-        <input type="email" class="form-control" placeholder="Email">
+        <input type="name" class="form-control" name = "username" placeholder="Email">
         <span class="glyphicon glyphicon-user form-control-feedback"></span>
       </div>
       <div class="form-group has-feedback">
-        <input type="password" class="form-control" placeholder="Password">
+        <input type="password" class="form-control" name="pass" placeholder="Password">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
       <div class="row">

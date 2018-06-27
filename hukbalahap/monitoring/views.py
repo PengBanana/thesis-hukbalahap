@@ -1,6 +1,5 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Pool, Usertype_Ref, User, MaintenanceSchedule, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph
-
 def index(request):
     pool = Pool.objects.all()
     temperature = Temp_Temperature.objects.all()
@@ -48,11 +47,78 @@ def register_user(request):
             'error': error
         }
         return render(request, 'monitoring/pool owner/add-user.html', context)
+    
+def login(request):
+    return render(request, 'monitoring/login.html')
+
+def attemptlogin(request):
+    u = request.POST['username']
+    p = request.POST['pass']
+    try:
+        error = request.POST['error']
+        attempt = request.POST['attemptcount']
+    except error.DoesNotExist:
+        error = 0
+        attempt = 0
+    try:
+        go = User.objects.get(u)
+        #when user does not exist
+    except User.DoesNotExist:
+        go = None
+    if go == None:
+        error = 1
+        #increment error here
+        attempt+=1
+        if attempt < 4:
+            context = {
+                'error': error,
+                'attempt': attempt
+            }
+            return render(request,'monitoring/login', context)
+        else :
+            error = 2
+            context ={
+                'error': error
+            }
+            return render(request, 'monitoring/block', context)
+    # if user exist
+    else:
+        if go.password == p:
+            #if user exist and match password
+            if go.usertype_ref == 'admin':
+                #if usertype is admin
+                context = {
+                    'firstname':go.firstname,
+                    'lastname':go.lastname
+                }
+                return render(request, 'monitoring/pool owner/home-owner.html', context)
+            elif go.usertype_ref == 'pool_technician':
+                #if usertyoe is pool technician
+                context = {
+                    'firstname':go.fistname,
+                    'lastname':go.lastname
+                }
+                return render(request, 'monitoring/pool technician/home')
+        else :
+            #password does not match
+            error = 1
+            attempt+=1
+            if attempt < 4:
+                context = {
+                    'error': error,
+                    'attempt': attempt
+                }
+                return render(request, 'monitoring/login', context)
+            else:
+                error = 2
+                context ={
+                    'error': error
+                }
+                return render(request, 'monitoring/block', context)
 
 def pool(request):
     return render(request, 'monitoring/pool technician/pool-stat.html')
-def login(request):
-    return render(request, 'monitoring/login.html')
+
 def indexOwner(request):
     return render(request, 'monitoring/pool owner/home-owner.html')
 def firstLogin(request):

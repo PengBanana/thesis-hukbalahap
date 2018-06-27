@@ -1,50 +1,63 @@
 {% extends "monitoring/pool owner/starter-owner.html" %}
 {% block content %}
-
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-5">
+
+    {% if error == 1 %}
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-ban"></i> Failed!</h4>
+        Passwords are not the same.
+      </div>
+    {% elif error == 2 %}
+      <div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-check"></i>Success!</h4>
+          A new user has been successfully added!
+      </div>
+    {% endif %}
+
     <div class="box box-primary">
       <div class="box-header with-border">
         <h3 class="box-title">Add New Technician</h3><br>
       </div>
       <!-- /.box-header -->
       <!-- form start -->
-        {% if error == 1 %}
-            <p> PASSWORD INVALID</p>
-        {% elif error == 2 %}
-            <p> USERNAME IN USE</p>
-        {% endif %}
       <form action={% url 'monitoring:register_user' %} method="post" role="form">
         {% csrf_token %}
-        <div class="box-body">
-        <div class="form-group">
-            <label for="exampleInputPassword1">Username</label>
-            <input type="text" class="form-control" name="uname" placeholder="username">
-          </div>
-          <div class="form-group">
-            <label for="exampleInputPassword1">First Name</label>
-            <input type="text" class="form-control" name="fName" placeholder="first name">
-          </div>
+        <div class="row">
 
-          <div class="form-group">
-            <label for="exampleInputPassword1">Last Name </label>
-            <input type="text" class="form-control" name="lName" placeholder="second name">
-          </div>
+            <div  class="col-md-12">
+              <div class="box-body">
+              <div class="form-group">
+                  <label>Username</label>
+                  <input type="text" class="form-control" name="uname" placeholder="username" required>
+                </div>
+                <div class="form-group">
+                  <label>First Name</label>
+                  <input type="text" class="form-control" name="fName" placeholder="first name" required>
+                </div>
 
-          <div class="form-group">
-            <label for="exampleInputPassword1"> Password</label>
-            <input type="password" class="form-control" name="password" placeholder="Password">
-          </div>
-          <div class="form-group">
-            <label for="exampleInputPassword1">Re-type Password</label>
-            <input type="password" class="form-control" name="repassword" placeholder="Password">
-          </div>
+                <div class="form-group">
+                  <label>Last Name </label>
+                  <input type="text" class="form-control" name="lName" placeholder="second name" required>
+                </div>
 
+                <div class="form-group">
+                  <label> Password</label>
+                  <input type="password" class="form-control" name="password" placeholder="Password" required>
+                </div>
+                <div class="form-group">
+                  <label>Re-type Password</label>
+                  <input type="password" class="form-control" name="repassword" placeholder="Password" required>
+                </div>
+              </div>
+            </div>
         </div>
         <!-- /.box-body -->
 
         <div class="box-footer">
-          <button type="changePassword" class="btn btn-primary">Save</button>
+          <button class="btn btn-primary">Confirm</button>
         </div>
       </form>
     </div>

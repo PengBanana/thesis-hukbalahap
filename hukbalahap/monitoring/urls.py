@@ -27,5 +27,7 @@ urlpatterns = [
     url(r'^addUser/$', views.addUser, name='addUser'),
     url(r'^register/$', views.register_user, name='register_user'),
     url(r'^personnel/$', views.personnel, name='personnel'),
+    url(r'^search/$', views.search, name='search'),
+    url(r'^profile/$', views.profile, name='profile'),
 
 ]

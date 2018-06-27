@@ -22,7 +22,7 @@ def register_user(request):
     l = request.POST['lName']
     uType = get_object_or_404(Usertype_Ref, usertype='admin')
     #check if password match
-    if p == rp: 
+    if p == rp:
     #check if user exist
         try:
             go = User.objects.get(u)
@@ -47,7 +47,7 @@ def register_user(request):
             'error': error
         }
         return render(request, 'monitoring/pool owner/add-user.html', context)
-    
+
 def login(request):
     return render(request, 'monitoring/login.html')
 
@@ -127,3 +127,7 @@ def addUser(request):
     return render(request, 'monitoring/pool owner/add-user.html')
 def personnel(request):
     return render(request, 'monitoring/pool owner/personnel-efficiency.html')
+def search(request):
+    return render(request, 'monitoring/pool owner/search-technician.html')
+def profile(request):
+    return render(request, 'monitoring/pool owner/technician-profile.html')

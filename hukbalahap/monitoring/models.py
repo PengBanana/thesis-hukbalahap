@@ -76,7 +76,7 @@ class Final_Turbidity(models.Model):
 	final_turbiditydatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
-		return self.pool
+		return self.pool.pool_location
 
 class Final_Temperature(models.Model):
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)

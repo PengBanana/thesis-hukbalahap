@@ -25,7 +25,7 @@ def register_user(request):
     if p == rp:
     #check if user exist
         try:
-            go = User.objects.get(u)
+            go = User.objects.get(username=u)
         except User.DoesNotExist:
             go = None
         if go == None:

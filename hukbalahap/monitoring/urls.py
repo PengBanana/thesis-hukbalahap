@@ -29,5 +29,5 @@ urlpatterns = [
     url(r'^personnel/$', views.personnel, name='personnel'),
     url(r'^search/$', views.search, name='search'),
     url(r'^profile/$', views.profile, name='profile'),
-
+    url(r'^attempt_login/$', views.attempt_login, name='attempt_login')
 ]

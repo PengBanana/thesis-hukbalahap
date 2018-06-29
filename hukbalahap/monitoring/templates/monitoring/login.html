@@ -57,10 +57,14 @@
   <!-- /.login-logo -->
   <div class="login-box-body">
     <p class="login-box-msg">Log In</p>
+    
+    <form action={% url 'monitoring:attempt_login' %} method="post">
     {% if error == 1 %}
-    <p>INVALID ENTRY</p>
+    <p>Wrong username and password</p>
+    {% else %}
+      <input type="hidden" name = "error" value="0">
+      <input type="hidden" name = "attemptcount" value="0">
     {% endif %}
-    <form action={% url 'monitoring:attemptlogin' %} method="post">
       {% csrf_token %}
       <div class="form-group has-feedback">
         <input type="name" class="form-control" name = "username" placeholder="Email">

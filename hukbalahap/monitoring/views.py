@@ -51,17 +51,15 @@ def register_user(request):
 def login(request):
     return render(request, 'monitoring/login.html')
 
-def attemptlogin(request):
+def attempt_login(request):
     u = request.POST['username']
     p = request.POST['pass']
+    errorcount = request.POST['error']
+    error = int(errorcount)
+    attemptcount = request.POST['attemptcount']
+    attempt=int(attemptcount)
     try:
-        error = request.POST['error']
-        attempt = request.POST['attemptcount']
-    except error.DoesNotExist:
-        error = 0
-        attempt = 0
-    try:
-        go = User.objects.get(u)
+        go = User.objects.get(username=u)
         #when user does not exist
     except User.DoesNotExist:
         go = None
@@ -74,31 +72,37 @@ def attemptlogin(request):
                 'error': error,
                 'attempt': attempt
             }
-            return render(request,'monitoring/login', context)
+            return render(request,'monitoring/login.html', context)
         else :
             error = 2
             context ={
                 'error': error
             }
-            return render(request, 'monitoring/block', context)
+            return render(request, 'monitoring/block.html', context)
     # if user exist
     else:
         if go.password == p:
             #if user exist and match password
-            if go.usertype_ref == 'admin':
+            #notworking
+            #if go.usertype_ref == 'admin':
                 #if usertype is admin
+            if 1 == 1:
+                error=0
                 context = {
+                    'error':error,
                     'firstname':go.firstname,
                     'lastname':go.lastname
                 }
-                return render(request, 'monitoring/pool owner/home-owner.html', context)
+                return render(request, 'monitoring/pool owner/home-owner.html')
             elif go.usertype_ref == 'pool_technician':
-                #if usertyoe is pool technician
+                error=0
+                #if usertype is pool technician
                 context = {
+                    'error':error,
                     'firstname':go.fistname,
                     'lastname':go.lastname
                 }
-                return render(request, 'monitoring/pool technician/home')
+                return render(request, 'monitoring/pool technician/home.html')
         else :
             #password does not match
             error = 1
@@ -108,13 +112,13 @@ def attemptlogin(request):
                     'error': error,
                     'attempt': attempt
                 }
-                return render(request, 'monitoring/login', context)
+                return render(request, 'monitoring/login.html', context)
             else:
                 error = 2
                 context ={
                     'error': error
                 }
-                return render(request, 'monitoring/block', context)
+                return render(request, 'monitoring/block.html', context)
 
 def pool(request):
     return render(request, 'monitoring/pool technician/pool-stat.html')

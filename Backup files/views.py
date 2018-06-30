@@ -88,6 +88,9 @@ def attempt_login(request):
                 #if usertype is admin
             if 1 == 1:
                 error=0
+                screenid=go.firstaname+' '+go.lastname
+                request.session['screenid']=screenid
+                #request.url('monitoring/indexOwner')
                 context = {
                     'error':error,
                     'firstname':go.firstname,

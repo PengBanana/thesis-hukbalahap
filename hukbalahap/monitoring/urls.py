@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from .import views
+from monitoring.views import AddUserView
 app_name = 'monitoring'
 
 urlpatterns = [
@@ -24,10 +25,10 @@ urlpatterns = [
     url(r'^login/$', views.login, name='login'),
     url(r'^firstLogin/$', views.firstLogin, name='firstLogin'),
     url(r'^indexOwner/$', views.indexOwner, name='indexOwner'),
-    url(r'^addUser/$', views.addUser, name='addUser'),
-    url(r'^register/$', views.register_user, name='register_user'),
+    #url(r'^register/$', views.register_user, name='register_user'),
     url(r'^personnel/$', views.personnel, name='personnel'),
     url(r'^search/$', views.search, name='search'),
     url(r'^profile/$', views.profile, name='profile'),
-    url(r'^attempt_login/$', views.attempt_login, name='attempt_login')
+    #url(r'^attempt_login/$', views.attempt_login, name='attempt_login'),
+    url(r'^addUser/$', AddUserView.as_view(), name='addUser'),
 ]

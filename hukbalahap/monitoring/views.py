@@ -1,5 +1,19 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Pool, Usertype_Ref, User, MaintenanceSchedule, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph
+from monitoring.forms import AddUserForm
+from django.views.generic import TemplateView
+
+
+
+class AddUserView(TemplateView):
+    template_name = "monitoring/pool owner/add-user.html"
+
+    def get(self,request):
+        form = AddUserForm()
+        return render(request, self.template_name,{'form': form})
+
+
+
 def index(request):
     pool = Pool.objects.all()
     temperature = Temp_Temperature.objects.all()
@@ -15,7 +29,6 @@ def index(request):
 
 def login(request):
     return render(request, 'monitoring/login.html')
-
 def pool(request):
     return render(request, 'monitoring/pool technician/pool-stat.html')
 
@@ -23,8 +36,6 @@ def indexOwner(request):
     return render(request, 'monitoring/pool owner/home-owner.html')
 def firstLogin(request):
     return render(request, 'monitoring/pool technician/first-login.html')
-def addUser(request):
-    return render(request, 'monitoring/pool owner/add-user.html')
 def personnel(request):
     return render(request, 'monitoring/pool owner/personnel-efficiency.html')
 def search(request):

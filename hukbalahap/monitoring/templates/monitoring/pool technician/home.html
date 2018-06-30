@@ -1,9 +1,11 @@
 {% extends "monitoring/pool technician/starter.html" %}
 
    {% block content %}
-<p>{{ poolCount }}</p>
+<p>{{ debug_check }}</p>
    <div class="row">
       {% for poolitem in pool %}
+       {% with forloop.counter0 as x %}
+       
       <div class="col-md-4">
         <div class="box box-success">
           <div class="box-header with-border">
@@ -12,46 +14,29 @@
           </div>
             <div class="row">
               <div class="col-md-6" >
-                  <label style="font-size:30px; float: right;padding-right:40px;padding-bottom:20px;">Cannot Compute</label>
+                  <label style="font-size:30px; float: right;padding-right:40px;padding-bottom:20px;"></label>
                     <small>Chlorine</small>
               </div>
               <div class="col-md-6">
-                  {% for phlevel in ph %}
-                    {%if phlevel.pool == poolitem %}
-                        <label style="font-size:30px; float: right; padding-right:90px;">{{ phlevel.temp_phlevel }} ph</label> 
-                    {% else %}
-                            <label style="font-size:30px; float: right; padding-right:10px;">NO VALUE</label>
-                    {% endif%}
-                  {% endfor %}
+                        <label style="font-size:30px; float: right; padding-right:90px;">{{ phlevel.temp_phlevel }}</label>
                   <small >pH</small>
               </div>
             </div>
             
             <div class="row">
               <div class="col-md-6">
-                  {% for turbiditylevel in turbidity %}
-                        {% if turbiditylevel.pool == poolitem %}
-                  <label style="font-size:30px; float: right; padding-right:10px;">{{ turbiditylevel.temp_turbiditylevel }} ntu</label>
-                        {% else %}
-                            <label style="font-size:30px; float: right; padding-right:10px;">NO VALUE</label>
-                        {% endif %}
-                  {% endfor %}
+                  <label style="font-size:30px; float: right; padding-right:10px;">{{ turbiditylevel.temp_turbiditylevel }}</label>
                   <small >Turbidity</small>
               </div>
               <div class="col-md-6">
-                  {% for temperaturelevel in temperature %}
-                    {% if temperaturelevel.pool == poolitem %}
-                <label style="font-size:30px; float: right; padding-right:40px;">{{ temperaturelevel.temp_temperaturelevel }} °C</label>
-                    {% else %}
-                        <label style="font-size:30px; float: right; padding-right:10px;">NO VALUE</label>
-                    {% endif %}
-                  {% endfor %}
+                <label style="font-size:30px; float: right; padding-right:40px;">{{ temperature.0 }}</label>
                   <small>Temperature</small>
               </div>
             </div>
 
         </div>
       </div>
+        {% endwith %}
       {% endfor %}
    </div>
 

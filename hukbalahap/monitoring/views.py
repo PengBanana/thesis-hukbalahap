@@ -16,36 +16,71 @@ class AddUserView(TemplateView):
 
 
 def index(request):
-    poolref = Pool.objects.all()
-    temperature = Temp_Temperature.objects.all()
-    turbidity = Temp_Turbidity.objects.all()
-    ph = Temp_Ph.objects.all()
+    poolref = Pool.objects.all().order_by('pk')
+    #poolCount = Pool.objects.all().count()
+    #temperature levels
+    tempDeviations = []
+    #standard deviation of multiple pools stored in array
+    for poolitem in Pool.objects.all().order_by('pk'):
+        #temperatureList = poolitem.liveTemperature.values_list('temp_temperaturelevel', flat=True)
+        temperatureList = Temp_Temperature.objects.filter(pool=poolref.get(pk=poolitem.pk))
+        sumTemperature = temperatureList.annotate(sumTemp=Sum('temp_temperaturelevel'))
+        countTemperature = temperatureList.annotate(temperatureCount=Count('temp_temperaturelevel'))
+        #sumOfTemp=sumTemperature.get(pk=1)
+        try:
+            tempSum = sumTemperature.get().sumTemp
+            tempCount = countTemperature.get().temperatureCount
+        except:
+            tempSum = 0
+            tempCount = 0
+        if(tempCount>0):
+            tempMean = tempSum/tempCount
+            tempx = []
+            for level in temperatureList:
+                reading = level.temp_temperaturelevel
+                reading -=tempMean
+                tempx.append(reading)
+            newTempSum = 0
+            for read in tempx:
+                newTempSum+= read
+            tempVariance = newTempSum/tempCount
+            tempStandardDev = math.sqrt(tempVariance)
+            tempDeviations.append(tempStandardDev)
+        else:
+            tempDeviations.append('No Readings')
     
-    poolCount = Pool.objects.all().count()
-    tempdeviations = []
-    
-    #standard deviation of one pool
-    itemTemperature = Temp_Temperature.objects.filter(pool=poolref.get(pk=1))
-    lvltemp = itemTemperature.annotate(temperaturesum=Sum('temp_temperaturelevel'))
-    lvltempCount = itemTemperature.annotate(temperatureCount=Count('temp_temperaturelevel'))
-    tempSum=lvltemp.get().temperaturesum
-    tempCount=lvltempCount.get().temperatureCount
-    tempMean = tempSum/tempCount
-    tempx = []
-    for level in itemTemperature:
-        reading = level.temp_temperaturelevel
-        reading -=tempMean
-        tempx.append(reading)
-    newTempSum = 0
-    for read in tempx:
-        newTempSum+= read
-    tempVariance = newTempSum/tempCount
-    tempStandardDev = math.sqrt(tempVariance )
+    #turbidity levels
+    turbidityDeviations = []
+    #standard deviation of turbidity
+    for poolitem in Pool.objects.all().order_by('pk'):
+        turbidityList = Temp_Turbidity.objects.filter(pool=poolref.get(pk=poolitem.pk))
+        sumTurbidity = turbidityList.annotate(sumTur=Sum('temp_turbiditylevel'))
+        countTurbidity = turbidityList.annotate(countTur=Count('temp_turbiditylevel'))
+        try:
+            turbiditySum = sumTurbidity.get().sumTur
+            turbidityCount = countTurbidity.get().countTur
+            turbidityMean = turbiditySum/turbidityCount
+            turbidityx = []
+            for level in turbidityList:
+                reading = level.temp_turbiditylevel
+                reading -=turbidityMean
+                turbidityx.append(reading)
+            newTurbiditySum = 0
+            for read in turbidityx:
+                newTurbiditySum+= read
+            turbidityVariance = newTurbiditySum/turbidityCount
+            turbidityStandardDev = math.sqrt(tempVariance)
+            turbidityDeviations.append(tempStandardDev)
+        except:
+            turbiditySum = 0
+            turbidityCount = 0
+            turbidityDeviations.append('No Readings')
+    ph = []
     content= {
-        'poolCount': newTempSum,
-        'pool':pool,
-        'temperature':temperature,
-        'turbidity':turbidity,
+        'debug_check': tempDeviations,
+        'pool':poolref,
+        'temperature':tempDeviations,
+        'turbidity':turbidityDeviations,
         'ph':ph,
     }
     return render(request, 'monitoring/pool technician/home.html', content)

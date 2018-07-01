@@ -69,19 +69,45 @@ def index(request):
             for read in turbidityx:
                 newTurbiditySum+= read
             turbidityVariance = newTurbiditySum/turbidityCount
-            turbidityStandardDev = math.sqrt(tempVariance)
-            turbidityDeviations.append(tempStandardDev)
+            turbidityStandardDev = math.sqrt(turbidityVariance)
+            turbidityDeviations.append(turbidityStandardDev)
         except:
             turbiditySum = 0
             turbidityCount = 0
             turbidityDeviations.append('No Readings')
-    ph = []
+    phDeviations = []
+    #standard deviation of turbidity
+    for poolitem in Pool.objects.all().order_by('pk'):
+        phList = Temp_Ph.objects.filter(pool=poolref.get(pk=poolitem.pk))
+        sumPh = phList.annotate(phSum=Sum('temp_phlevel'))
+        countPh = phList.annotate(phCount=Count('temp_phlevel'))
+        try:
+            phSum = sumPh.get().phSum
+            phCount = countPh.get().phCount
+            phMean = phSum/phCount
+            phx = []
+            for level in phList:
+                reading = level.temp_phlevel
+                reading -=phMean
+                phx.append(reading)
+            newPhSum = 0
+            for read in phx:
+                newPhSum+= read
+            phVariance = newPhSum/phCount
+            phStandardDev = math.sqrt(phVariance)
+            phDeviations.append(phStandardDev)
+        except:
+            phSum = 0
+            phCount = 0
+            phDeviations.append('No Readings')
+        chlorineLevels=['Cannot Compute', 'Cannot Compute', 'Cannot Compute', 'Cannot Compute']
     content= {
-        'debug_check': tempDeviations,
+        'debug_check': '',
         'pool':poolref,
         'temperature':tempDeviations,
         'turbidity':turbidityDeviations,
-        'ph':ph,
+        'ph':phDeviations,
+        'chlorine':chlorineLevels,
     }
     return render(request, 'monitoring/pool technician/home.html', content)
 

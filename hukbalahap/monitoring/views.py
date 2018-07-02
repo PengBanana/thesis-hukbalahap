@@ -23,7 +23,7 @@ def index(request):
     #standard deviation of multiple pools stored in array
     for poolitem in Pool.objects.all().order_by('pk'):
         #temperatureList = poolitem.liveTemperature.values_list('temp_temperaturelevel', flat=True)
-        temperatureList = Temp_Temperature.objects.filter(pool=poolref.get(pk=poolitem.pk))
+        temperatureList = Temp_Temperature.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
         sumTemperature = temperatureList.annotate(sumTemp=Sum('temp_temperaturelevel'))
         countTemperature = temperatureList.annotate(temperatureCount=Count('temp_temperaturelevel'))
         #sumOfTemp=sumTemperature.get(pk=1)
@@ -53,7 +53,7 @@ def index(request):
     turbidityDeviations = []
     #standard deviation of turbidity
     for poolitem in Pool.objects.all().order_by('pk'):
-        turbidityList = Temp_Turbidity.objects.filter(pool=poolref.get(pk=poolitem.pk))
+        turbidityList = Temp_Turbidity.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
         sumTurbidity = turbidityList.annotate(sumTur=Sum('temp_turbiditylevel'))
         countTurbidity = turbidityList.annotate(countTur=Count('temp_turbiditylevel'))
         try:
@@ -76,9 +76,9 @@ def index(request):
             turbidityCount = 0
             turbidityDeviations.append('No Readings')
     phDeviations = []
-    #standard deviation of turbidity
+    #standard deviation of ph
     for poolitem in Pool.objects.all().order_by('pk'):
-        phList = Temp_Ph.objects.filter(pool=poolref.get(pk=poolitem.pk))
+        phList = Temp_Ph.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
         sumPh = phList.annotate(phSum=Sum('temp_phlevel'))
         countPh = phList.annotate(phCount=Count('temp_phlevel'))
         try:
@@ -110,6 +110,20 @@ def index(request):
         'chlorine':chlorineLevels,
     }
     return render(request, 'monitoring/pool technician/home.html', content)
+
+def poolDetails_view(request, poolitem_id):
+    poolref = Pool.objects.get(id=poolitem_id)
+    ph = Final_Ph.objects.all().filter(pool=poolref)
+    turbidity = Final_Turbidity.objects.all().filter(pool=poolref)
+    temperature = Final_Temperature.objects.all().filter(pool=poolref)
+    content= {
+        'debug_check':'debug off',
+        'pool':poolref.pool_location,
+        'ph':ph,
+        'turbidity':turbidity,
+        'temperature':temperature,
+    }
+    return render(request, 'monitoring/pool technician/pool-stat.html', content)
 
 def login(request):
     return render(request, 'monitoring/login.html')

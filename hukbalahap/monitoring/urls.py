@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^profile/$', views.profile, name='profile'),
     #url(r'^attempt_login/$', views.attempt_login, name='attempt_login'),
     url(r'^addUser/$', AddUserView.as_view(), name='addUser'),
+    url(r'^poolDetails/(?P<poolitem_id>[0-9]+)/$', views.poolDetails_view, name='poolDetails'),
 ]

@@ -5,9 +5,11 @@
    <div class="row">
       {% for poolitem in pool %}
       <div class="col-md-4">
-        <div class="box box-success">
+        <div class="box box-success" type="submit">
           <div class="box-header with-border">
-            <h3 class="box-title">{{ poolitem.pool_location }}</h3>
+            <h3 class="box-title">
+                <a href="{% url 'monitoring:poolDetails' poolitem.id %}">{{ poolitem.pool_location }}</a>
+              </h3>
             <a href="pool"></a>
           </div>
             <div class="row">

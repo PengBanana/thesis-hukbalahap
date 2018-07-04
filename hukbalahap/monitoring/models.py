@@ -1,6 +1,9 @@
 # Create your models here.
 from django.db import models
 from datetime import datetime
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Non-Dependent Classes
 class Pool(models.Model):
@@ -18,8 +21,25 @@ class Usertype_Ref(models.Model):
 	def __str__(self):
 		return self.usertype
 
-# Dependent Classes
+class Type(models.Model):
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	type = models.ForeignKey(Usertype_Ref, default = 1, on_delete=models.CASCADE)
 
+	def __str__(self):
+		return str(self.user)
+
+@receiver(post_save, sender=User)
+def create_user_type(sender, instance, created, **kwargs):
+    if created:
+       Type.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_type(sender, instance, **kwargs):
+    instance.type.save()
+
+
+# Dependent Classes
+'''
 class User(models.Model):
 	usertype_ref = models.ForeignKey(Usertype_Ref, on_delete=models.DO_NOTHING)
 	username = models.CharField(max_length=45)
@@ -29,7 +49,7 @@ class User(models.Model):
 
 	def __str__(self):
 		return self.username
-
+'''
 class MaintenanceSchedule(models.Model):
 	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)

@@ -37,7 +37,7 @@ class SignUpType(forms.ModelForm):
 
 
 
-class Pool(forms.ModelForm):
+class NewPool(forms.ModelForm):
     pool = forms.ModelChoiceField(queryset=Pool.objects.all(), required=True,widget = forms.Select(attrs ={'class': 'form-control'}))
     reservedtime = forms.CharField(max_length = 20,required=True,label= ("Start of Maintenance"),widget = forms.TextInput( attrs = {'class': 'form-control pull-right','id': 'reservationtime'}))
 

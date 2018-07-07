@@ -1,20 +1,10 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Pool, MaintenanceSchedule
+from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, MaintenanceSchedule
 from .forms import SignUpForm, SignUpType, Pool, MaintenanceSchedule
 from django.views.generic import TemplateView
 from django.db.models import Q
 from django.db.models import Sum, Count
 import math
-
-
-class AddUserView(TemplateView):
-    template_name = "monitoring/pool owner/add-user.html"
-
-    def get(self,request):
-        form = AddUserForm()
-        return render(request, self.template_name,{'form': form})
-
-
 
 def index(request):
     poolref = Pool.objects.all().order_by('pk')
@@ -109,7 +99,7 @@ def index(request):
         'turbidity':turbidityDeviations,
         'ph':phDeviations,
         'chlorine':chlorineLevels,
-    }
+    }	 
     return render(request, 'monitoring/pool technician/home.html', content)
 
 def poolDetails_view(request, poolitem_id):
@@ -145,8 +135,6 @@ def addUser(request):
             #newuser = User.objects.get(username=form.cleaned_data.get('username'))
             #newtype = Type(user=newuser, type=newusertype)
             #newtype.save()
-
-
             print('newtype saved')
             return render(request, 'monitoring/pool owner/add-user.html')
             #user = authenticate(username=user.username, password=raw_password)

@@ -15,7 +15,6 @@ Including another URLconf
 """
 from django.conf.urls import url
 from .import views
-from monitoring.views import AddUserView
 app_name = 'monitoring'
 
 urlpatterns = [

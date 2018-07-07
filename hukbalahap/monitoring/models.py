@@ -15,6 +15,17 @@ class Pool(models.Model):
 	def __str__(self):
 		return self.pool_location
 
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+@receiver(post_save, sender=User)
+def update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+    instance.profile.save()
+
+
+    
 class Usertype_Ref(models.Model):
 	usertype = models.CharField(max_length=45)
 
@@ -39,17 +50,6 @@ def save_user_type(sender, instance, **kwargs):
 
 
 # Dependent Classes
-'''
-class User(models.Model):
-	usertype_ref = models.ForeignKey(Usertype_Ref, on_delete=models.DO_NOTHING)
-	username = models.CharField(max_length=45)
-	password = models.CharField(max_length=45)
-	lastname = models.CharField(max_length=45)
-	firstname = models.CharField(max_length=45)
-
-	def __str__(self):
-		return self.username
-'''
 class MaintenanceSchedule(models.Model):
 	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)

@@ -1,0 +1,56 @@
+{% extends "monitoring/pool technician/starter.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">Set Maintenance Schedule</h3><br>
+      </div>
+      <!-- /.box-header -->
+      <!-- form start -->
+
+      <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-xs-3"></div>
+          <div class="col-xs-6">
+            {{form.pool.label_tag}}
+            {{form.pool}}
+            {{form.pool.errors}}
+            {{form2.reservedtime.label_tag}}
+            {{form2.reservedtime}}
+            {{form2.reservedtime.errors}}
+            <div style="padding-top:50px;">
+              <h4>Estimated Chemical Volume</h4>
+              <small>The Following are the measurements of chemical that you need to pour in the pool water</small>
+              </div>
+
+              <div>
+                <label>Muriatic:</label><br>
+                <label>Chlorine:</label><br>
+                <label>DE Powder:</label><br>
+              </div>
+
+          </div>
+          <div class="col-xs-3"></div>
+        </div>
+        <div class="box-footer">
+          <div class="row">
+            <div class="col-xs-9">
+            <button type="submit"  class="btn btn-primary pull-right">Confirm</button>
+          </div>
+          </div>
+        </div>
+
+      </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}

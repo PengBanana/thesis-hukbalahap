@@ -1,34 +1,172 @@
 {% extends "monitoring/pool owner/starter-owner.html" %}
 {% block content %}
-<div class="box">
-  <div class="box-header">
-    <h3 class="page-header">Searches for *searched name*.....</h3>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="box box-primary">
+
+      <div class="box-header with-border" style="float:right" >
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-default"><i class="fa fa-edit"></i>
+          Edit Details
+
+        </button>
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-remove-client"><i class="fa fa-trash-o"></i>
+          Remove Account
+
+        </button>
+
+      </div>
+
+      <div class="modal fade" id="modal-default">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Edit Details</h4>
+              <small>Fill up the input boxes that you wish to change.</small>
+            </div>
+            <form method="post" >
+            <div class="modal-body">
+              <label>Username</label>
+              <input type="text" name="name" class="form-control"  required>
+              <label>First Name </label>
+              <input type="text" name="address" class="form-control"  required>
+              <label>Last Name</label>
+              <input type="text" name="contactNo" class="form-control"   required>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+              <input type="submit" name="edit"  value="Save Changes "class="btn btn-primary" id="submitBtn">
+            </div>
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
+      <!--Modal Remove Client-->
+
+      <div class="modal fade" id="modal-remove-client">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Remove Client</h4>
+            </div>
+            <form method="post" action="deleteClient.php">
+            <div class="modal-body">
+              <p>Are you sure to Remove this Client. Removing this client will delete all details about the client including all the debts and transactions that was performed.</p>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+
+                        <form method=POST action="deleteClient.php">
+                            <input type="submit" name='remove' value="Remove Client"class="btn btn-primary btn-sm btn-flat">
+                          </form>
+            </div>
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+
+      <div class="modal fade" id="modal-settle">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Settle Balance</h4>
+              <small>Input the payment of the client.</small>
+            </div>
+            <form method="post" action="clientProfile.php">
+            <div class="modal-body">
+              <label>Amount</label>
+              <input type="number" name="amount" id="amount" value="" class="form-control" required>
+              <input type="hidden" name="debtId" id="debtIdInput" value="" class="form-control" required>
+              <input type="hidden" name="remBalance" id="remBalanceInput" value="" class="form-control" required>
+              <label id="trb">Total remaining Balance: </label>
+
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+              <input type="submit" name="payDebt" value="Save Changes "class="btn btn-primary" id="updateDebtBtn">
+            </div>
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+
+
+    <form role="form"  method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+      <div class="box-body">
+            <h3>{{ item_id.first_name }} {{ item_id.last_name }}</h3><br>
+
+
+            <small>{{item_id}}</small>
+
+
+
+      </div>
+      <!-- /.box-body -->
+
+    </form>
   </div>
-  <!-- /.box-header -->
-  <div class="box-body no-padding">
-    <table class="table table-striped">
 
-      <tr>
-        <td><a class="page-header" href="asas.html">Pool Technician No.1</a>
-          <br> <div class="pull-left">PoolTech1xd</div>
-        </td>
+  <section class="content">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="box">
+          <div class="box-header">
+            <h3 class="box-title">Employee Pool Monitoring Performance</h3><br>
+            <small>This shows the performance of the pool technician</small>
+          </div>
+          <!-- /.box-header -->
+          <div class="box-body">
+            <table id="example2" class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <th>Maintenance Date </th>
+                <th>Time</th>
+                <th>Actual Time</th>
+                <th>Action</th>
 
-      </tr>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
 
-      <tr>
-        <td><a class="page-header" href="asas.html">Pool Technician No.2</a>
-          <br> <div class="pull-left">PoolTech2xd</div>
-        </td>
-      </tr>
 
-      <tr>
-        <td><a class="page-header" href="asas.html">Pool Technician No.3</a>
-          <br> <div class="pull-left">PoolTech3xd</div>
-        </td>
-      </tr>
 
-    </table>
-  </div>
-  <!-- /.box-body -->
+                </td>
+
+
+              </tr>
+            </table>
+
+          </div>
+          <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+
+
+        <!-- /.box -->
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </section>
+
+</div>
+
 </div>
 {% endblock %}

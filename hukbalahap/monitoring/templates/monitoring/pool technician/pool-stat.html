@@ -29,7 +29,7 @@
     // LINE CHART PH
     var lineTemp = new Morris.Line({
       element: 'line-chart-ph',
-      resize: true,
+      resize: true,,
       data: [
       {y: '2018-6-12 13:00:00.000', item1: 7},
       {y: '2018-6-12 13:30:00.000', item1: 7.5},
@@ -94,7 +94,9 @@
 </script>
 {% endblock %}
 {% block content %}
-{{ debug_check}}
+{% for item in ph %}
+    date {{item.final_phdatetime|date:"Y-m-d H:00:00"}}
+{% endfor %}
   <h1>{{pool}}</h1>
 
   <div class="row">

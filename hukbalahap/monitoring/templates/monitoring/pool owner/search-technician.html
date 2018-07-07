@@ -2,31 +2,20 @@
 {% block content %}
 <div class="box">
   <div class="box-header">
-    <h3 class="page-header">Searches for *searched name*.....</h3>
+    <h3 class="page-header">Searches related with {{ searchedItem }}.....</h3>
   </div>
   <!-- /.box-header -->
   <div class="box-body no-padding">
     <table class="table table-striped">
-
-      <tr>
-        <td><a class="page-header" href="asas.html">Pool Technician No.1</a>
-          <br> <div class="pull-left">PoolTech1xd</div>
-        </td>
-
       </tr>
-
+      {% for item in items%}
       <tr>
-        <td><a class="page-header" href="asas.html">Pool Technician No.2</a>
-          <br> <div class="pull-left">PoolTech2xd</div>
+        <td><a class="page-header" href="{% url 'monitoring:profile' item.id %}"> {{item.first_name}} {{item.last_name}} </a>
+          <br> <div class="pull-left">{{item.username}}</div>
         </td>
       </tr>
 
-      <tr>
-        <td><a class="page-header" href="asas.html">Pool Technician No.3</a>
-          <br> <div class="pull-left">PoolTech3xd</div>
-        </td>
-      </tr>
-
+      {% endfor %}
     </table>
   </div>
   <!-- /.box-body -->

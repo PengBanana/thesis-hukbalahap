@@ -1,0 +1,58 @@
+{% extends "monitoring/pool technician/starter.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">Set Maintenance Schedule</h3><br>
+      </div>
+      <!-- /.box-header -->
+      <!-- form start -->
+
+      <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-xs-3"></div>
+          <div class="col-xs-6">
+            {{form.timeAccomplished.label_tag}}
+            {{form.timeAccomplished}}
+            {{form.timeAccomplished.errors}}
+
+            <div style="padding-top:20px;">
+            {{form.act_chlorine.label_tag}}
+            {{form.act_chlorine}}
+            {{form.act_chlorine.errors}}
+
+            {{form.act_muriatic.label_tag}}
+            {{form.act_muriatic}}
+            {{form.act_muriatic.errors}}
+
+            {{form.act_depowder.label_tag}}
+            {{form.act_depowder}}
+            {{form.act_depowder.errors}}
+          </div>
+
+
+          </div>
+          <div class="col-xs-3"></div>
+        </div>
+        <div class="box-footer">
+          <div class="row">
+            <div class="col-xs-9">
+            <button type="submit"  class="btn btn-primary pull-right">Confirm</button>
+          </div>
+          </div>
+        </div>
+
+      </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}

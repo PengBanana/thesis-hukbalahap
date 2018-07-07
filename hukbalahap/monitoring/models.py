@@ -49,6 +49,30 @@ def save_user_type(sender, instance, **kwargs):
     instance.type.save()
 
 
+#Status
+class Status_Ref(models.Model):
+	status_ref = models.CharField(max_length=45)
+
+	def __str__(self):
+		return self.status_ref
+
+class Status(models.Model):
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	status = models.ForeignKey(Status_Ref, default = 1, on_delete=models.CASCADE)
+
+	def __str__(self):
+		return str(self.user)
+
+@receiver(post_save, sender=User)
+def create_user_status(sender, instance, created, **kwargs):
+    if created:
+       Status.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_status(sender, instance, **kwargs):
+    instance.status.save()
+
+
 # Dependent Classes
 class MaintenanceSchedule(models.Model):
 	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)

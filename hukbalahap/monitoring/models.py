@@ -77,6 +77,7 @@ def save_user_status(sender, instance, **kwargs):
 class MaintenanceSchedule(models.Model):
 	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
+	date = models.DateField(null=True, blank=True)
 	timeStart = models.TimeField(null=True, blank=True)
 	timeEnd = models.TimeField(null=True, blank=True)
 	timeAccomplished = models.TimeField(null=True, blank=True)
@@ -88,7 +89,7 @@ class MaintenanceSchedule(models.Model):
 	act_depowder = models.DecimalField(max_digits=8, decimal_places=2, default="")
 
 	def __str__(self):
-		return self.user
+		return self.user.username
 
 class Temp_Turbidity(models.Model):
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)

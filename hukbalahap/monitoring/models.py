@@ -138,3 +138,11 @@ class Final_Ph(models.Model):
 
 	def __str__(self):
 		return self.pool.pool_location
+
+class Chlorine_Effectiveness(models.Model):
+	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
+	ce_datettime = models.DateTimeField(default=datetime.now, blank=True)
+	ce_percentage = models.DecimalField(max_digits=5, decimal_places=2, default="")
+
+	def __str__(self):
+		return self.pool.pool_location

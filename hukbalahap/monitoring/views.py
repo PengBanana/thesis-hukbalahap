@@ -89,9 +89,24 @@ def index(request):
             phDeviations.append(phStandardDev)
         else:
             phDeviations.append('No Readings')
-        chlorineLevels=['Cannot Compute', 'Cannot Compute', 'Cannot Compute', 'Cannot Compute']
+        
+        #2615.97 - 1175.23 x + 185.315 x^2 - 9.90222 x^3
+        chlorineLevels=[]
+        for item in phDeviations:
+            debug=2615.97 - 1175.23*8.00+ 185.315*8.00*8.00 - 9.90222*8.00*8.00*8.00
+            try:
+                chlorine = decimal.Decimal(2615.97)
+                multiplier = item
+                chlorine-= decimal.Decimal(1175.23)*multiplier
+                multiplier*=item
+                chlorine+=decimal.Decimal(185.315)*multiplier
+                multiplier*=item
+                chlorine-=decimal.Decimal(9.90222)*multiplier
+                chlorineLevels.append(chlorine)
+            except:
+                chlorineLevels.append('Cannot Compute')
     content= {
-        'debug_check': '',
+        'debug_check': debug,
         'pool':poolref,
         'temperature':tempDeviations,
         'turbidity':turbidityDeviations,

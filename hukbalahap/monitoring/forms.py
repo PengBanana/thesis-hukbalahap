@@ -1,7 +1,7 @@
 from django import forms
 from monitoring.models import Usertype_Ref,Type,Pool, MaintenanceSchedule
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm
+from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm,AuthenticationForm
 
 class SignUpForm(UserCreationForm):
     username = forms.RegexField(regex=r'^\w+$', widget=forms.TextInput(attrs={'class': 'form-control','id':'username', 'autocomplete':'off'}), max_length=30, required=True, error_messages={ 'invalid': ("This value must contain only letters, numbers and underscores.") })
@@ -73,4 +73,4 @@ class ChangePasswordForm(PasswordChangeForm):
 
 class LoginForm(AuthenticationForm):
 	username = forms.CharField(label="Username", max_length=20, widget=forms.TextInput(attrs={'autocomplete':'off', 'class': 'form-control'}))
-	password = forms.CharField(label="Password", max_length=20, widget=forms.PasswordInput(attrs={'autocomplete':'off', 'id':'login_pw', 'class': 'form-control'}))     
+	password = forms.CharField(label="Password", max_length=20, widget=forms.PasswordInput(attrs={'autocomplete':'off', 'id':'login_pw', 'class': 'form-control'}))

@@ -127,19 +127,9 @@ def addUser(request):
             form.save()
             print(form2.cleaned_data.get('type'))
             print('form1 saved')
-            #user.refresh_from_db()  # load the profile instance created by the signal
-            #user.save()
-            #raw_password = form.cleaned_data.get('password1')
-            #newusertype = Usertype_Ref.objects.get(usertype=form2.cleaned_data.get('type'))
             print(form.cleaned_data.get('username'))
-            #newuser = User.objects.get(username=form.cleaned_data.get('username'))
-            #newtype = Type(user=newuser, type=newusertype)
-            #newtype.save()
             print('newtype saved')
             return render(request, 'monitoring/pool owner/add-user.html')
-            #user = authenticate(username=user.username, password=raw_password)
-            #login(request, user)
-            #return redirect('home')
     else:
         form = SignUpForm()
         form2= SignUpType()
@@ -199,12 +189,20 @@ def searchPT(request):
     return render(request, 'monitoring/pool owner/search-technician.html', content,)
 def profile(request,item_id):
     user = User.objects.get(id=item_id)
-
+    alert = None
+    content = None
     if (request.method == 'POST' ) & ('password' in request.POST):
         form2 = ChangePasswordForm(request.user, request.POST)
-        #if form2.is_valid():
+        if form2.is_valid():
+            form2.save()
+            alert = 'Password Successfully Changed.'
 
-            #alert = 'Password Successfully Changed.'
+            content = {
+                'item_id': user,
+                'form2': form2,
+                'alertmsg':alert,
+
+            }
 
     elif (request.method == 'POST' ) & ('editDetails' in request.POST):
         print("possssst")
@@ -216,21 +214,27 @@ def profile(request,item_id):
             user.first_name=fname
             user.last_name=lname
             user.save()
+            alert = 'Details Successfully Changed.'
+            content = {
+                'item_id': user,
+                'form1': form1,
+                'alertmsg':alert,
 
-
-            #alert = 'Details Successfully Changed.'
-
+            }
+    #elif (request.method == 'POST' ) & ('deactivate' in request.POST):
 
     else:
         print('naq walang nangyari')
         form1 = EditDetailsForm()
         form2 = ChangePasswordForm(request.user)
-    content = {
-        'item_id': user,
-        'form1': form1,
-        'form2': form2,
+        content = {
+            'item_id': user,
+            'form1': form1,
+            'form2': form2,
 
-    }
+        }
+
+
     return render(request, 'monitoring/pool owner/technician-profile.html', content)
 
 

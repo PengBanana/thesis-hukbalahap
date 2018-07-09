@@ -8,22 +8,16 @@ import math
 
 def index(request):
     poolref = Pool.objects.all().order_by('pk')
-    #poolCount = Pool.objects.all().count()
+    
     #temperature levels
     tempDeviations = []
-    #standard deviation of multiple pools stored in array
     for poolitem in Pool.objects.all().order_by('pk'):
-        #temperatureList = poolitem.liveTemperature.values_list('temp_temperaturelevel', flat=True)
         temperatureList = Temp_Temperature.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
-        sumTemperature = temperatureList.annotate(sumTemp=Sum('temp_temperaturelevel'))
-        countTemperature = temperatureList.annotate(temperatureCount=Count('temp_temperaturelevel'))
-        #sumOfTemp=sumTemperature.get(pk=1)
-        try:
-            tempSum = sumTemperature.get().sumTemp
-            tempCount = countTemperature.get().temperatureCount
-        except:
-            tempSum = 0
-            tempCount = 0
+        tempSum=0
+        tempCount=0
+        for item in temperatureList:
+            tempSum+=item.temp_temperaturelevel
+            tempCount+=1
         if(tempCount>0):
             tempMean = tempSum/tempCount
             tempx = []
@@ -36,6 +30,7 @@ def index(request):
                 newTempSum+= read
             tempVariance = newTempSum/tempCount
             tempStandardDev = math.sqrt(tempVariance)
+            tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
             tempDeviations.append(tempStandardDev)
         else:
             tempDeviations.append('No Readings')
@@ -45,11 +40,13 @@ def index(request):
     #standard deviation of turbidity
     for poolitem in Pool.objects.all().order_by('pk'):
         turbidityList = Temp_Turbidity.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
-        sumTurbidity = turbidityList.annotate(sumTur=Sum('temp_turbiditylevel'))
-        countTurbidity = turbidityList.annotate(countTur=Count('temp_turbiditylevel'))
-        try:
-            turbiditySum = sumTurbidity.get().sumTur
-            turbidityCount = countTurbidity.get().countTur
+        
+        turbiditySum=0
+        turbidityCount=0
+        for item in turbidityList:
+            turbiditySum+=item.temp_turbiditylevel
+            turbidityCount+=1
+        if(turbidityCount>0):
             turbidityMean = turbiditySum/turbidityCount
             turbidityx = []
             for level in turbidityList:
@@ -61,20 +58,21 @@ def index(request):
                 newTurbiditySum+= read
             turbidityVariance = newTurbiditySum/turbidityCount
             turbidityStandardDev = math.sqrt(turbidityVariance)
+            turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
             turbidityDeviations.append(turbidityStandardDev)
-        except:
-            turbiditySum = 0
-            turbidityCount = 0
+        else:
             turbidityDeviations.append('No Readings')
+    
+    #ph level
     phDeviations = []
-    #standard deviation of ph
     for poolitem in Pool.objects.all().order_by('pk'):
         phList = Temp_Ph.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
-        sumPh = phList.annotate(phSum=Sum('temp_phlevel'))
-        countPh = phList.annotate(phCount=Count('temp_phlevel'))
-        try:
-            phSum = sumPh.get().phSum
-            phCount = countPh.get().phCount
+        phSum=0
+        phCount=0
+        for item in phList:
+            phSum+=item.temp_phlevel
+            phCount+=1
+        if(phCount>0):
             phMean = phSum/phCount
             phx = []
             for level in phList:
@@ -86,14 +84,13 @@ def index(request):
                 newPhSum+= read
             phVariance = newPhSum/phCount
             phStandardDev = math.sqrt(phVariance)
+            phStandardDev=decimal.Decimal(phStandardDev)+turbidityMean
             phDeviations.append(phStandardDev)
-        except:
-            phSum = 0
-            phCount = 0
+        else:
             phDeviations.append('No Readings')
         chlorineLevels=['Cannot Compute', 'Cannot Compute', 'Cannot Compute', 'Cannot Compute']
     content= {
-        'debug_check': '',
+        'debug_check': tempSum,
         'pool':poolref,
         'temperature':tempDeviations,
         'turbidity':turbidityDeviations,

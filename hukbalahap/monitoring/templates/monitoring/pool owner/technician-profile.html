@@ -90,6 +90,7 @@
               <h4 class="modal-title">Deactivate Client</h4>
             </div>
             <form method="POST">
+              {% csrf_token %}
             <div class="modal-body">
               <p>Are you sure you deactivate this user?</p>
 

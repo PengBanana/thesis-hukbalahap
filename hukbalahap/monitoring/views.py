@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, MaintenanceSchedule
+from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, MaintenanceSchedule, Status, Status_Ref
 from .forms import SignUpForm, SignUpType, Pool, MaintenanceSchedule,EditDetailsForm,ChangePasswordForm
 from django.views.generic import TemplateView
 from django.db.models import Q
@@ -130,6 +130,7 @@ def addUser(request):
             print(form.cleaned_data.get('username'))
             print('newtype saved')
             return render(request, 'monitoring/pool owner/add-user.html')
+
     else:
         form = SignUpForm()
         form2= SignUpType()
@@ -221,7 +222,9 @@ def profile(request,item_id):
                 'alertmsg':alert,
 
             }
-    #elif (request.method == 'POST' ) & ('deactivate' in request.POST):
+    elif (request.method == 'POST' ) & ('deactivate' in request.POST):
+        Status.objects.filter(pk=user.pk).update(status=2)
+
 
     else:
         print('naq walang nangyari')

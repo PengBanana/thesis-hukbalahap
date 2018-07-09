@@ -70,3 +70,7 @@ class ChangePasswordForm(PasswordChangeForm):
     old_password = forms.CharField(label="Old Password", max_length=30, widget=forms.PasswordInput(attrs={'placeholder':'Enter current password','autocomplete':'off', 'class': 'form-control pw'}))
     new_password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Enter new password','class': 'form-control pw','autocomplete':'off'}),required=True, max_length=30, label=("New Password"))
     new_password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Re-enter new password','class': 'form-control pw','autocomplete':'off'}),required=True, max_length=30, label=("Re-type Password"))
+
+class LoginForm(AuthenticationForm):
+	username = forms.CharField(label="Username", max_length=20, widget=forms.TextInput(attrs={'autocomplete':'off', 'class': 'form-control'}))
+	password = forms.CharField(label="Password", max_length=20, widget=forms.PasswordInput(attrs={'autocomplete':'off', 'id':'login_pw', 'class': 'form-control'}))     

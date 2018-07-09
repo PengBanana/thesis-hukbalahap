@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 from django.db.models import Q
 from django.db.models import Sum, Count
 import math
+import decimal
 
 def index(request):
     poolref = Pool.objects.all().order_by('pk')
@@ -90,7 +91,7 @@ def index(request):
             phDeviations.append('No Readings')
         chlorineLevels=['Cannot Compute', 'Cannot Compute', 'Cannot Compute', 'Cannot Compute']
     content= {
-        'debug_check': tempSum,
+        'debug_check': '',
         'pool':poolref,
         'temperature':tempDeviations,
         'turbidity':turbidityDeviations,

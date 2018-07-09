@@ -7,11 +7,12 @@
       <div class="box-header with-border" style="float:right" >
         <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-default"><i class="fa fa-edit"></i>
           Edit Details
-
+        </button>
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-password"><i class="fa fa-gear"></i>
+          Change Password
         </button>
         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-remove-client"><i class="fa fa-trash-o"></i>
-          Remove Account
-
+          Deactivate Account
         </button>
 
       </div>
@@ -22,22 +23,53 @@
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Edit Details</h4>
-              <small>Fill up the input boxes that you wish to change.</small>
+              <h4 class="modal-title">Change Pssword</h4>
             </div>
-            <form method="post" >
+            <form method="POST" >
+              {% csrf_token %}
             <div class="modal-body">
-              <label>Username</label>
-              <input type="text" name="name" class="form-control"  required>
-              <label>First Name </label>
-              <input type="text" name="address" class="form-control"  required>
-              <label>Last Name</label>
-              <input type="text" name="contactNo" class="form-control"   required>
+              {{form1.first_name.label_tag}}
+              {{form1.first_name}}
+              {{form1.last_name.label_tag}}
+              {{form1.last_name}}
 
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-              <input type="submit" name="edit"  value="Save Changes "class="btn btn-primary" id="submitBtn">
+              <input type="submit" name="editDetails"  value="Save Changes "class="btn btn-primary" id="submitBtn">
+            </div>
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
+
+      <div class="modal fade" id="modal-password">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Edit Details</h4>
+              <small>Fill up the input boxes that you wish to change.</small>
+            </div>
+            <form method="POST" >
+              {% csrf_token %}
+            <div class="modal-body">
+              {{form2.old_password.label_tag}}
+              {{form2.old_password}}
+              {{form2.new_password1.label_tag}}
+              {{form2.new_password1}}
+              {{form2.new_password2.label_tag}}
+              {{form2.new_password2}}
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+              <input type="submit" name="password"  value="Save Changes "class="btn btn-primary" id="submitBtn">
             </div>
             </form>
           </div>
@@ -55,71 +87,32 @@
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Remove Client</h4>
+              <h4 class="modal-title">Deactivate Client</h4>
             </div>
-            <form method="post" action="deleteClient.php">
+            <form method="POST">
             <div class="modal-body">
-              <p>Are you sure to Remove this Client. Removing this client will delete all details about the client including all the debts and transactions that was performed.</p>
+              <p>Are you sure you deactivate this user?</p>
 
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
-
-                        <form method=POST action="deleteClient.php">
-                            <input type="submit" name='remove' value="Remove Client"class="btn btn-primary btn-sm btn-flat">
-                          </form>
+              <input type="submit" name='deactivate' value="Remove Client"class="btn btn-primary btn-sm btn-flat">
             </div>
-            </form>
+          </form>
           </div>
           <!-- /.modal-content -->
         </div>
         <!-- /.modal-dialog -->
       </div>
 
-      <div class="modal fade" id="modal-settle">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Settle Balance</h4>
-              <small>Input the payment of the client.</small>
-            </div>
-            <form method="post" action="clientProfile.php">
-            <div class="modal-body">
-              <label>Amount</label>
-              <input type="number" name="amount" id="amount" value="" class="form-control" required>
-              <input type="hidden" name="debtId" id="debtIdInput" value="" class="form-control" required>
-              <input type="hidden" name="remBalance" id="remBalanceInput" value="" class="form-control" required>
-              <label id="trb">Total remaining Balance: </label>
-
-
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-              <input type="submit" name="payDebt" value="Save Changes "class="btn btn-primary" id="updateDebtBtn">
-            </div>
-            </form>
-          </div>
-          <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-      </div>
-
-
-    <form role="form"  method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
       <div class="box-body">
             <h3>{{ item_id.first_name }} {{ item_id.last_name }}</h3><br>
-
-
             <small>{{item_id}}</small>
-
 
 
       </div>
       <!-- /.box-body -->
 
-    </form>
   </div>
 
   <section class="content">

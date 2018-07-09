@@ -1,7 +1,7 @@
 from django import forms
 from monitoring.models import Usertype_Ref,Type,Pool, MaintenanceSchedule
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm
 
 class SignUpForm(UserCreationForm):
     username = forms.RegexField(regex=r'^\w+$', widget=forms.TextInput(attrs={'class': 'form-control','id':'username', 'autocomplete':'off'}), max_length=30, required=True, error_messages={ 'invalid': ("This value must contain only letters, numbers and underscores.") })
@@ -55,3 +55,18 @@ class MaintenanceSchedule(forms.ModelForm):
     class Meta:
         model = MaintenanceSchedule
         fields = ('user','timeStart','timeEnd','timeAccomplished','est_chlorine','est_muriatic','est_depowder','act_chlorine','act_muriatic','act_depowder')
+
+
+class EditDetailsForm(forms.ModelForm):
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'First Name'}),max_length=30, required=False)
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'Last Name'}),max_length=30, required=False)
+
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name')
+
+
+class ChangePasswordForm(PasswordChangeForm):
+    old_password = forms.CharField(label="Old Password", max_length=30, widget=forms.PasswordInput(attrs={'placeholder':'Enter current password','autocomplete':'off', 'class': 'form-control pw'}))
+    new_password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Enter new password','class': 'form-control pw','autocomplete':'off'}),required=True, max_length=30, label=("New Password"))
+    new_password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Re-enter new password','class': 'form-control pw','autocomplete':'off'}),required=True, max_length=30, label=("Re-type Password"))

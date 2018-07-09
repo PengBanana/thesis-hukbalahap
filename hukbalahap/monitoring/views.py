@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, MaintenanceSchedule
-from .forms import SignUpForm, SignUpType, Pool, MaintenanceSchedule
+from .forms import SignUpForm, SignUpType, Pool, MaintenanceSchedule,EditDetailsForm,ChangePasswordForm
 from django.views.generic import TemplateView
 from django.db.models import Q
 from django.db.models import Sum, Count
@@ -39,7 +39,7 @@ def index(request):
             tempDeviations.append(tempStandardDev)
         else:
             tempDeviations.append('No Readings')
-    
+
     #turbidity levels
     turbidityDeviations = []
     #standard deviation of turbidity
@@ -99,7 +99,7 @@ def index(request):
         'turbidity':turbidityDeviations,
         'ph':phDeviations,
         'chlorine':chlorineLevels,
-    }	 
+    }
     return render(request, 'monitoring/pool technician/home.html', content)
 
 def poolDetails_view(request, poolitem_id):
@@ -196,16 +196,42 @@ def searchPT(request):
             'searchedItem': item,
             'items':filtered,
         }
-    return render(request, 'monitoring/pool owner/search-technician.html', content)
+    return render(request, 'monitoring/pool owner/search-technician.html', content,)
 def profile(request,item_id):
     user = User.objects.get(id=item_id)
+
+    if (request.method == 'POST' ) & ('password' in request.POST):
+        form2 = ChangePasswordForm(request.user, request.POST)
+        #if form2.is_valid():
+
+            #alert = 'Password Successfully Changed.'
+
+    elif (request.method == 'POST' ) & ('editDetails' in request.POST):
+        print("possssst")
+        form1 =EditDetailsForm(request.POST)
+        if form1.is_valid():
+            print('uuuuuup')
+            fname = request.POST.get('first_name')
+            lname = request.POST.get('last_name')
+            user.first_name=fname
+            user.last_name=lname
+            user.save()
+
+
+            #alert = 'Details Successfully Changed.'
+
+
+    else:
+        print('naq walang nangyari')
+        form1 = EditDetailsForm()
+        form2 = ChangePasswordForm(request.user)
     content = {
-        'item_id': user
-
-
+        'item_id': user,
+        'form1': form1,
+        'form2': form2,
 
     }
-    return render(request, 'monitoring/pool owner/technician-profile.html',content)
+    return render(request, 'monitoring/pool owner/technician-profile.html', content)
 
 
 def notFound(request):

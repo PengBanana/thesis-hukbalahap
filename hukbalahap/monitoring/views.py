@@ -4,8 +4,7 @@ from .forms import SignUpForm, SignUpType, Pool, MaintenanceSchedule,EditDetails
 from django.views.generic import TemplateView
 from django.db.models import Q
 from django.db.models import Sum, Count
-import math
-import decimal
+import math, decimal, datetime
 
 def index(request):
     poolref = Pool.objects.all().order_by('pk')
@@ -32,6 +31,8 @@ def index(request):
             tempVariance = newTempSum/tempCount
             tempStandardDev = math.sqrt(tempVariance)
             tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
+            degreeSign=u'\N{DEGREE SIGN}'
+            tempStandardDev=str(tempStandardDev)+degreeSign+'C'
             tempDeviations.append(tempStandardDev)
         else:
             tempDeviations.append('No Readings')
@@ -60,6 +61,7 @@ def index(request):
             turbidityVariance = newTurbiditySum/turbidityCount
             turbidityStandardDev = math.sqrt(turbidityVariance)
             turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
+            turbidityStandardDev=str(turbidityStandardDev)+"ntu"
             turbidityDeviations.append(turbidityStandardDev)
         else:
             turbidityDeviations.append('No Readings')
@@ -93,8 +95,9 @@ def index(request):
         #2615.97 - 1175.23 x + 185.315 x^2 - 9.90222 x^3
         chlorineLevels=[]
         for item in phDeviations:
-            debug=2615.97 - 1175.23*8.00+ 185.315*8.00*8.00 - 9.90222*8.00*8.00*8.00
+            debug=2615.97 - 1175.23*5.57+ 185.315*5.57*5.57 - 9.90222*5.57*5.57*5.57
             try:
+                #multiplier=8
                 chlorine = decimal.Decimal(2615.97)
                 multiplier = item
                 chlorine-= decimal.Decimal(1175.23)*multiplier
@@ -102,6 +105,12 @@ def index(request):
                 chlorine+=decimal.Decimal(185.315)*multiplier
                 multiplier*=item
                 chlorine-=decimal.Decimal(9.90222)*multiplier
+                chlorine = round(chlorine, 2)
+                if chlorine>100:
+                    chlorine=100
+                elif chlorine<0:
+                    chlorine=0
+                chlorine=str(chlorine)+'%'
                 chlorineLevels.append(chlorine)
             except:
                 chlorineLevels.append('Cannot Compute')
@@ -122,7 +131,7 @@ def poolDetails_view(request, poolitem_id):
     temperature = Final_Temperature.objects.all().filter(pool=poolref)
     content= {
         'debug_check':'debug off',
-        'pool':poolref.pool_location,
+        'pool':poolref,
         'ph':ph,
         'turbidity':turbidity,
         'temperature':temperature,
@@ -253,6 +262,26 @@ def profile(request,item_id):
 
     return render(request, 'monitoring/pool owner/technician-profile.html', content)
 
+def filterPoolStat(request):
+    if(0==0):
+        poolPk = request.POST['poolPK']
+        startDate = request.POST['dateStart']
+        endDate = request.POST['dateEnd']
+        poolref = Pool.objects.get(id=poolPk)
+        xDate = d = datetime.datetime.strptime(startDate, '%B-%d-%Y')
+        #ph = Final_Ph.objects.filter(id=poolPk, date__range=[startDate, endDate])
+        #turbidity = Final_Turbidity.objects.filter(id=poolPk, date__range=[startDate, endDate])
+        #temperature = Final_Temperature.objects.filter(id=poolPk, date__range=[startDate, endDate])
+        content= {
+            'debug_check':startDate,
+            'pool':poolref,
+            #'ph':ph,
+            #'turbidity':turbidity,
+            #'temperature':temperature,
+        }
+        return render(request, 'monitoring/pool technician/pool-stat.html', content)
+    else:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 def notFound(request):
     return render(request, 'monitoring/pool owner/result-not-found.html')

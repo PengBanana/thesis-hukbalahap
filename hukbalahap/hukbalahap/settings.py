@@ -121,4 +121,3 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 LOGIN_REDIRECT_URL = '/monitoring/index/'
-LOGOUT_REDIRECT_URL = '/registration/logout/'

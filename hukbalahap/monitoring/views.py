@@ -1,11 +1,11 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404,redirect
 from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, MaintenanceSchedule, Status, Status_Ref
 from .forms import SignUpForm, SignUpType, Pool, MaintenanceSchedule,EditDetailsForm,ChangePasswordForm
 from django.views.generic import TemplateView
 from django.db.models import Q
 from django.db.models import Sum, Count
 import math, decimal, datetime
-from django.contrib.auth import login as auth_login, authenticate, update_session_auth_hash
+from django.contrib.auth import login as auth_login, authenticate, update_session_auth_hash,logout
 from django.contrib.auth.views import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
@@ -20,7 +20,9 @@ def login(request):
         user = authenticate(username=username, password=password)
 
         if user is not None:
-            if user.is_active:
+            userStat =Status.objects.get(id=user.pk)
+            notDeactivated =  Status_Ref.objects.get(pk=1)
+            if user.is_active and userStat.status == notDeactivated:
                 auth_login(request, user)
                 usertype = Type.objects.get(pk=user.pk)
                 adminType= Usertype_Ref.objects.get(pk=1)
@@ -32,7 +34,6 @@ def login(request):
                     print('naqqqqq')
                     return redirect('/monitoring/index/')
         else:
-            print('oyyy mali')
             messages.error(request,'username or password not correct')
             msg = 'username or password not correct'
             content ={
@@ -45,11 +46,9 @@ def login(request):
     return render(request, 'registration/login.html', {'form': form, 'msg' : msg})
 
 
-def logout(request):
-    if request.method == 'POST':
-        return render(request,'registration/login.html')
-    else:
-        return render(request, 'registration/logout.html')
+def logout_view(request):
+    logout(request)
+    return render(request,'registration/logout.html')
 
 @login_required(login_url="/monitoring/login")
 def index(request):
@@ -170,6 +169,8 @@ def index(request):
     }
     return render(request, 'monitoring/pool technician/home.html', content)
 
+
+@login_required(login_url="/monitoring/login")
 def poolDetails_view(request, poolitem_id):
     poolref = Pool.objects.get(id=poolitem_id)
     ph = Final_Ph.objects.all().filter(pool=poolref)
@@ -184,6 +185,8 @@ def poolDetails_view(request, poolitem_id):
     }
     return render(request, 'monitoring/pool technician/pool-stat.html', content)
 
+
+@login_required(login_url="/monitoring/login")
 def addUser(request):
     if request.method == 'POST':
         print('request POST')
@@ -205,6 +208,7 @@ def addUser(request):
     return render(request, 'monitoring/pool owner/add-user.html',locals())
 
 
+@login_required(login_url="/monitoring/login")
 def setMaintenance(request):
     if request.method == 'POST':
         print('request POST')
@@ -225,6 +229,7 @@ def setMaintenance(request):
     return render(request, 'monitoring/pool technician/set-maintenance-schedule.html',locals())
 
 
+@login_required(login_url="/monitoring/login")
 def finishMaintenance(request):
     if request.method == 'POST':
         print('yuuuuuuuuuuuuuuuuuuuuuuhhhh')
@@ -241,6 +246,8 @@ def finishMaintenance(request):
         form= MaintenanceSchedule()
     return render(request, 'monitoring/pool technician/finish-maintenance-schedule.html',locals())
 
+
+@login_required(login_url="/monitoring/login")
 def searchPT(request):
     item = request.POST['item']
 
@@ -256,6 +263,9 @@ def searchPT(request):
             'items':filtered,
         }
     return render(request, 'monitoring/pool owner/search-technician.html', content,)
+
+
+@login_required(login_url="/monitoring/login")
 def profile(request,item_id):
     user = User.objects.get(id=item_id)
     alert = None
@@ -308,6 +318,8 @@ def profile(request,item_id):
 
     return render(request, 'monitoring/pool owner/technician-profile.html', content)
 
+
+@login_required(login_url="/monitoring/login")
 def filterPoolStat(request):
     if(0==0):
         poolPk = request.POST['poolPK']
@@ -329,15 +341,19 @@ def filterPoolStat(request):
     else:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
+@login_required(login_url="/monitoring/login")
 def notFound(request):
     return render(request, 'monitoring/pool owner/result-not-found.html')
 
+@login_required(login_url="/monitoring/login")
 def pool(request):
     return render(request, 'monitoring/pool technician/pool-stat.html')
 
+@login_required(login_url="/monitoring/login")
 def indexOwner(request):
     return render(request, 'monitoring/pool owner/home-owner.html')
-def firstLogin(request):
-    return render(request, 'monitoring/pool technician/first-login.html')
+
+
+@login_required(login_url="/monitoring/login")
 def personnel(request):
     return render(request, 'monitoring/pool owner/personnel-efficiency.html')\

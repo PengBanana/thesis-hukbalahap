@@ -60,8 +60,7 @@
 
     <form  method="POST">
       {% csrf_token %}
-
-          <button type="submit" class="btn btn-primary btn-block btn-flat">Click here to Sign In</button>
+        <a class="btn btn-primary btn-block btn-flat" href="{% url 'monitoring:login'  %}"> Click here to Sign In</a>
         </div>
         <!-- /.col -->
       </div>

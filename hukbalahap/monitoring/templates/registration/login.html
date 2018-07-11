@@ -59,11 +59,12 @@
     <p class="login-box-msg">Log In</p>
 
     <form  method="POST">
-    {% if error == 1 %}
-    <p>Wrong username and password</p>
-    {% else %}
-      <input type="hidden" name = "error" value="0">
-      <input type="hidden" name = "attemptcount" value="0">
+    {% if not msg == none %}
+    <div class="alert alert-danger alert-dismissible fade in">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <p>The username and password you entered does not match any account.</p>
+    </div>
+    
     {% endif %}
       {% csrf_token %}
       <div class="form-group has-feedback">

@@ -5,10 +5,56 @@ from django.views.generic import TemplateView
 from django.db.models import Q
 from django.db.models import Sum, Count
 import math, decimal, datetime
+from django.contrib.auth import login as auth_login, authenticate, update_session_auth_hash
+from django.contrib.auth.views import logout, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib import messages
 
+def login(request):
+    msg = None
+    if request.method == 'POST':
+        form = AuthenticationForm(request.POST)
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            if user.is_active:
+                auth_login(request, user)
+                usertype = Type.objects.get(pk=user.pk)
+                adminType= Usertype_Ref.objects.get(pk=1)
+                if usertype.type == adminType:
+                    print('pasok ang admin')
+                    return redirect('/monitoring/indexOwner/')
+
+                else:
+                    print('naqqqqq')
+                    return redirect('/monitoring/index/')
+        else:
+            print('oyyy mali')
+            messages.error(request,'username or password not correct')
+            msg = 'username or password not correct'
+            content ={
+                'msg' : msg,
+            }
+            return render(request,'registration/login.html',content)
+
+    else:
+        form = AuthenticationForm()
+    return render(request, 'registration/login.html', {'form': form, 'msg' : msg})
+
+
+def logout(request):
+    if request.method == 'POST':
+        return render(request,'registration/login.html')
+    else:
+        return render(request, 'registration/logout.html')
+
+@login_required(login_url="/monitoring/login")
 def index(request):
     poolref = Pool.objects.all().order_by('pk')
-    
+
     #temperature levels
     tempDeviations = []
     for poolitem in Pool.objects.all().order_by('pk'):
@@ -42,7 +88,7 @@ def index(request):
     #standard deviation of turbidity
     for poolitem in Pool.objects.all().order_by('pk'):
         turbidityList = Temp_Turbidity.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
-        
+
         turbiditySum=0
         turbidityCount=0
         for item in turbidityList:
@@ -65,7 +111,7 @@ def index(request):
             turbidityDeviations.append(turbidityStandardDev)
         else:
             turbidityDeviations.append('No Readings')
-    
+
     #ph level
     phDeviations = []
     for poolitem in Pool.objects.all().order_by('pk'):
@@ -91,7 +137,7 @@ def index(request):
             phDeviations.append(phStandardDev)
         else:
             phDeviations.append('No Readings')
-        
+
         #2615.97 - 1175.23 x + 185.315 x^2 - 9.90222 x^3
         chlorineLevels=[]
         for item in phDeviations:
@@ -286,9 +332,6 @@ def filterPoolStat(request):
 def notFound(request):
     return render(request, 'monitoring/pool owner/result-not-found.html')
 
-
-def login(request):
-    return render(request, 'monitoring/login.html')
 def pool(request):
     return render(request, 'monitoring/pool technician/pool-stat.html')
 

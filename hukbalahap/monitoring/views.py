@@ -107,7 +107,7 @@ def index(request):
             turbidityVariance = newTurbiditySum/turbidityCount
             turbidityStandardDev = math.sqrt(turbidityVariance)
             turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
-            turbidityStandardDev=str(turbidityStandardDev)+"ntu"
+            turbidityStandardDev=str(turbidityStandardDev)+" ntu"
             turbidityDeviations.append(turbidityStandardDev)
         else:
             turbidityDeviations.append('No Readings')

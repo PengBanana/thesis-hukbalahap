@@ -10,7 +10,6 @@ from django.contrib.auth.views import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-
 def login(request):
     msg = None
     if request.method == 'POST':
@@ -162,7 +161,7 @@ def index(request):
             except:
                 chlorineLevels.append('Cannot Compute')
     content= {
-        'debug_check': debug,
+        'debug_check': '',
         'pool':poolref,
         'temperature':tempDeviations,
         'turbidity':turbidityDeviations,
@@ -385,25 +384,51 @@ def editDetails(request):
 
 @login_required(login_url="/monitoring/login")
 def filterPoolStat(request):
-    if(0==0):
+    try:
         poolPk = request.POST['poolPK']
         startDate = request.POST['dateStart']
         endDate = request.POST['dateEnd']
         poolref = Pool.objects.get(id=poolPk)
-        xDate = d = datetime.datetime.strptime(startDate, '%B-%d-%Y')
-        #ph = Final_Ph.objects.filter(id=poolPk, date__range=[startDate, endDate])
-        #turbidity = Final_Turbidity.objects.filter(id=poolPk, date__range=[startDate, endDate])
-        #temperature = Final_Temperature.objects.filter(id=poolPk, date__range=[startDate, endDate])
+        xDate = datetime.datetime.strptime(startDate, '%B %d, %Y ').strftime('%Y-%m-%d')
+        yDate = datetime.datetime.strptime(endDate, ' %B %d, %Y').strftime('%Y-%m-%d')
+        xDate = str(xDate)+" 00:00"
+        yDate = str(yDate)+" 00:00"
+        display = xDate+" - "+yDate
+        ph = Final_Ph.objects.all().filter(pool=poolref, final_phdatetime__range=[xDate, yDate])
+        turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime__range=[xDate, yDate])
+        temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__range=[xDate, yDate])
         content= {
-            'debug_check':startDate,
+            'debug_check': display,
             'pool':poolref,
-            #'ph':ph,
-            #'turbidity':turbidity,
-            #'temperature':temperature,
+            'ph':ph,
+            'turbidity':turbidity,
+            'temperature':temperature,
         }
         return render(request, 'monitoring/pool technician/pool-stat.html', content)
-    else:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+    except:
+        if(0==0):
+            poolPk = request.POST['poolPK']
+            poolref = Pool.objects.get(id=poolPk)
+            now = datetime.datetime.now()
+            endNow = datetime.datetime.now() + datetime.timedelta(days=1)
+            xDate = now.strftime('%Y-%m-%d')
+            yDate = now.strftime('%Y-%m-%d')
+            xDate = str(xDate)+" 00:00"
+            yDate = str(yDate)+" 00:00"
+            display = str(now)+" - "+str(endNow)
+            ph = Final_Ph.objects.all().filter(pool=poolref, final_phdatetime__range=[xDate, yDate])
+            turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime__range=[xDate, yDate])
+            temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__range=[xDate, yDate])
+            content= {
+                'debug_check': display,
+                'pool':poolref,
+                'ph':ph,
+                'turbidity':turbidity,
+                'temperature':temperature,
+            }
+            return render(request, 'monitoring/pool technician/pool-stat.html', content)
+        else:
+            return render(request, 'monitoring/pool owner/result-not-found.html')
 
 @login_required(login_url="/monitoring/login")
 def notFound(request):

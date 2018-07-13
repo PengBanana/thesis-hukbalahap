@@ -27,12 +27,14 @@ def login(request):
                 usertype = Type.objects.get(pk=user.pk)
                 adminType= Usertype_Ref.objects.get(pk=1)
                 if usertype.type == adminType:
-                    print('pasok ang admin')
                     return redirect('/monitoring/indexOwner/')
 
                 else:
-                    print('naqqqqq')
                     return redirect('/monitoring/index/')
+
+
+            else:
+                msg = 'username or password not correct'
         else:
             messages.error(request,'username or password not correct')
             msg = 'username or password not correct'
@@ -232,7 +234,6 @@ def setMaintenance(request):
 @login_required(login_url="/monitoring/login")
 def finishMaintenance(request):
     if request.method == 'POST':
-        print('yuuuuuuuuuuuuuuuuuuuuuuhhhh')
         form = MaintenanceSchedule(request.POST)
 
         if form.is_valid():
@@ -305,7 +306,6 @@ def profile(request,item_id):
 
 
     else:
-        print('naq walang nangyari')
         form1 = EditDetailsForm()
         form2 = ChangePasswordForm(request.user)
         content = {
@@ -317,6 +317,70 @@ def profile(request,item_id):
 
 
     return render(request, 'monitoring/pool owner/technician-profile.html', content)
+
+
+
+@login_required(login_url="/monitoring/login")
+def editDetails(request):
+    current_user = request.user
+    curr_fname = request.user.first_name
+    curr_lname = request.user.last_name
+    alert = None
+    content = None
+    user = User.objects.get(id=current_user.id)
+    if (request.method == 'POST' ) & ('password' in request.POST):
+        form2 = ChangePasswordForm(current_user, request.POST)
+        if form2.is_valid():
+            form2.save()
+            alert = 'Password Successfully Changed.'
+
+            content = {
+                'form2': form2,
+                'alertmsg':alert,
+
+            }
+
+    elif (request.method == 'POST' ) & ('editDetails' in request.POST):
+        print("HAHAHAHAHAHAHAHAAHHAHAHAHAHA")
+        form1 =EditDetailsForm(request.POST)
+        if form1.is_valid():
+            fname = request.POST.get('first_name')
+            lname = request.POST.get('last_name')
+            user.first_name=fname
+            user.last_name=lname
+            user.save()
+            alert = 'Details Successfully Changed.'
+            content = {
+                'form1': form1,
+                'alertmsg':alert,
+
+            }
+
+    elif (request.method == 'POST' ) & ('deactivate' in request.POST):
+        print('suhhh')
+        print(current_user)
+        userStat =Status.objects.get(id=current_user.pk)
+        print(userStat.status)
+        Status.objects.filter(pk=request.user.id).update(status=2)
+        logout(request)
+        return render(request,'registration/logout.html')
+
+
+
+    else:
+        form1 = EditDetailsForm()
+        form2 = ChangePasswordForm(current_user)
+        content = {
+            'form1': form1,
+            'form2': form2,
+            'curr_fname' : curr_fname,
+            'curr_lname' : curr_lname,
+            'username' : current_user.username,
+
+        }
+
+
+    return render(request, 'monitoring/pool technician/edit-details.html',content)
 
 
 @login_required(login_url="/monitoring/login")

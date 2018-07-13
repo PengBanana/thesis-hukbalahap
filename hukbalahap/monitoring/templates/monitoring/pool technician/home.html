@@ -15,40 +15,50 @@
             <div class="row">
                 {% for chlorinelevel in chlorine %}
                 {% if forloop.counter == forloop.parentloop.counter %}
-              <div class="col-md-12" >
-                  <label style="font-size:30px; float: right;padding-right:40px;padding-bottom:20px;">{{ chlorinelevel }}</label>
-                    <small>Chlorine</small>
-              </div>
-                {% endif %}
-                {% endfor %}
-                {% for phlevel in ph%}
-                {% if forloop.counter == forloop.parentloop.counter %}
-              <div class="col-md-6">
-                        <label style="font-size:30px; float: right; padding-right:90px;">{{ phlevel }}</label>
-                  <small >pH</small>
-              </div>
-                {% endif %}
-                {% endfor %}
+
+                <table id="example2" class="table table-bordered ">
+                  <tbody>
+                  <tr>
+                    <td style="padding-left:20px;"><div>Chlorine</div></td>
+                    <td><strong>{{ chlorinelevel }}</strong></td>
+                  </tr>
+                  {% endif %}
+                  {% endfor %}
+                  {% for phlevel in ph%}
+                  {% if forloop.counter == forloop.parentloop.counter %}
+                <tr>
+                    <td style="padding-left:20px;">pH</td>
+                    <td><strong>{{ phlevel }}</strong></td>
+                </tr>
+                  {% endif %}
+                  {% endfor %}
+
+                  {% for turbiditylevel in turbidity%}
+                  {% if forloop.counter == forloop.parentloop.counter %}
+                <tr >
+                  <td style="padding-left:20px;" >Turbidity</td>
+                  <td><strong>{{ turbiditylevel }}</strong></td>
+
+                </tr>
+                  {% endif %}
+                  {% endfor %}
+                  {% for temperaturelevel in temperature %}
+                  {% if forloop.counter == forloop.parentloop.counter %}
+                <tr>
+                  <td style="padding-left:20px;">Temperature</td>
+                  <td><strong>{{ temperaturelevel }}</strong></td>
+
+                </tr>
+                  {% endif %}
+                  {% endfor %}
+
+                </table>
+
+
             </div>
 
-            <div class="row">
-                {% for turbiditylevel in turbidity%}
-                {% if forloop.counter == forloop.parentloop.counter %}
-              <div class="col-md-12">
-                  <label style="font-size:30px; float: right; padding-right:10px;">{{ turbiditylevel }}</label>
-                  <small >Turbidity</small>
-              </div>
-                {% endif %}
-                {% endfor %}
-                {% for temperaturelevel in temperature %}
-                {% if forloop.counter == forloop.parentloop.counter %}
-              <div>
-                <label style="font-size:30px; float: right; padding-right:40px;">{{ temperaturelevel }}</label>
-                  <small>Temperature</small>
-              </div>
-                {% endif %}
-                {% endfor %}
-            </div>
+
+
 
         </div>
       </div>

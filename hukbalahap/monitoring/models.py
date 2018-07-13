@@ -78,8 +78,10 @@ class MaintenanceSchedule(models.Model):
 	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
 	date = models.DateField(null=True, blank=True)
-	timeStart = models.TimeField(null=True, blank=True)
-	timeEnd = models.TimeField(null=True, blank=True)
+	estimatedStart = models.TimeField(null=True, blank=True)
+	estimatedEnd = models.TimeField(null=True, blank=True)
+	scheduledStart = models.TimeField(null=True, blank=True)
+	scheduledEnd = models.TimeField(null=True, blank=True)
 	timeAccomplished = models.TimeField(null=True, blank=True)
 	est_chlorine = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	est_muriatic = models.DecimalField(max_digits=8, decimal_places=2, default="")
@@ -87,6 +89,7 @@ class MaintenanceSchedule(models.Model):
 	act_chlorine = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	act_muriatic = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	act_depowder = models.DecimalField(max_digits=8, decimal_places=2, default="")
+	status = models.TextField(default="Notified")
 
 	def __str__(self):
 		return self.user.username

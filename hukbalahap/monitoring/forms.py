@@ -1,5 +1,5 @@
 from django import forms
-from monitoring.models import Usertype_Ref,Type,Pool, MaintenanceSchedule
+from monitoring.models import Usertype_Ref,Type,Pool
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm,AuthenticationForm
 
@@ -44,17 +44,6 @@ class NewPool(forms.ModelForm):
     class Meta:
         model = Pool
         fields = ('pool_location',)
-
-class MaintenanceSchedule(forms.ModelForm):
-    reservedtime = forms.CharField(max_length = 20,required=True,label= ("Select Date and Time of Maintenance"),widget = forms.TextInput( attrs = {'class': 'form-control pull-right','id': 'reservationtime'}))
-    timeAccomplished = forms.CharField(max_length = 20,required=True,label= ("Date and Time Accomplished"),widget = forms.TextInput( attrs = {'class': 'form-control pull-right','id': 'finishtime'}))
-    act_chlorine = forms.CharField(widget=forms.NumberInput(attrs={'class': 'form-control','autocomplete':'off'}),max_length=6, required=False,label=("Actual Chlorine"))
-    act_muriatic = forms.CharField(widget=forms.NumberInput(attrs={'class': 'form-control','autocomplete':'off'}),max_length=6, required=False,label=("Actual Muriatic"))
-    act_depowder = forms.CharField(widget=forms.NumberInput(attrs={'class': 'form-control','autocomplete':'off'}),max_length=6, required=False,label=("Actual DE Powder"))
-
-    class Meta:
-        model = MaintenanceSchedule
-        fields = ('user','timeStart','timeEnd','timeAccomplished','est_chlorine','est_muriatic','est_depowder','act_chlorine','act_muriatic','act_depowder')
 
 
 class EditDetailsForm(forms.ModelForm):

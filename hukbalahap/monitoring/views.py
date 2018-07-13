@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404,redirect
-from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, MaintenanceSchedule, Status, Status_Ref
+from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref
 from .forms import SignUpForm, SignUpType, Pool, MaintenanceSchedule,EditDetailsForm,ChangePasswordForm
 from django.views.generic import TemplateView
 from django.db.models import Q
@@ -10,7 +10,6 @@ from django.contrib.auth.views import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-
 def login(request):
     msg = None
     if request.method == 'POST':
@@ -231,40 +230,6 @@ def setMaintenance(request):
     return render(request, 'monitoring/pool technician/set-maintenance-schedule.html',locals())
 
 
-@login_required(login_url="/monitoring/login")
-def finishMaintenance(request):
-    if request.method == 'POST':
-        form = MaintenanceSchedule(request.POST)
-
-        if form.is_valid():
-            print('forms valid')
-            form.save()
-            print(form.cleaned_data.get('timeAccomplished'))
-            print(form.cleaned_data.get('act_chlorine'))
-            return redirect('finishMaintenance')
-
-    else:
-        form= MaintenanceSchedule()
-    return render(request, 'monitoring/pool technician/finish-maintenance-schedule.html',locals())
-
-
-@login_required(login_url="/monitoring/login")
-def searchPT(request):
-    item = request.POST['item']
-
-    allUsers = User.objects.all()
-    filtered = allUsers.filter (Q(first_name__icontains=item) | Q(last_name__icontains=item)  | Q(username__icontains=item))
-    debugger = filtered
-    if not filtered:
-        print('no searches')
-        return render(request, 'monitoring/pool owner/result-not-found.html')
-    else:
-        content={
-            'searchedItem': item,
-            'items':filtered,
-        }
-    return render(request, 'monitoring/pool owner/search-technician.html', content,)
-
 
 @login_required(login_url="/monitoring/login")
 def profile(request,item_id):
@@ -415,7 +380,7 @@ def filterPoolStat(request):
         }
         return render(request, 'monitoring/pool technician/pool-stat.html', content)
     except:
-        try:
+        if(0==0):
             poolPk = request.POST['poolPK']
             poolref = Pool.objects.get(id=poolPk)
             now = datetime.datetime.now()
@@ -436,7 +401,7 @@ def filterPoolStat(request):
                 'temperature':temperature,
             }
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
-        except:
+        else:
             return render(request, 'monitoring/pool owner/result-not-found.html')
 
 @login_required(login_url="/monitoring/login")

@@ -1,0 +1,8 @@
+Water quality
+Optimum Temperature = 77 – 82 
+Optimum pH = 7.4
+Optimum Turbidity = 0.1
+
+//compute for gallons
+Length x width x depth = cubic ft
+cubic ft x 7.5 = gallons

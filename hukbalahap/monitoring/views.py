@@ -10,6 +10,7 @@ from django.contrib.auth.views import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+
 def login(request):
     msg = None
     if request.method == 'POST':
@@ -414,7 +415,7 @@ def filterPoolStat(request):
         }
         return render(request, 'monitoring/pool technician/pool-stat.html', content)
     except:
-        if(0==0):
+        try:
             poolPk = request.POST['poolPK']
             poolref = Pool.objects.get(id=poolPk)
             now = datetime.datetime.now()
@@ -435,7 +436,7 @@ def filterPoolStat(request):
                 'temperature':temperature,
             }
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
-        else:
+        except:
             return render(request, 'monitoring/pool owner/result-not-found.html')
 
 @login_required(login_url="/monitoring/login")

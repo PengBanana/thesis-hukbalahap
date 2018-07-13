@@ -15,12 +15,12 @@
             <div class="row">
                 {% for chlorinelevel in chlorine %}
                 {% if forloop.counter == forloop.parentloop.counter %}
-              <div class="col-md-6" >
+              <div class="col-md-12" >
                   <label style="font-size:30px; float: right;padding-right:40px;padding-bottom:20px;">{{ chlorinelevel }}</label>
                     <small>Chlorine</small>
               </div>
                 {% endif %}
-                {% endfor %} 
+                {% endfor %}
                 {% for phlevel in ph%}
                 {% if forloop.counter == forloop.parentloop.counter %}
               <div class="col-md-6">
@@ -28,21 +28,21 @@
                   <small >pH</small>
               </div>
                 {% endif %}
-                {% endfor %} 
+                {% endfor %}
             </div>
-            
+
             <div class="row">
                 {% for turbiditylevel in turbidity%}
                 {% if forloop.counter == forloop.parentloop.counter %}
-              <div class="col-md-6">
+              <div class="col-md-12">
                   <label style="font-size:30px; float: right; padding-right:10px;">{{ turbiditylevel }}</label>
                   <small >Turbidity</small>
               </div>
                 {% endif %}
-                {% endfor %} 
+                {% endfor %}
                 {% for temperaturelevel in temperature %}
                 {% if forloop.counter == forloop.parentloop.counter %}
-              <div class="col-md-6">
+              <div>
                 <label style="font-size:30px; float: right; padding-right:40px;">{{ temperaturelevel }}</label>
                   <small>Temperature</small>
               </div>

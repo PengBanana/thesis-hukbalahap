@@ -268,7 +268,6 @@ def searchPT(request):
 
 @login_required(login_url="/monitoring/login")
 def profile(request,item_id):
-    modz=""
     user = User.objects.get(id=item_id)
     alert = None
     content = None
@@ -286,7 +285,6 @@ def profile(request,item_id):
             }
 
     elif (request.method == 'POST' ) & ('editDetails' in request.POST):
-        print("possssst")
         form1 =EditDetailsForm(request.POST)
         if form1.is_valid():
             print('uuuuuup')
@@ -338,11 +336,15 @@ def editDetails(request):
             content = {
                 'form2': form2,
                 'alertmsg':alert,
+                'curr_fname' : curr_fname,
+                'curr_lname' : curr_lname,
+                'username' : current_user.username,
 
             }
+            return render(request, 'monitoring/pool technician/edit-details.html',content)
+
 
     elif (request.method == 'POST' ) & ('editDetails' in request.POST):
-        print("HAHAHAHAHAHAHAHAAHHAHAHAHAHA")
         form1 =EditDetailsForm(request.POST)
         if form1.is_valid():
             fname = request.POST.get('first_name')
@@ -354,8 +356,13 @@ def editDetails(request):
             content = {
                 'form1': form1,
                 'alertmsg':alert,
+                'curr_fname' : curr_fname,
+                'curr_lname' : curr_lname,
+                'username' : current_user.username,
 
             }
+            return render(request, 'monitoring/pool technician/edit-details.html',content)
+
 
     elif (request.method == 'POST' ) & ('deactivate' in request.POST):
         print('suhhh')

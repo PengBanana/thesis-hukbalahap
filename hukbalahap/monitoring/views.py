@@ -211,24 +211,30 @@ def addUser(request):
 
 @login_required(login_url="/monitoring/login")
 def setMaintenance(request):
-    if request.method == 'POST':
-        print('request POST')
-        form = Pool(request.POST)
-        form2= MaintenanceSchedule(request.POST)
-        print(form2.errors)
-        if form.is_valid() and form2.is_valid():
-            print('forms valid')
-            form.save()
-            print(form.cleaned_data.get('pool_location'))
-            print(form2.cleaned_data.get('timeStart'))
-            print(form2.cleaned_data.get('timeEnd'))
-            return redirect('setMaintenance')
+    return render(request, 'monitoring/pool technician/set-maintenance-schedule.html')
 
+
+@login_required(login_url="/monitoring/login")
+def finishMaintenance(request):
+    return render(request, 'monitoring/pool technician/finish-maintenance-schedule.html')
+
+
+@login_required(login_url="/monitoring/login")
+def searchPT(request):
+    item = request.POST['item']
+
+    allUsers = User.objects.all()
+    filtered = allUsers.filter (Q(first_name__icontains=item) | Q(last_name__icontains=item)  | Q(username__icontains=item))
+    debugger = filtered
+    if not filtered:
+        print('no searches')
+        return render(request, 'monitoring/pool owner/result-not-found.html')
     else:
-        form = Pool()
-        form2= MaintenanceSchedule()
-    return render(request, 'monitoring/pool technician/set-maintenance-schedule.html',locals())
-
+        content={
+            'searchedItem': item,
+            'items':filtered,
+        }
+    return render(request, 'monitoring/pool owner/search-technician.html', content,)
 
 
 @login_required(login_url="/monitoring/login")

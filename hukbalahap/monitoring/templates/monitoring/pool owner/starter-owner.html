@@ -80,16 +80,16 @@
             <!-- Menu toggle button -->
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <i class="fa fa-bell-o"></i>
-              <span class="label label-danger">10</span>
+              <span class="label label-danger">2</span>
             </a>
             <ul class="dropdown-menu">
-              <li class="header">You have 10 notifications</li>
+              <li class="header">You have ** notifications</li>
               <li>
                 <!-- Inner Menu: contains the notifications -->
                 <ul class="menu">
                   <li><!-- start notification -->
                     <a href="#">
-                      <i class="fa fa-users text-aqua"></i> 5 new members joined today
+                      <i class="fa fa-users text-aqua"></i> *name of pool* needs to be cleaned!
                     </a>
                   </li>
                   <!-- end notification -->
@@ -99,40 +99,42 @@
             </ul>
           </li>
           <!-- Tasks Menu -->
-
-          <!-- User Account Menu -->
-          <li class="dropdown user user-menu">
-            <!-- Menu Toggle Button -->
+          <li class="dropdown notifications-menu">
+            <!-- Menu toggle button -->
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <!-- The user image in the navbar-->
-              <img src="dist/img/user2-160x160.jpg" class="user-image" alt="*name*">
-              <!-- hidden-xs hides the username on small devices so only the image appears. -->
-
+              <i class="fa fa-user-o"></i>
             </a>
             <ul class="dropdown-menu">
-              <!-- The user image in the menu -->
-              <li class="user-header">
+              <li>
+                <!-- Inner Menu: contains the notifications -->
+                <ul class="menu">
+                  <li><!-- start notification -->
+                    <a href="">
+                      <i class=" fa fa-user-circle text-aqua"></i> Profile
+                    </a>
+                  </li>
 
-                <p>
-                  <a href="#">Home</a>
-
-                </p>
+                  <!-- end notification -->
+                </ul>
               </li>
-              <!-- Menu Body -->
-
-              <!-- Menu Footer-->
-              <li class="user-footer">
-
-                <div class="pull-right">
-                  <a href="#" class="btn btn-default btn-flat">Sign out</a>
-                </div>
+              <li>
+                <a href="{% url 'monitoring:logout_view'  %}">
+                  <i class="fa fa-pencil-square-o"></i> Edit Details
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'monitoring:logout_view'  %}">
+                  <i class="fa fa-lock"></i> Edit Password
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'monitoring:logout_view'  %}">
+                  <i class="fa fa-sign-out"></i> Logout
+                </a>
               </li>
             </ul>
           </li>
-          <!-- Control Sidebar Toggle Button -->
-          <li>
-            <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
-          </li>
+
         </ul>
       </div>
     </nav>
@@ -164,7 +166,17 @@
         <li class="header">HEADER</li>
         <!-- Optionally, you can add icons to the links -->
         <li class="active"><a href="#"><i class="fa fa-home"></i> <span>Home</span></a></li>
-        <li><a href="#"><i class="fa fa-user-circle"></i> <span>Personnel</span></a></li>
+        <li class="treeview">
+          <a href="#"><i class="fa fa-user-circle"></i> <span>Users</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+          </a>
+          <ul class="treeview-menu">
+            <li><a href="{% url 'monitoring:addUser' %}">Add Pool Technician </a></li>
+            <li><a >View Pool Technicians </a></li>
+          </ul>
+        </li>
         <li class="treeview">
           <a href="#"><i class="fa fa-calendar"></i> <span>Reports</span>
             <span class="pull-right-container">

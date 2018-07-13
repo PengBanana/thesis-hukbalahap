@@ -19,12 +19,11 @@ app_name = 'monitoring'
 
 urlpatterns = [
     url(r'^login/$', views.login, name='login'),
-    url(r'^logout/$', views.logout, name='logout'),
+    url(r'^logout_view/$', views.logout_view, name='logout_view'),
     url(r'^$', views.index, name='index'),
     url(r'^index/$', views.index, name='index'),
     url(r'^pool/$', views.pool, name='pool'),
     url(r'^login/$', views.login, name='login'),
-    url(r'^firstLogin/$', views.firstLogin, name='firstLogin'),
     url(r'^indexOwner/$', views.indexOwner, name='indexOwner'),
     url(r'^personnel/$', views.personnel, name='personnel'),
     url(r'^profile/$', views.profile, name='profile'),

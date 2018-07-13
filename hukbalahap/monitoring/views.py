@@ -192,12 +192,9 @@ def addUser(request):
     if request.method == 'POST':
         print('request POST')
         form = SignUpForm(request.POST)
-        form2= SignUpType(request.POST)
-        print(form2.errors)
-        if form.is_valid() and form2.is_valid():
+        if form.is_valid():
             print('forms valid')
             form.save()
-            print(form2.cleaned_data.get('type'))
             print('form1 saved')
             print(form.cleaned_data.get('username'))
             print('newtype saved')
@@ -205,7 +202,6 @@ def addUser(request):
 
     else:
         form = SignUpForm()
-        form2= SignUpType()
     return render(request, 'monitoring/pool owner/add-user.html',locals())
 
 

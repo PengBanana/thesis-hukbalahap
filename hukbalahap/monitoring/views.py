@@ -266,6 +266,7 @@ def searchPT(request):
 
 @login_required(login_url="/monitoring/login")
 def profile(request,item_id):
+    modz=""
     user = User.objects.get(id=item_id)
     alert = None
     content = None

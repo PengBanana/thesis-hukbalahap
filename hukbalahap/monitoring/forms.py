@@ -4,9 +4,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm,AuthenticationForm
 
 class SignUpForm(UserCreationForm):
-    username = forms.RegexField(regex=r'^\w+$', widget=forms.TextInput(attrs={'class': 'form-control','id':'username', 'autocomplete':'off'}), max_length=30, required=True, error_messages={ 'invalid': ("This value must contain only letters, numbers and underscores.") })
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'First Name'}),max_length=30, required=False, help_text='Optional.')
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off'}),max_length=30, required=False, help_text='Optional.')
+    username = forms.RegexField(regex=r'^\w+$', widget=forms.TextInput(attrs={'class': 'form-control','id':'username', 'autocomplete':'off','placeholder':'username'}), max_length=30, required=True, error_messages={ 'invalid': ("This value must contain only letters, numbers and underscores.") })
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'First Name'}),max_length=30, required=True)
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'Last Name'}),max_length=30, required=True)
     password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control','autocomplete':'off'}),required=True, max_length=30, label=("Password"))
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control','autocomplete':'off'}),required=True, max_length=30, label=("Password"))
     #email = forms.EmailField(max_length=254,required=False)
@@ -47,8 +47,8 @@ class NewPool(forms.ModelForm):
 
 
 class EditDetailsForm(forms.ModelForm):
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'First Name'}),max_length=30, required=False)
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'Last Name'}),max_length=30, required=False)
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'First Name'}),max_length=30, required=True)
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'Last Name'}),max_length=30, required=True)
 
     class Meta:
         model = User

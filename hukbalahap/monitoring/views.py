@@ -178,7 +178,6 @@ def poolDetails_view(request, poolitem_id):
     turbidity = Final_Turbidity.objects.all().filter(pool=poolref)
     temperature = Final_Temperature.objects.all().filter(pool=poolref)
     content= {
-        'debug_check':'debug off',
         'pool':poolref,
         'ph':ph,
         'turbidity':turbidity,
@@ -190,6 +189,7 @@ def poolDetails_view(request, poolitem_id):
 @login_required(login_url="/monitoring/login")
 def addUser(request):
     if request.method == 'POST':
+        msg = None
         print('request POST')
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -198,7 +198,21 @@ def addUser(request):
             print('form1 saved')
             print(form.cleaned_data.get('username'))
             print('newtype saved')
-            return render(request, 'monitoring/pool owner/add-user.html')
+            msg='success'
+            form = SignUpForm()
+            content={
+                'form':form,
+                'msg' : msg,
+            }
+            return render(request, 'monitoring/pool owner/add-user.html',content)
+
+        else:
+            msg='error'
+            content={
+                'form':form,
+                'msg' : msg,
+            }
+            return render(request, 'monitoring/pool owner/add-user.html',content)
 
     else:
         form = SignUpForm()
@@ -239,7 +253,7 @@ def profile(request,item_id):
     alert = None
     content = None
     if (request.method == 'POST' ) & ('password' in request.POST):
-        form2 = ChangePasswordForm(request.user, request.POST)
+        form2 = ChangePasswordForm(user, request.POST)
         if form2.is_valid():
             form2.save()
             alert = 'Password Successfully Changed.'

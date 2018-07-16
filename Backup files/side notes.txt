@@ -9,7 +9,7 @@ ADD TO DOCU
 Soda Ash
 Update Docu on DE POWDER
 ADD TABLES OF COMPUTATION TO DOCU
-
+Assumption of pool size for filter is 15x30 22,000 gallons height 6ft
 
 --------------------------
 FORMULAS
@@ -17,6 +17,7 @@ FORMULAS
 
 Length(ft) x width(ft) x depth(ft) = cubic ft
 cubic ft x 7.5 = gallons
+
 Length x Width = sq feet
 sq feet x .1 = DE POWDER x 0.8 = suggested measurement
 
@@ -38,7 +39,7 @@ ELSE PH > 7.4
 	ELSE IF PH >= 8.0
 		multiplier * 12 >> suggested muriatic acid
 	ELSE IF PH >= 7.8
-		multiplier * 12 >> suggested muriatic acid
+		multiplier * 8 >> suggested muriatic acid
 	ELSE IF PH >= 7.6
 		multiplier * 6 >> suggested muriatic acid
 ELSE // 7.4 is optimum

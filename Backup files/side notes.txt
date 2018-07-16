@@ -10,6 +10,7 @@ Soda Ash
 Update Docu on DE POWDER
 ADD TABLES OF COMPUTATION TO DOCU
 
+
 --------------------------
 FORMULAS
 
@@ -42,3 +43,4 @@ ELSE PH > 7.4
 		multiplier * 6 >> suggested muriatic acid
 ELSE // 7.4 is optimum
 	PH LEVEL IS BALANCED
+	

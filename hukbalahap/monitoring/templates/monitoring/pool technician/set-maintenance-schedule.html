@@ -16,22 +16,29 @@
         <div class="row">
           <div class="col-xs-3"></div>
           <div class="col-xs-6">
-            {{form.pool.label_tag}}
-            {{form.pool}}
-            {{form.pool.errors}}
-            {{form2.reservedtime.label_tag}}
-            {{form2.reservedtime}}
-            {{form2.reservedtime.errors}}
+
             <div style="padding-top:50px;">
-              <h4>Estimated Chemical Volume</h4>
-              <small>The Following are the measurements of chemical that you need to pour in the pool water</small>
+              <h4>Set Maintenance Schedule</h4>
+              </div>
+              <div class="form-group" style="padding-top:15px;">
+                <label>Select Pool</label>
+                <select class="form-control">
+                  <option> 1</option>
+                </select>
+              </div>
+              <label>Schedule of Maintenance</label>
+
+              <div class="form-group">
+                <div class="input-group">
+                  <button type="button" class="date-btn btn btn-default pull-right" id="daterange-btn">
+                    <span class="date-value">
+                      <i class="fa fa-calendar"></i> Select Date Range
+                    </span>
+                    <i class="fa fa-caret-down"></i>
+                  </button>
+                </div>
               </div>
 
-              <div>
-                <label>Muriatic:</label><br>
-                <label>Chlorine:</label><br>
-                <label>DE Powder:</label><br>
-              </div>
 
           </div>
           <div class="col-xs-3"></div>
@@ -39,7 +46,7 @@
         <div class="box-footer">
           <div class="row">
             <div class="col-xs-9">
-            <button type="submit"  class="btn btn-primary pull-right">Confirm</button>
+            <button type="submit"  class="btn btn-primary pull-right">Next</button>
           </div>
           </div>
         </div>

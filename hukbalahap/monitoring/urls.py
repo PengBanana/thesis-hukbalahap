@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^profile/(?P<item_id>[0-9]+)/$', views.profile, name='profile'),
     url(r'^addUser/$', views.addUser, name='addUser'),
     url(r'^setMaintenance/$', views.setMaintenance, name='setMaintenance'),
+    url(r'^setMaintenanceCompute/$', views.setMaintenanceCompute, name='setMaintenanceCompute'),
     url(r'^finishMaintenance/$', views.finishMaintenance, name='finishMaintenance'),
     url(r'^notFound/$', views.notFound, name='notFound'),
     url(r'^filterPoolStat/$', views.filterPoolStat, name='filterPoolStat'),

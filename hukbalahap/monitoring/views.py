@@ -225,6 +225,11 @@ def setMaintenance(request):
 
 
 @login_required(login_url="/monitoring/login")
+def setMaintenanceCompute(request):
+    return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html')
+
+
+@login_required(login_url="/monitoring/login")
 def finishMaintenance(request):
     return render(request, 'monitoring/pool technician/finish-maintenance-schedule.html')
 
@@ -250,18 +255,18 @@ def searchPT(request):
 @login_required(login_url="/monitoring/login")
 def profile(request,item_id):
     user = User.objects.get(id=item_id)
-    alert = None
+    msg = None
     content = None
     if (request.method == 'POST' ) & ('password' in request.POST):
         form2 = ChangePasswordForm(user, request.POST)
         if form2.is_valid():
             form2.save()
-            alert = 'Password Successfully Changed.'
+            alert = 'success'
 
             content = {
                 'item_id': user,
                 'form2': form2,
-                'alertmsg':alert,
+                'msg':alert,
 
             }
 
@@ -274,11 +279,11 @@ def profile(request,item_id):
             user.first_name=fname
             user.last_name=lname
             user.save()
-            alert = 'Details Successfully Changed.'
+            alert = 'success'
             content = {
                 'item_id': user,
                 'form1': form1,
-                'alertmsg':alert,
+                'msg':alert,
 
             }
     elif (request.method == 'POST' ) & ('deactivate' in request.POST):
@@ -311,8 +316,10 @@ def editDetails(request):
     if (request.method == 'POST' ) & ('password' in request.POST):
         form2 = ChangePasswordForm(current_user, request.POST)
         if form2.is_valid():
-            form2.save()
+            userForm = form2.save()
             alert = 'Password Successfully Changed.'
+            update_session_auth_hash(request, userForm)
+
 
             content = {
                 'form2': form2,
@@ -333,6 +340,7 @@ def editDetails(request):
             user.first_name=fname
             user.last_name=lname
             user.save()
+            form1.first_name = manu
             alert = 'Details Successfully Changed.'
             content = {
                 'form1': form1,

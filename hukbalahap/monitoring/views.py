@@ -245,7 +245,14 @@ def addUser(request):
 
 @login_required(login_url="/monitoring/login")
 def setMaintenance(request):
-    return render(request, 'monitoring/pool technician/set-maintenance-schedule.html')
+    try:
+        pools = Pool.objects.all()
+        content = {
+            'pools':pools,
+        }
+        return render(request, 'monitoring/pool technician/set-maintenance-schedule.html', content)
+    except:
+        return render(request, 'mFnitoring/pool owner/result-not-found.html')
 
 
 @login_required(login_url="/monitoring/login")
@@ -313,7 +320,7 @@ def setMaintenanceCompute(request):
         #chlorine
         return render(request, 'monitoring/pool technician/set-maintenance-schedule.html')
     except:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+        return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html')
 
 
 

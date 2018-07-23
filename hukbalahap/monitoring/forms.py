@@ -47,8 +47,8 @@ class NewPool(forms.ModelForm):
 
 
 class EditDetailsForm(forms.ModelForm):
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'First Name','id':'first'}),max_length=30, required=True)
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'Last Name','id':'last'}),max_length=30, required=True)
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'First Name'}),max_length=30, required=True)
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'Last Name'}),max_length=30, required=True)
 
     class Meta:
         model = User

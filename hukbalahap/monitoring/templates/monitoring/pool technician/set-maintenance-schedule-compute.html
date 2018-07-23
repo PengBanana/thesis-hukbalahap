@@ -1,6 +1,7 @@
 {% extends "monitoring/pool technician/starter.html" %}
 
 {% block content %}
+{{ debugger }}
 <div class="row">
   <div class="col-md-12">
 
@@ -22,9 +23,9 @@
               </div>
 
               <div>
-                <label>Muriatic:</label><br>
-                <label>Chlorine:</label><br>
-                <label>DE Powder:</label><br>
+                <label>Muriatic:</label>{{ muriaticAcid }}<br>
+                <label>Soda Ash:</label>{{ sodaAsh }}<br>
+                <label>DE Powder:</label>{{ dePowder }}<br>
               </div>
 
           </div>

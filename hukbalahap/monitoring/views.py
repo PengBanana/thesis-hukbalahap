@@ -252,15 +252,17 @@ def setMaintenance(request):
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule.html', content)
     except:
-        return render(request, 'mFnitoring/pool owner/result-not-found.html')
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
 @login_required(login_url="/monitoring/login")
 def setMaintenanceCompute(request):
-    try:
+    if 0==0:
         poolPK = request.POST['poolPK']
         poolitem = Pool.objects.get(pk=poolPK)
-        phList = Temp_Ph.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
+        phList = Temp_Ph.objects.all().filter(pool=poolitem)
+        phSum=0
+        phCount=0
         for item in phList:
             phSum+=item.temp_phlevel
             phCount+=1
@@ -276,24 +278,25 @@ def setMaintenanceCompute(request):
                 newPhSum+= read
             phVariance = newPhSum/phCount
             phStandardDev = math.sqrt(phVariance)
-            phStandardDev=decimal.Decimal(phStandardDev)+turbidityMean
+            phStandardDev=decimal.Decimal(phStandardDev)+phMean
         phLevel =  phStandardDev
         #get gallons
-        poolGallons = poolitem.pool_width * poolitem.pool_depth * poolitem.pool_length
-        poolGallons = poolGallons * 7.5
+        cubicpool = poolitem.pool_width * poolitem.pool_depth * poolitem.pool_length
+        poolGallons = cubicpool * decimal.Decimal(7.5)
         squarefeet= poolitem.pool_length * poolitem.pool_width
         #DE powder computation
-        dePowder = squarefeet*.1
-        dePowder = dePowder*.8
+        dePowder = squarefeet*decimal.Decimal(.1)
+        dePowder = dePowder*decimal.Decimal(.8)
+        dePowder = round(dePowder, 2)
         #multiplier
         gallons = poolGallons
         multiplier = 0
         sodaAsh=0
         muriaticAcid=0
-        chloine=0
+        chlorine=0
 
         while gallons >= 5000:
-            multipilier+=1
+            multiplier+=1
             gallons-=5000
 
         #soda ash computation
@@ -306,6 +309,7 @@ def setMaintenanceCompute(request):
                 sodaAsh = multiplier * 4
             elif phLevel <= 7.4:
                 sodaAsh = multiplier * 3
+            sodaAsh = round(sodaAsh, 2)
         elif phLevel > 7.4:#muriatic acid computation
             if phLevel > 8.4:
                 muriaticAcid = multiplier * 16
@@ -315,12 +319,22 @@ def setMaintenanceCompute(request):
                 muriaticAcid = multiplier * 8
             elif phLevel > 7.5:
                 muriaticAcid = multiplier * 6
+            muriaticAcid = round(muriaticAcid, 2)
         else:
             print('water is balanced')
-        #chlorine
-        return render(request, 'monitoring/pool technician/set-maintenance-schedule.html')
-    except:
-        return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html')
+            sodaAsh=0
+            muriaticAcid=0
+            dePowder=0
+        #no chlorine computation
+        content = {
+            'debugger':'',
+            'sodaAsh':sodaAsh,
+            'muriaticAcid':muriaticAcid,
+            'dePowder':dePowder,
+        }
+        return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html', content)
+    else:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
 

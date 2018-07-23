@@ -18,9 +18,9 @@
           <div class="col-xs-6">
             <div class="form-group" style="padding-top:15px;">
               <label>Select Pool</label>
-              <select class="form-control">
+              <select class="form-control" name="poolPK">
                 {% for poolitem in pools %}
-                <option>{{ poolitem.pool_location }}</option>
+                <option value = {{ poolitem.id }} >{{ poolitem.pool_location }}</option>
                 {% endfor %}
               </select>
             </div>

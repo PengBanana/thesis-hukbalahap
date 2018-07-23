@@ -245,7 +245,70 @@ def addUser(request):
 
 @login_required(login_url="/monitoring/login")
 def setMaintenance(request):
-    return render(request, 'monitoring/pool technician/set-maintenance-schedule.html')
+    try:
+        poolPK = request.POST['poolPK']
+        poolitem = Pool.objects.get(pk=poolPK)
+        phList = Temp_Ph.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
+        for item in phList:
+            phSum+=item.temp_phlevel
+            phCount+=1
+        if(phCount>0):
+            phMean = phSum/phCount
+            phx = []
+            for level in phList:
+                reading = level.temp_phlevel
+                reading -=phMean
+                phx.append(reading)
+            newPhSum = 0
+            for read in phx:
+                newPhSum+= read
+            phVariance = newPhSum/phCount
+            phStandardDev = math.sqrt(phVariance)
+            phStandardDev=decimal.Decimal(phStandardDev)+turbidityMean
+        phLevel =  phStandardDev
+        #get gallons
+        poolGallons = poolitem.pool_width * poolitem.pool_depth * poolitem.pool_length
+        poolGallons = poolGallons * 7.5
+        squarefeet= poolitem.pool_length * poolitem.pool_width
+        #DE powder computation
+        dePowder = squarefeet*.1
+        dePowder = dePowder*.8
+        #multiplier
+        gallons = poolGallons
+        multiplier = 0 
+        sodaAsh=0
+        muriaticAcid=0
+        chloine=0
+        
+        while gallons >= 5000:
+            multipilier+=1
+            gallons-=5000
+        
+        #soda ash computation
+        if phLevel < 7.4:
+            if phLevel < 6.7:
+                sodaAsh = multiplier * 8
+            elif phLevel <= 7:
+                sodaAsh = multiplier * 6
+            elif phLevel <= 7.2:
+                sodaAsh = multiplier * 4
+            elif phLevel <= 7.4:
+                sodaAsh = multiplier * 3
+        elif phLevel > 7.4:#muriatic acid computation
+            if phLevel > 8.4:
+                muriaticAcid = multiplier * 16
+            elif phLevel >= 8:
+                muriaticAcid = multiplier * 12
+            elif phLevel >= 7.8:
+                muriaticAcid = multiplier * 8
+            elif phLevel > 7.5:
+                muriaticAcid = multiplier * 6
+        else:
+            print('water is balanced')
+        #chlorine
+        return render(request, 'monitoring/pool technician/set-maintenance-schedule.html')
+    except:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
 @login_required(login_url="/monitoring/login")

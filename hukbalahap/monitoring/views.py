@@ -287,15 +287,15 @@ def setMaintenanceCompute(request):
         dePowder = dePowder*.8
         #multiplier
         gallons = poolGallons
-        multiplier = 0 
+        multiplier = 0
         sodaAsh=0
         muriaticAcid=0
         chloine=0
-        
+
         while gallons >= 5000:
             multipilier+=1
             gallons-=5000
-        
+
         #soda ash computation
         if phLevel < 7.4:
             if phLevel < 6.7:
@@ -536,6 +536,11 @@ def filterPoolStat(request):
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
         else:
             return render(request, 'monitoring/pool owner/result-not-found.html')
+
+@login_required(login_url="/monitoring/login")
+def viewMaintenance(request):
+    return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html')
+
 
 @login_required(login_url="/monitoring/login")
 def notFound(request):

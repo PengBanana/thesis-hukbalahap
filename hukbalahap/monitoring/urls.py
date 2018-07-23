@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^searchPT/$', views.searchPT, name='searchPT'),
     url(r'^profile/(?P<item_id>[0-9]+)/$', views.profile, name='profile'),
     url(r'^addUser/$', views.addUser, name='addUser'),
+    url(r'^viewMaintenance/$', views.viewMaintenance, name='viewMaintenance'),
     url(r'^setMaintenance/$', views.setMaintenance, name='setMaintenance'),
     url(r'^finishMaintenance/$', views.finishMaintenance, name='finishMaintenance'),
     url(r'^notFound/$', views.notFound, name='notFound'),

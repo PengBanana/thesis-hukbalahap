@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import url
 from .import views
+from django.conf.urls import handler404
+from django.conf.urls.static import static
 app_name = 'monitoring'
 
 urlpatterns = [
@@ -22,8 +24,6 @@ urlpatterns = [
     url(r'^logout_view/$', views.logout_view, name='logout_view'),
     url(r'^$', views.index, name='index'),
     url(r'^index/$', views.index, name='index'),
-    url(r'^pool/$', views.pool, name='pool'),
-    url(r'^indexOwner/$', views.indexOwner, name='indexOwner'),
     url(r'^personnel/$', views.personnel, name='personnel'),
     url(r'^profile/$', views.profile, name='profile'),
     url(r'^editDetails/$', views.editDetails, name='editDetails'),
@@ -36,4 +36,5 @@ urlpatterns = [
     url(r'^finishMaintenance/$', views.finishMaintenance, name='finishMaintenance'),
     url(r'^notFound/$', views.notFound, name='notFound'),
     url(r'^filterPoolStat/$', views.filterPoolStat, name='filterPoolStat'),
+
 ]

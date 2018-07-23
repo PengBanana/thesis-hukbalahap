@@ -35,5 +35,5 @@ urlpatterns = [
     url(r'^finishMaintenance/$', views.finishMaintenance, name='finishMaintenance'),
     url(r'^notFound/$', views.notFound, name='notFound'),
     url(r'^filterPoolStat/$', views.filterPoolStat, name='filterPoolStat'),
-
+    url(r'^setMaintenanceCompute/$', views.setMaintenanceCompute, name='setMaintenanceCompute'),
 ]

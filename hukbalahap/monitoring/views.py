@@ -245,6 +245,11 @@ def addUser(request):
 
 @login_required(login_url="/monitoring/login")
 def setMaintenance(request):
+    return render(request, 'monitoring/pool technician/set-maintenance-schedule.html')
+
+
+@login_required(login_url="/monitoring/login")
+def setMaintenanceCompute(request):
     try:
         poolPK = request.POST['poolPK']
         poolitem = Pool.objects.get(pk=poolPK)
@@ -310,10 +315,6 @@ def setMaintenance(request):
     except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
-
-@login_required(login_url="/monitoring/login")
-def setMaintenanceCompute(request):
-    return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html')
 
 
 @login_required(login_url="/monitoring/login")

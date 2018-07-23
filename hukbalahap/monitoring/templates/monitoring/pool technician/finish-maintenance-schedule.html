@@ -16,23 +16,26 @@
         <div class="row">
           <div class="col-xs-3"></div>
           <div class="col-xs-6">
-            {{form.timeAccomplished.label_tag}}
-            {{form.timeAccomplished}}
-            {{form.timeAccomplished.errors}}
 
-            <div style="padding-top:20px;">
-            {{form.act_chlorine.label_tag}}
-            {{form.act_chlorine}}
-            {{form.act_chlorine.errors}}
+            <div style="padding-top:50px;">
+              <h4>Select Maintenance Schedule</h4>
+              </div>
+              <div class="form-group" style="padding-top:15px;">
+                <label>Select Pool</label>
+                <select class="form-control">
+                  <option> 1</option>
+                </select>
+              </div>
 
-            {{form.act_muriatic.label_tag}}
-            {{form.act_muriatic}}
-            {{form.act_muriatic.errors}}
-
-            {{form.act_depowder.label_tag}}
-            {{form.act_depowder}}
-            {{form.act_depowder.errors}}
-          </div>
+              <div style="padding-top:20;">
+                <h4>Actual Chemicals </h4>
+                <label>Muriatic:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                <label>Ash Soda:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                <label>Chlorine:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                </div>
 
 
           </div>
@@ -41,7 +44,7 @@
         <div class="box-footer">
           <div class="row">
             <div class="col-xs-9">
-            <button type="submit"  class="btn btn-primary pull-right">Confirm</button>
+            <button type="submit"  class="btn btn-primary pull-right">Next</button>
           </div>
           </div>
         </div>

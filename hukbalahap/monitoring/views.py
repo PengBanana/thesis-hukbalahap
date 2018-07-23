@@ -245,14 +245,14 @@ def addUser(request):
 
 @login_required(login_url="/monitoring/login")
 def setMaintenance(request):
-    try:
+    if 0==0:
         pools = Pool.objects.all()
         content = {
             'pools':pools,
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule.html', content)
-    except:
-        return render(request, 'mFnitoring/pool owner/result-not-found.html')
+    else:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
 @login_required(login_url="/monitoring/login")

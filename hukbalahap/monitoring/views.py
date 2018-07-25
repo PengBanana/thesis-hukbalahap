@@ -564,3 +564,8 @@ def notFound(request):
 @login_required(login_url="/monitoring/login")
 def personnel(request):
     return render(request, 'monitoring/pool owner/personnel-efficiency.html')
+
+
+@login_required(login_url="/monitoring/login")
+def maintenanceDetails(request):
+    return render(request, 'monitoring/pool technician/maintenance-details.html')

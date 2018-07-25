@@ -1,0 +1,66 @@
+{% extends "monitoring/pool technician/starter.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">Maintenance Schedule Details</h3><br>
+      </div>
+      <!-- /.box-header -->
+      <!-- form start -->
+
+      <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-xs-3"></div>
+          <div class="col-xs-6">
+
+            <div>
+              <h3>*name of pool*</h3>
+              <p>*MM/DD/YY 99:99:99*</p>
+              <div>
+                <div>
+                  <h4>Estimated Chemical Volume</h4>
+                  <small>The Following are the measurements of chemical that you need to pour in the pool water</small>
+                  </div>
+
+                  <div style="padding-top:20px;">
+                    <label>Muriatic:</label>{{ muriaticAcid }}<br>
+                    <label>Soda Ash:</label>{{ sodaAsh }}<br>
+                    <label>DE Powder:</label>{{ dePowder }}<br>
+                  </div>
+
+              </div>
+              <label></label>
+              </div>
+                <div>
+                <h4>Actual Chemicals </h4>
+                <label>Muriatic:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                <label>Ash Soda:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                <label>Chlorine:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                </div>
+
+
+          </div>
+          <div class="col-xs-3"></div>
+        </div>
+        <div class="box-footer">
+          <div class="row">
+            <div class="col-xs-9">
+            <button type="submit"  class="btn btn-primary pull-right">Next</button>
+          </div>
+          </div>
+        </div>
+
+      </div>
+
+      </form>
+    </div>
+  </div>
+
+{% endblock %}

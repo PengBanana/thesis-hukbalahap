@@ -569,3 +569,8 @@ def personnel(request):
 @login_required(login_url="/monitoring/login")
 def maintenanceDetails(request):
     return render(request, 'monitoring/pool technician/maintenance-details.html')
+
+
+@login_required(login_url="/monitoring/login")
+def maintenanceDetailsChemicals(request):
+    return render(request, 'monitoring/pool technician/maintenance-details-chemicals.html')

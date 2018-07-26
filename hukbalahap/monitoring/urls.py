@@ -38,4 +38,5 @@ urlpatterns = [
     url(r'^filterPoolStat/$', views.filterPoolStat, name='filterPoolStat'),
     url(r'^setMaintenanceCompute/$', views.setMaintenanceCompute, name='setMaintenanceCompute'),
     url(r'^maintenanceDetails/$', views.maintenanceDetails, name='maintenanceDetails'),
+    url(r'^maintenanceDetailsChemicals/$', views.maintenanceDetailsChemicals, name='maintenanceDetailsChemicals'),
 ]

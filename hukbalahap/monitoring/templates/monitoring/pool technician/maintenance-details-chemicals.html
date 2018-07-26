@@ -16,24 +16,15 @@
         <div class="row">
           <div class="col-xs-3"></div>
           <div class="col-xs-6">
-
-            <div>
-              <h3>*name of pool*</h3>
-              <p>*MM/DD/YY 99:99:99*</p>
-              <div>
                 <div>
-                  <h4>Estimated Chemical Volume</h4>
-                  <small>The Following are the measurements of chemical that you need to pour in the pool water</small>
-                  </div>
-
-                  <div style="padding-top:20px;">
-                    <label>Muriatic:</label>{{ muriaticAcid }}<br>
-                    <label>Soda Ash:</label>{{ sodaAsh }}<br>
-                    <label>DE Powder:</label>{{ dePowder }}<br>
-                  </div>
-
-              </div>
-              </div>
+                <h4>Actual Chemicals </h4>
+                <label>Muriatic:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                <label>Ash Soda:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                <label>Chlorine:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                </div>
 
 
           </div>
@@ -42,7 +33,7 @@
         <div class="box-footer">
           <div class="row">
             <div class="col-xs-9">
-            <button type="submit"  class="btn btn-primary pull-right">Finish Maintenance</button>
+            <button type="submit"  class="btn btn-primary pull-right">Confirm</button>
           </div>
           </div>
         </div>

@@ -77,7 +77,7 @@ def save_user_status(sender, instance, **kwargs):
 class MaintenanceSchedule(models.Model):
 	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
-	date = models.DateField(null=True, blank=True)
+	date = models.DateField(null=True, default=datetime.today().strftime('%Y-%m-%d'))
 	estimatedStart = models.TimeField(null=True, blank=True)
 	estimatedEnd = models.TimeField(null=True, blank=True)
 	scheduledStart = models.TimeField(null=True, blank=True)

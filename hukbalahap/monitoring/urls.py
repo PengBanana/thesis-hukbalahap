@@ -33,8 +33,11 @@ urlpatterns = [
     url(r'^addUser/$', views.addUser, name='addUser'),
     url(r'^viewMaintenance/$', views.viewMaintenance, name='viewMaintenance'),
     url(r'^setMaintenance/$', views.setMaintenance, name='setMaintenance'),
+    url(r'^submitMaintenanceRequest/$', views.submitMaintenanceRequest, name='submitMaintenanceRequest'),
     url(r'^finishMaintenance/$', views.finishMaintenance, name='finishMaintenance'),
     url(r'^notFound/$', views.notFound, name='notFound'),
     url(r'^filterPoolStat/$', views.filterPoolStat, name='filterPoolStat'),
     url(r'^setMaintenanceCompute/$', views.setMaintenanceCompute, name='setMaintenanceCompute'),
+    url(r'^maintenanceDetails/$', views.maintenanceDetails, name='maintenanceDetails'),
+    url(r'^maintenanceDetailsChemicals/$', views.maintenanceDetailsChemicals, name='maintenanceDetailsChemicals'),
 ]

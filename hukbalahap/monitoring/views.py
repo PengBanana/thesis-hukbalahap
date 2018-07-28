@@ -259,6 +259,14 @@ def setMaintenance(request):
 def setMaintenanceCompute(request):
     if 0==0:
         poolPK = request.POST['poolPK']
+        dRange = request.POST['dRange']
+        tStart = request.POST['tStart']
+        tEnd = request.POST['tEnd']
+        data = dRange.split("-")
+        dStart = data[0]
+        dEnd = data[1]
+        sDate = datetime.datetime.strptime(dStart, '%m/%d/%Y ').strftime('%Y-%m-%d')
+        eDate = datetime.datetime.strptime(dEnd, ' %m/%d/%Y').strftime('%Y-%m-%d')
         poolitem = Pool.objects.get(pk=poolPK)
         phList = Temp_Ph.objects.all().filter(pool=poolitem)
         phSum=0
@@ -327,7 +335,12 @@ def setMaintenanceCompute(request):
             dePowder=0
         #no chlorine computation
         content = {
-            'debugger':'',
+            'debugger':"",
+            'poolPK':poolPK,
+            'dateStart':sDate,
+            'dateEnd':eDate,
+            'timeStart':tStart,
+            'timeEnd':tEnd,
             'sodaAsh':sodaAsh,
             'muriaticAcid':muriaticAcid,
             'dePowder':dePowder,
@@ -337,6 +350,31 @@ def setMaintenanceCompute(request):
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
+@login_required(login_url="/monitoring/login")
+def submitMaintenanceRequest(request):
+    poolPK = request.POST['poolPK']
+    dateStart = request.POST['dateStart']
+    dateEnd = request.POST['dateEnd']
+    timeStart = request.POST['timeStart']
+    timeEnd = request.POST['timeEnd']
+    bakingSoda = request.POST['sodaAsh']
+    muriaticAcid = request.POST['muriaticAcid']
+    dePowder = request.POST['dePowder']
+    poolitem = Pool.objects.get(pk=poolPK)
+    ms = MaintenanceSchedule(
+        user='', 
+        pool=poolitem, 
+        estimatedStart=timeStart, 
+        estimatedEnd=timeEnd, 
+        est_muriatic=muriaticAcid,
+        est_depowder=dePowder,
+        est_bakingsoda=bakingSoda   
+    )
+    ms.save()
+    content={
+        debugger:""
+    }
+    return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
 
 @login_required(login_url="/monitoring/login")
 def finishMaintenance(request):
@@ -564,3 +602,13 @@ def notFound(request):
 @login_required(login_url="/monitoring/login")
 def personnel(request):
     return render(request, 'monitoring/pool owner/personnel-efficiency.html')
+
+
+@login_required(login_url="/monitoring/login")
+def maintenanceDetails(request):
+    return render(request, 'monitoring/pool technician/maintenance-details.html')
+
+
+@login_required(login_url="/monitoring/login")
+def maintenanceDetailsChemicals(request):
+    return render(request, 'monitoring/pool technician/maintenance-details-chemicals.html')

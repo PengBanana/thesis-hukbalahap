@@ -1,5 +1,4 @@
 {% extends "monitoring/pool technician/starter.html" %}
-
 {% block content %}
 <div class="row">
   <div class="col-md-12">
@@ -32,7 +31,7 @@
                 <div class="input-group-addon">
                   <i class="fa fa-calendar"></i>
                 </div>
-                <input type="text" class="form-control pull-right" id="reservation">
+                <input type="text" name="dRange" class="form-control pull-right" id="reservation">
               </div>
               <!-- /.input group -->
             </div>
@@ -40,10 +39,27 @@
             <!-- time Picker -->
             <div class="bootstrap-timepicker">
               <div class="form-group">
-                <label>Time picker:</label>
+                <label>Time Start:</label>
 
                 <div class="input-group">
-                  <input type="text" class="form-control timepicker">
+                  <input type="text" name="tEnd" class="form-control timepicker">
+
+                  <div class="input-group-addon">
+                    <i class="fa fa-clock-o"></i>
+                  </div>
+                </div>
+                <!-- /.input group -->
+              </div>
+
+
+
+          </div>
+              <div class="bootstrap-timepicker">
+              <div class="form-group">
+                <label>Time End:</label>
+
+                <div class="input-group">
+                  <input type="text" name="tStart" class="form-control timepicker">
 
                   <div class="input-group-addon">
                     <i class="fa fa-clock-o"></i>
@@ -60,13 +76,13 @@
         <div class="box-footer">
           <div class="row">
             <div class="col-xs-9">
-            <button type="submit"  class="btn btn-primary pull-right">Next</button>
+            <button type="submit" name="nextBtn" class="btn btn-primary pull-right">Next</button>
           </div>
           </div>
         </div>
 
       </div>
-
+        
       </form>
     </div>
   </div>

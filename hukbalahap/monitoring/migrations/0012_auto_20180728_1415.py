@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='maintenanceschedule',
             name='act_bakingsoda',
-            field=models.DecimalField(decimal_places=2, default='', max_digits=8),
+            field=models.DecimalField(decimal_places=2, default='0.0', max_digits=8),
         ),
         migrations.AlterField(
             model_name='maintenanceschedule',
             name='est_bakingsoda',
-            field=models.DecimalField(decimal_places=2, default='', max_digits=8),
+            field=models.DecimalField(decimal_places=2, default='0.0', max_digits=8),
         ),
     ]

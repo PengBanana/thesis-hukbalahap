@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404,redirect
-from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref
+from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref, MaintenanceSchedule
 from .forms import SignUpForm, SignUpType, Pool,EditDetailsForm,ChangePasswordForm
 from django.views.generic import TemplateView
 from django.db.models import Q
@@ -352,29 +352,37 @@ def setMaintenanceCompute(request):
 
 @login_required(login_url="/monitoring/login")
 def submitMaintenanceRequest(request):
-    poolPK = request.POST['poolPK']
-    dateStart = request.POST['dateStart']
-    dateEnd = request.POST['dateEnd']
-    timeStart = request.POST['timeStart']
-    timeEnd = request.POST['timeEnd']
-    bakingSoda = request.POST['sodaAsh']
-    muriaticAcid = request.POST['muriaticAcid']
-    dePowder = request.POST['dePowder']
-    poolitem = Pool.objects.get(pk=poolPK)
-    ms = MaintenanceSchedule(
-        user='', 
-        pool=poolitem, 
-        estimatedStart=timeStart, 
-        estimatedEnd=timeEnd, 
-        est_muriatic=muriaticAcid,
-        est_depowder=dePowder,
-        est_bakingsoda=bakingSoda   
-    )
-    ms.save()
-    content={
-        debugger:""
-    }
-    return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
+    try:
+        poolPK = request.POST['poolPK']
+        dateStart = request.POST['dateStart']
+        dateEnd = request.POST['dateEnd']
+        timeStart = request.POST['timeStart']
+        timeEnd = request.POST['timeEnd']
+        bakingSoda = request.POST['sodaAsh']
+        muriaticAcid = request.POST['muriaticAcid']
+        dePowder = request.POST['dePowder']
+        poolitem = Pool.objects.get(pk=poolPK)
+        ms = MaintenanceSchedule(
+            user=request.user, 
+            pool=poolitem, 
+            estimatedStart=timeStart, 
+            estimatedEnd=timeEnd, 
+            est_chlorine=0,
+            est_muriatic=muriaticAcid,
+            est_depowder=dePowder,
+            est_bakingsoda=bakingSoda,
+            act_chlorine=0,
+            act_muriatic=0,
+            act_depowder=0, 
+            act_bakingsoda=0
+        )
+        ms.save()
+        content={
+            'debugger':""
+        }
+        return render(request, 'monitoring/pool technician/addMaintenanceSuccess.html', content)
+    except:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 @login_required(login_url="/monitoring/login")
 def finishMaintenance(request):

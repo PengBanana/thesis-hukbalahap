@@ -378,9 +378,10 @@ def submitMaintenanceRequest(request):
         )
         ms.save()
         content={
-            'debugger':""
+            'debugger':"",
+            'message':"Maintenance Schedule has been set!"
         }
-        return render(request, 'monitoring/pool technician/addMaintenanceSuccess.html', content)
+        return render(request, 'monitoring/pool technician/success.html', content)
     except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
@@ -599,7 +600,12 @@ def filterPoolStat(request):
 
 @login_required(login_url="/monitoring/login")
 def viewMaintenance(request):
-    return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html')
+    maintenanceSchedule = MaintenanceSchedule.objects.all()
+    content={
+        'debugger': "",
+        'calendar': maintenanceSchedule,
+    }
+    return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
 
 
 @login_required(login_url="/monitoring/login")

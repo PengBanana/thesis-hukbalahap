@@ -375,48 +375,88 @@ def profile(request,item_id):
         user = User.objects.get(id=item_id)
         msg = None
         content = None
-        if (request.method == 'POST' ) & ('password' in request.POST):
-            form2 = ChangePasswordForm(user, request.POST)
-            if form2.is_valid():
-                form2.save()
-                alert = 'success'
+        status = user.status.status
+        active= Status_Ref.objects.get(pk=1)
+        btnFlag = None
+        #lagay condition kapag hindi active account = pwede ireactivate
+        if status == active:
+            btnFlag = 'Active'
+            if (request.method == 'POST' ) & ('password' in request.POST):
+                form2 = ChangePasswordForm(user, request.POST)
+                form1 =EditDetailsForm(request.POST)
+                if form2.is_valid():
+                    form2.save()
+                    alert = 'success'
 
-                content = {
-                    'item_id': user,
-                    'form2': form2,
-                    'msg':alert,
+                    content = {
+                        'item_id': user,
+                        'form2': form2,
+                        'form1': form1,
+                        'msg':alert,
+                        'status':status,
+                        'btnFlag':btnFlag,
 
-                }
+                    }
 
-        elif (request.method == 'POST' ) & ('editDetails' in request.POST):
-            form1 =EditDetailsForm(request.POST)
-            if form1.is_valid():
-                print('uuuuuup')
-                fname = request.POST.get('first_name')
-                lname = request.POST.get('last_name')
-                user.first_name=fname
-                user.last_name=lname
-                user.save()
-                alert = 'success'
+            elif (request.method == 'POST' ) & ('editDetails' in request.POST):
+                form1 =EditDetailsForm(request.POST)
+                form2 = ChangePasswordForm(user, request.POST)
+                if form1.is_valid():
+                    print('uuuuuup')
+                    fname = request.POST.get('first_name')
+                    lname = request.POST.get('last_name')
+                    user.first_name=fname
+                    user.last_name=lname
+                    user.save()
+                    alert = 'success'
+                    content = {
+                        'item_id': user,
+                        'form1': form1,
+                        'form2': form2,
+                        'msg':alert,
+                        'status':status,
+                        'btnFlag':btnFlag,
+
+                    }
+            elif (request.method == 'POST' ) & ('deactivate' in request.POST):
+                Status.objects.filter(pk=user.pk).update(status=2)
+
+                return render(request, 'monitoring/pool owner/home-owner.html', content)
+
+
+            else:
+                form1 = EditDetailsForm()
+                form2 = ChangePasswordForm(request.user)
                 content = {
                     'item_id': user,
                     'form1': form1,
-                    'msg':alert,
+                    'form2': form2,
+                    'status':status,
+                    'btnFlag':btnFlag,
 
                 }
-        elif (request.method == 'POST' ) & ('deactivate' in request.POST):
-            Status.objects.filter(pk=user.pk).update(status=2)
-
-
+            return render(request, 'monitoring/pool owner/technician-profile.html', content)
         else:
-            form1 = EditDetailsForm()
-            form2 = ChangePasswordForm(request.user)
-            content = {
-                'item_id': user,
-                'form1': form1,
-                'form2': form2,
+            if (request.method == 'POST' ) & ('activate' in request.POST):
+                print('nyeaaaaaammmm')
+                Status.objects.filter(pk=user.pk).update(status=1)
+                btnFlag = 'Inactive'
+                content = {
+                    'item_id': user,
+                    'status':status,
+                    'btnFlag':btnFlag,
 
-            }
+                    }
+                return render(request, 'monitoring/pool owner/home-owner.html', content)
+            else:
+                btnFlag = 'Inactive'
+                content = {
+                    'item_id': user,
+                    'status':status,
+                    'btnFlag':btnFlag,
+
+                    }
+
         return render(request, 'monitoring/pool owner/technician-profile.html', content)
     else:
         return render(request, 'monitoring/pool owner/result-not-found.html')
@@ -461,9 +501,61 @@ def editDetails(request):
                 user.first_name=fname
                 user.last_name=lname
                 user.save()
-                form1.first_name = manu
                 alert = 'Details Successfully Changed.'
                 content = {
+                    'form1': form1,
+                    'alertmsg':alert,
+                    'curr_fname' : fname,
+                    'curr_lname' : lname,
+                    'username' : current_user.username,
+
+                }
+                return render(request, 'monitoring/pool technician/edit-details.html',content)
+
+
+        elif (request.method == 'POST' ) & ('deactivate' in request.POST):
+            print('suhhh')
+            print(current_user)
+            userStat =Status.objects.get(id=current_user.pk)
+            print(userStat.status)
+            Status.objects.filter(pk=request.user.id).update(status=2)
+            logout(request)
+            return render(request,'registration/logout.html')
+
+
+
+        else:
+            form1 = EditDetailsForm()
+            form2 = ChangePasswordForm(current_user)
+            content = {
+                'form1': form1,
+                'form2': form2,
+                'curr_fname' : curr_fname,
+                'curr_lname' : curr_lname,
+                'username' : current_user.username,
+
+            }
+
+
+        return render(request, 'monitoring/pool technician/edit-details.html',content)
+    elif not usertype.type == adminType:
+        current_user = request.user
+        curr_fname = request.user.first_name
+        curr_lname = request.user.last_name
+        alert = None
+        content = None
+        user = User.objects.get(id=current_user.id)
+        if (request.method == 'POST' ) & ('password' in request.POST):
+            form1 =EditDetailsForm(request.POST)
+            form2 = ChangePasswordForm(current_user, request.POST)
+            if form2.is_valid():
+                userForm = form2.save()
+                alert = 'Password Successfully Changed.'
+                update_session_auth_hash(request, userForm)
+
+
+                content = {
+                    'form2': form2,
                     'form1': form1,
                     'alertmsg':alert,
                     'curr_fname' : curr_fname,
@@ -471,8 +563,27 @@ def editDetails(request):
                     'username' : current_user.username,
 
                 }
-                return render(request, 'monitoring/pool technician/edit-details.html',content)
 
+
+        elif (request.method == 'POST' ) & ('editDetails' in request.POST):
+            form1 =EditDetailsForm(request.POST)
+            form2 = ChangePasswordForm(current_user, request.POST)
+            if form1.is_valid():
+                fname = request.POST.get('first_name')
+                lname = request.POST.get('last_name')
+                user.first_name=fname
+                user.last_name=lname
+                user.save()
+                alert = 'Details Successfully Changed.'
+                content = {
+                    'form1': form1,
+                    'form2': form2,
+                    'alertmsg':alert,
+                    'curr_fname' : fname,
+                    'curr_lname' : lname,
+                    'username' : current_user.username,
+
+                }
 
         elif (request.method == 'POST' ) & ('deactivate' in request.POST):
             print('suhhh')
@@ -574,3 +685,12 @@ def maintenanceDetails(request):
 @login_required(login_url="/monitoring/login")
 def maintenanceDetailsChemicals(request):
     return render(request, 'monitoring/pool technician/maintenance-details-chemicals.html')
+
+
+@login_required(login_url="/monitoring/login")
+def computeChlorine(request):
+    return render(request, 'monitoring/pool technician/chlorine-compute.html')
+
+
+def success(request):
+    return render(request, 'monitoring/success/success.html')

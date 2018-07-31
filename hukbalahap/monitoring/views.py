@@ -715,25 +715,46 @@ def viewMaintenance(request):
         maintenanceSchedule = MaintenanceSchedule.objects.all()
         #"October 13, 2014 11:13:00"
         users=[]
-        schedules=[]
+        startSchedules=[]
+        endSchedules=[]
         colors=[]
         eventids=[]
         for event in maintenanceSchedule:
-            if 1==1:
-                users.append(event.user)
+            users.append(event.user)
+            if event.scheduledStart == None:
                 b=event.estimatedStart
-                if not b==None:
-                    dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
-                    #'7/31/2018 1:30:00'
-                    dateSchedule = datetime.datetime.strptime(dString, '%B %d, %Y ').strftime('%Y-%m-%d')
-                else:
-                    dString="NoValue"
-                schedules.append(dString)
-                colors.append("")
-                eventids.append(event.id)
+            else:
+                b=event.scheduledStart
+            dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
+            #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
+            startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d %Y %H:%M:00')
+            if event.scheduledEnd == None:
+                b=event.estimatedEnd
+            else:
+                b=event.scheduledEnd
+            dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
+            #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
+            endDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d %Y %H:%M:00')
+            #Notified Scheduled Accomplished
+            if event.status == "Notified":
+                color="#f39c12"
+            elif event.status == "Scheduled":
+                color="#0073b7"
+            elif event.status == "Accomplished":
+                color="#00a65a"
+            #appends
+            users.append(event.user)
+            startSchedules.append(startDate)
+            endSchedules.append(endDate)
+            colors.append(color)
+            eventids.append(event.id)
         content={
-            'debugger': schedules,
-            'calendar': "maintenanceSchedule",
+            'debugger': "",
+            'titles': users,
+            'starts': startSchedules,
+            'ends': endSchedules,
+            'backgroundColors': colors,
+            'ids': eventids,
         }
         return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
     else:

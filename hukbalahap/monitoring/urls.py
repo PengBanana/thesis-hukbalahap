@@ -40,4 +40,6 @@ urlpatterns = [
     url(r'^setMaintenanceCompute/$', views.setMaintenanceCompute, name='setMaintenanceCompute'),
     url(r'^maintenanceDetails/$', views.maintenanceDetails, name='maintenanceDetails'),
     url(r'^maintenanceDetailsChemicals/$', views.maintenanceDetailsChemicals, name='maintenanceDetailsChemicals'),
+    url(r'^computeChlorine/$', views.computeChlorine, name='computeChlorine'),
+    url(r'^success/$', views.success, name='success'),
 ]

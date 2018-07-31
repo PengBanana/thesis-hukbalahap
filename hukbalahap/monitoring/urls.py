@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^addUser/$', views.addUser, name='addUser'),
     url(r'^viewMaintenance/$', views.viewMaintenance, name='viewMaintenance'),
     url(r'^setMaintenance/$', views.setMaintenance, name='setMaintenance'),
+    url(r'^submitMaintenanceRequest/$', views.submitMaintenanceRequest, name='submitMaintenanceRequest'),
     url(r'^finishMaintenance/$', views.finishMaintenance, name='finishMaintenance'),
     url(r'^notFound/$', views.notFound, name='notFound'),
     url(r'^filterPoolStat/$', views.filterPoolStat, name='filterPoolStat'),

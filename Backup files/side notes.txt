@@ -1,4 +1,4 @@
-WATER QUALITY
+﻿WATER QUALITY
 
 Optimum Temperature = 77 – 82 
 Optimum pH = 7.4
@@ -45,3 +45,35 @@ ELSE PH > 7.4
 ELSE // 7.4 is optimum
 	PH LEVEL IS BALANCED
 	
+PH LEVEL THRESHOLD
+7.2-7.8
+
+// Temp to pH
+
+if pH == 7.2 && Temp > 25 Celcius
+         pH = 7.1
+         pool reading = Slightly Lower pH ( ~7.1)
+elif pH == 7.8 && Temp < 25 Celcius
+         pH = 7.9
+         pool reading = Slightly Higher pH (~7.9)
+else
+         pool = Normal
+		 
+		 
+//backup
+{% for event in calendar %}
+        {
+        {% if event.scheduledStart == None %}
+            title          : {{ event.user }},
+            start          : new Date(y, m, 1),
+            backgroundColor: '#f39c12',
+            url            : 'monitoring/index.html'
+            borderColor    : '#f39c12'
+        {% else %}
+            title          : {{ event.user }},
+            start          : new Date(y, m, 1),
+            backgroundColor: '#f56954', //red
+            borderColor    : '#f56954' //red
+        {% endif %}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}

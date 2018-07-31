@@ -12,8 +12,16 @@
       <!-- /.box-header -->
       <!-- form start -->
 
-      <form method="POST">
+      <form method="POST" action={% url 'monitoring:submitMaintenanceRequest' %}>
         {% csrf_token %}
+          <input type="hidden" name="poolPK" value={{ poolPK }}>
+          <input type="hidden" name="dateStart" value={{ dateStart }}>
+          <input type="hidden" name="dateEnd" value={{ dateEnd }}>
+          <input type="hidden" name="timeStart" value={{ timeStart }}>
+          <input type="hidden" name="timeEnd" value={{ timeEnd }}>
+          <input type="hidden" name="sodaAsh" value={{ sodaAsh}}>
+          <input type="hidden" name="muriaticAcid" value={{ muriaticAcid }}>
+          <input type="hidden" name="dePowder" value={{ dePowder }}>
         <div class="row">
           <div class="col-xs-3"></div>
           <div class="col-xs-6">
@@ -24,7 +32,7 @@
 
               <div>
                 <label>Muriatic:</label>{{ muriaticAcid }}<br>
-                <label>Soda Ash:</label>{{ sodaAsh }}<br>
+                <label>Baking Soda:</label>{{ sodaAsh }}<br>
                 <label>DE Powder:</label>{{ dePowder }}<br>
               </div>
 

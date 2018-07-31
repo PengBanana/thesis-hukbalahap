@@ -711,7 +711,7 @@ def filterPoolStat(request):
 
 @login_required(login_url="/monitoring/login")
 def viewMaintenance(request):
-    try:
+    if 0==0:
         maintenanceSchedule = MaintenanceSchedule.objects.all()
         #"October 13, 2014 11:13:00"
         users=[]
@@ -719,17 +719,24 @@ def viewMaintenance(request):
         colors=[]
         eventids=[]
         for event in maintenanceSchedule:
-            if event.scheduledStart == None:
+            if 1==1:
                 users.append(event.user)
-                schedules.append("")
+                b=event.estimatedStart
+                if not b==None:
+                    dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
+                    #'7/31/2018 1:30:00'
+                    dateSchedule = datetime.datetime.strptime(dString, '%B %d, %Y ').strftime('%Y-%m-%d')
+                else:
+                    dString="NoValue"
+                schedules.append(dString)
                 colors.append("")
                 eventids.append(event.id)
         content={
-            'debugger': "",
+            'debugger': schedules,
             'calendar': "maintenanceSchedule",
         }
         return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
-    except:
+    else:
         content = {
             "debugger":""
         }

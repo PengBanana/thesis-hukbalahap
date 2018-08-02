@@ -257,7 +257,7 @@ def setMaintenance(request):
 
 @login_required(login_url="/monitoring/login")
 def setMaintenanceCompute(request):
-    if 0==0:
+    try:
         poolPK = request.POST['poolPK']
         dRange = request.POST['dRange']
         tStart = request.POST['tStart']
@@ -346,7 +346,7 @@ def setMaintenanceCompute(request):
             'dePowder':dePowder,
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html', content)
-    else:
+    except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
@@ -384,10 +384,6 @@ def submitMaintenanceRequest(request):
         return render(request, 'monitoring/pool technician/success.html', content)
     except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
-
-@login_required(login_url="/monitoring/login")
-def finishMaintenance(request):
-    return render(request, 'monitoring/pool technician/finish-maintenance-schedule.html')
 
 
 @login_required(login_url="/monitoring/login")
@@ -687,7 +683,7 @@ def filterPoolStat(request):
         }
         return render(request, 'monitoring/pool technician/pool-stat.html', content)
     except:
-        if(0==0):
+        try:
             poolPk = request.POST['poolPK']
             poolref = Pool.objects.get(id=poolPk)
             now = datetime.datetime.now()
@@ -708,12 +704,12 @@ def filterPoolStat(request):
                 'temperature':temperature,
             }
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
-        else:
+        except:
             return render(request, 'monitoring/pool owner/result-not-found.html')
 
 @login_required(login_url="/monitoring/login")
 def viewMaintenance(request):
-    if 0==0:
+    try:
         maintenanceSchedule = MaintenanceSchedule.objects.all()
         #"October 13, 2014 11:13:00"
         users=[]
@@ -759,7 +755,7 @@ def viewMaintenance(request):
             'ids': eventids,
         }
         return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
-    else:
+    except:
         content = {
             "debugger":""
         }
@@ -820,7 +816,7 @@ def maintenanceDetails(request, schedule_id):
 
 @login_required(login_url="/monitoring/login")
 def maintenanceDetailsChemicals(request):
-    if 0==0:
+    try:
         maintenanceId=request.POST['maintenanceid']
         item = MaintenanceSchedule.objects.get(id=maintenanceId)
         poolname=item.pool
@@ -842,7 +838,7 @@ def maintenanceDetailsChemicals(request):
             'chlorine':chlorine,
         }
         return render(request, 'monitoring/pool technician/maintenance-details-chemicals.html', content)
-    else:
+    except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
 @login_required(login_url="/monitoring/login")
@@ -870,15 +866,18 @@ def submitMaintenanceChemicals(request):
 
 @login_required(login_url="/monitoring/login")
 def computeChlorine(request):
-    pools = Pool.objects.all()
-    content={
-        'pools':pools,
-    }
-    return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
+    try:
+        pools = Pool.objects.all()
+        content={
+            'pools':pools,
+        }
+        return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
+    except:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 @login_required(login_url="/monitoring/login")
 def displayChlorineChemical(request):
-    if 0==0:
+    try:
         dc=request.POST['dchlorineLevel']
         ac=request.POST['chlorineLevel']
         poolPK=request.POST['poolPK']
@@ -897,7 +896,7 @@ def displayChlorineChemical(request):
             'display':display,
         }
         return render(request, 'monitoring/success/success.html', content)
-    else:
+    except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
 @login_required(login_url="/monitoring/login")

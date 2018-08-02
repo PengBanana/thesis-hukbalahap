@@ -35,7 +35,6 @@ urlpatterns = [
     url(r'^viewMaintenance/(?P<schedule_id>[0-9]+)/$', views.maintenanceDetails, name='scheduleDetails'),
     url(r'^setMaintenance/$', views.setMaintenance, name='setMaintenance'),
     url(r'^submitMaintenanceRequest/$', views.submitMaintenanceRequest, name='submitMaintenanceRequest'),
-    url(r'^finishMaintenance/$', views.finishMaintenance, name='finishMaintenance'),
     url(r'^notFound/$', views.notFound, name='notFound'),
     url(r'^filterPoolStat/$', views.filterPoolStat, name='filterPoolStat'),
     url(r'^setMaintenanceCompute/$', views.setMaintenanceCompute, name='setMaintenanceCompute'),

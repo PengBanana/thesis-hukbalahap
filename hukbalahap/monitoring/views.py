@@ -774,8 +774,45 @@ def personnel(request):
 
 
 @login_required(login_url="/monitoring/login")
-def maintenanceDetails(request):
-    return render(request, 'monitoring/pool technician/maintenance-details.html')
+def maintenanceDetails(request, schedule_id):
+    if 0==0:
+        item = MaintenanceSchedule.objects.get(id=schedule_id)
+        if item.scheduledStart == None:
+            fromDate=item.estimatedStart
+            toDate=item.estimatedEnd
+        else:
+            fromDate=item.scheduledStart
+            toDate=item.scheduledEnd
+        poolname=item.pool
+        if item.status == "Accomplished":
+            muriaticAcid=item.act_muriatic
+            sodaAsh=item.act_bakingsoda
+            dePowder=item.act_depowder
+            chlorine=item.act_chlorine
+            showButton=0
+        else:
+            muriaticAcid=item.est_muriatic
+            sodaAsh=item.est_bakingsoda
+            dePowder=item.est_depowder
+            chlorine=item.est_chlorine
+            showButton=1
+        status=item.status
+        content={
+            'debugger':"",
+            'poolname':poolname,
+            'fromDate':fromDate,
+            'toDate':toDate,
+            'muriaticAcid':muriaticAcid,
+            'sodaAsh':sodaAsh,
+            'dePowder':dePowder,
+            'chlorine':chlorine,
+            'showButton':showButton,
+            'status':status
+        }
+        #insert notification here content.append/content.add(function())
+        return render(request, 'monitoring/pool technician/maintenance-details.html', content)
+    else:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
 @login_required(login_url="/monitoring/login")

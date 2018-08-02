@@ -777,7 +777,7 @@ def personnel(request):
 
 @login_required(login_url="/monitoring/login")
 def maintenanceDetails(request, schedule_id):
-    if 0==0:
+    try:
         item = MaintenanceSchedule.objects.get(id=schedule_id)
         if item.scheduledStart == None:
             fromDate=item.estimatedStart
@@ -785,7 +785,6 @@ def maintenanceDetails(request, schedule_id):
         else:
             fromDate=item.scheduledStart
             toDate=item.scheduledEnd
-        poolname=item.pool
         if item.status == "Accomplished":
             muriaticAcid=item.act_muriatic
             sodaAsh=item.act_bakingsoda
@@ -798,9 +797,11 @@ def maintenanceDetails(request, schedule_id):
             dePowder=item.est_depowder
             chlorine=item.est_chlorine
             showButton=1
+        poolname=item.pool
         status=item.status
         content={
             'debugger':"",
+            'schedule_id':schedule_id,
             'poolname':poolname,
             'fromDate':fromDate,
             'toDate':toDate,
@@ -813,13 +814,55 @@ def maintenanceDetails(request, schedule_id):
         }
         #insert notification here content.append/content.add(function())
         return render(request, 'monitoring/pool technician/maintenance-details.html', content)
-    else:
+    except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
 @login_required(login_url="/monitoring/login")
 def maintenanceDetailsChemicals(request):
-    return render(request, 'monitoring/pool technician/maintenance-details-chemicals.html')
+    if 0==0:
+        maintenanceId=request.POST['maintenanceid']
+        item = MaintenanceSchedule.objects.get(id=maintenanceId)
+        poolname=item.pool
+        fromDate=item.estimatedStart
+        toDate=item.estimatedEnd
+        muriaticAcid=item.est_muriatic
+        sodaAsh=item.est_bakingsoda
+        dePowder=item.est_depowder
+        chlorine=item.est_chlorine
+        content={
+            'debugger':dePowder,
+            'schedule_id':maintenanceId,
+            'poolname':poolname,
+            'fromDate':fromDate,
+            'toDate':toDate,
+            'muriaticAcid':muriaticAcid,
+            'sodaAsh':sodaAsh,
+            'dePowder':dePowder,
+            'chlorine':chlorine,
+        }
+        return render(request, 'monitoring/pool technician/maintenance-details-chemicals.html', content)
+    else:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
+
+@login_required(login_url="/monitoring/login")
+def submitMaintenanceChemicals(request):
+    try:
+        maintenanceId=request.POST['maintenanceId']
+        muriaticAcid=request.POST['muriaticAcid']
+        sodaAsh=request.POST['sodaAsh']
+        dePowder=request.POST['dePowder']
+        chlorine=request.POST['chlorine']
+        item = MaintenanceSchedule.objects.get(id=maintenanceId)
+        item.act_chlorine = decimal.Decimal(chlorine)
+        item.act_muriatic = decimal.Decimal(muriaticAcid)
+        item.act_depowder = decimal.Decimal(dePowder)
+        item.act_bakingsoda = decimal.Decimal(sodaAsh)
+        item.status = "Accomplished"
+        item.save()
+        return render(request, 'monitoring/success/success.html')
+    except:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
 @login_required(login_url="/monitoring/login")

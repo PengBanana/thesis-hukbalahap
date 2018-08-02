@@ -24,6 +24,11 @@ body {
   overflow-y: auto;
 }
 /* Layout */
+
+.skin-blue .sidebar-menu>li>.treeview-menu{
+  margin:0 1px;
+  background:#3c8dbc
+}
 .wrapper {
   height: 100%;
   position: relative;

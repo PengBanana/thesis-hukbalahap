@@ -363,17 +363,17 @@ def submitMaintenanceRequest(request):
         dePowder = request.POST['dePowder']
         poolitem = Pool.objects.get(pk=poolPK)
         ms = MaintenanceSchedule(
-            user=request.user, 
-            pool=poolitem, 
-            estimatedStart=timeStart, 
-            estimatedEnd=timeEnd, 
+            user=request.user,
+            pool=poolitem,
+            estimatedStart=timeStart,
+            estimatedEnd=timeEnd,
             est_chlorine=0,
             est_muriatic=muriaticAcid,
             est_depowder=dePowder,
             est_bakingsoda=bakingSoda,
             act_chlorine=0,
             act_muriatic=0,
-            act_depowder=0, 
+            act_depowder=0,
             act_bakingsoda=0
         )
         ms.save()
@@ -432,8 +432,9 @@ def profile(request,item_id):
                 form2 = ChangePasswordForm(user, request.POST)
                 form1 =EditDetailsForm(request.POST)
                 if form2.is_valid():
-                    form2.save()
+                    u = form2.save()
                     alert = 'success'
+                    update_session_auth_hash(request, u)
 
                     content = {
                         'item_id': user,
@@ -526,7 +527,7 @@ def editDetails(request):
             if form2.is_valid():
                 userForm = form2.save()
                 alert = 'Password Successfully Changed.'
-                update_session_auth_hash(request, userForm)
+                update_session_auth_hash()
 
 
                 content = {
@@ -599,6 +600,7 @@ def editDetails(request):
                 userForm = form2.save()
                 alert = 'Password Successfully Changed.'
                 update_session_auth_hash(request, userForm)
+
 
 
                 content = {

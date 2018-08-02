@@ -157,7 +157,7 @@
           <ul class="treeview-menu">
             <li><a href="{% url 'monitoring:viewMaintenance' %}">View All Maintenance Schedule</a></li>
             <li><a href="{% url 'monitoring:setMaintenance' %}">Set Maintenance Schedule</a></li>
-            <li><a href="{% url 'monitoring:finishMaintenance' %}">Finish Maintenance</a></li>
+            <li><a href="{% url 'monitoring:computeChlorine' %}">Set Chlorine Parameter</a></li>
           </ul>
         </li>
       </ul>
@@ -422,6 +422,7 @@
 
   })
 </script>
+
 
 {% block scripts %}
 

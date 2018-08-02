@@ -257,7 +257,7 @@ def setMaintenance(request):
 
 @login_required(login_url="/monitoring/login")
 def setMaintenanceCompute(request):
-    if 0==0:
+    try:
         poolPK = request.POST['poolPK']
         dRange = request.POST['dRange']
         tStart = request.POST['tStart']
@@ -346,7 +346,7 @@ def setMaintenanceCompute(request):
             'dePowder':dePowder,
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html', content)
-    else:
+    except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
@@ -363,17 +363,17 @@ def submitMaintenanceRequest(request):
         dePowder = request.POST['dePowder']
         poolitem = Pool.objects.get(pk=poolPK)
         ms = MaintenanceSchedule(
-            user=request.user, 
-            pool=poolitem, 
-            estimatedStart=timeStart, 
-            estimatedEnd=timeEnd, 
+            user=request.user,
+            pool=poolitem,
+            estimatedStart=timeStart,
+            estimatedEnd=timeEnd,
             est_chlorine=0,
             est_muriatic=muriaticAcid,
             est_depowder=dePowder,
             est_bakingsoda=bakingSoda,
             act_chlorine=0,
             act_muriatic=0,
-            act_depowder=0, 
+            act_depowder=0,
             act_bakingsoda=0
         )
         ms.save()
@@ -384,10 +384,6 @@ def submitMaintenanceRequest(request):
         return render(request, 'monitoring/pool technician/success.html', content)
     except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
-
-@login_required(login_url="/monitoring/login")
-def finishMaintenance(request):
-    return render(request, 'monitoring/pool technician/finish-maintenance-schedule.html')
 
 
 @login_required(login_url="/monitoring/login")
@@ -432,8 +428,9 @@ def profile(request,item_id):
                 form2 = ChangePasswordForm(user, request.POST)
                 form1 =EditDetailsForm(request.POST)
                 if form2.is_valid():
-                    form2.save()
+                    u = form2.save()
                     alert = 'success'
+                    update_session_auth_hash(request, u)
 
                     content = {
                         'item_id': user,
@@ -526,7 +523,7 @@ def editDetails(request):
             if form2.is_valid():
                 userForm = form2.save()
                 alert = 'Password Successfully Changed.'
-                update_session_auth_hash(request, userForm)
+                update_session_auth_hash()
 
 
                 content = {
@@ -599,6 +596,7 @@ def editDetails(request):
                 userForm = form2.save()
                 alert = 'Password Successfully Changed.'
                 update_session_auth_hash(request, userForm)
+
 
 
                 content = {
@@ -685,7 +683,7 @@ def filterPoolStat(request):
         }
         return render(request, 'monitoring/pool technician/pool-stat.html', content)
     except:
-        if(0==0):
+        try:
             poolPk = request.POST['poolPK']
             poolref = Pool.objects.get(id=poolPk)
             now = datetime.datetime.now()
@@ -706,7 +704,7 @@ def filterPoolStat(request):
                 'temperature':temperature,
             }
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
-        else:
+        except:
             return render(request, 'monitoring/pool owner/result-not-found.html')
 
 @login_required(login_url="/monitoring/login")
@@ -715,18 +713,48 @@ def viewMaintenance(request):
         maintenanceSchedule = MaintenanceSchedule.objects.all()
         #"October 13, 2014 11:13:00"
         users=[]
-        schedules=[]
+        startSchedules=[]
+        endSchedules=[]
         colors=[]
         eventids=[]
         for event in maintenanceSchedule:
+            users.append(event.user)
             if event.scheduledStart == None:
-                users.append(event.user)
-                schedules.append("")
-                colors.append("")
-                eventids.append(event.id)
+                b=event.estimatedStart
+            else:
+                b=event.scheduledStart
+            dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
+            #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
+            startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d %Y %H:%M:00')
+            if event.scheduledEnd == None:
+                b=event.estimatedEnd
+            else:
+                b=event.scheduledEnd
+            dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
+            #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
+            endDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d %Y %H:%M:00')
+            #Notified Scheduled Accomplished
+            if event.status == "Notified":
+                color="#f39c12"
+            elif event.status == "Scheduled":
+                color="#0073b7"
+            elif event.status == "Accomplished":
+                color="#00a65a"
+            elif event.status == "Delayed":
+                color="red"
+            #appends
+            users.append(event.user)
+            startSchedules.append(startDate)
+            endSchedules.append(endDate)
+            colors.append(color)
+            eventids.append(event.id)
         content={
             'debugger': "",
-            'calendar': "maintenanceSchedule",
+            'titles': users,
+            'starts': startSchedules,
+            'ends': endSchedules,
+            'backgroundColors': colors,
+            'ids': eventids,
         }
         return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
     except:
@@ -746,18 +774,136 @@ def personnel(request):
 
 
 @login_required(login_url="/monitoring/login")
-def maintenanceDetails(request):
-    return render(request, 'monitoring/pool technician/maintenance-details.html')
+def maintenanceDetails(request, schedule_id):
+    try:
+        item = MaintenanceSchedule.objects.get(id=schedule_id)
+        if item.scheduledStart == None:
+            fromDate=item.estimatedStart
+            toDate=item.estimatedEnd
+        else:
+            fromDate=item.scheduledStart
+            toDate=item.scheduledEnd
+        if item.status == "Accomplished":
+            muriaticAcid=item.act_muriatic
+            sodaAsh=item.act_bakingsoda
+            dePowder=item.act_depowder
+            chlorine=item.act_chlorine
+            showButton=0
+        else:
+            muriaticAcid=item.est_muriatic
+            sodaAsh=item.est_bakingsoda
+            dePowder=item.est_depowder
+            chlorine=item.est_chlorine
+            showButton=1
+        poolname=item.pool
+        status=item.status
+        content={
+            'debugger':"",
+            'schedule_id':schedule_id,
+            'poolname':poolname,
+            'fromDate':fromDate,
+            'toDate':toDate,
+            'muriaticAcid':muriaticAcid,
+            'sodaAsh':sodaAsh,
+            'dePowder':dePowder,
+            'chlorine':chlorine,
+            'showButton':showButton,
+            'status':status
+        }
+        #insert notification here content.append/content.add(function())
+        return render(request, 'monitoring/pool technician/maintenance-details.html', content)
+    except:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
 @login_required(login_url="/monitoring/login")
 def maintenanceDetailsChemicals(request):
-    return render(request, 'monitoring/pool technician/maintenance-details-chemicals.html')
+    try:
+        maintenanceId=request.POST['maintenanceid']
+        item = MaintenanceSchedule.objects.get(id=maintenanceId)
+        poolname=item.pool
+        fromDate=item.estimatedStart
+        toDate=item.estimatedEnd
+        muriaticAcid=item.est_muriatic
+        sodaAsh=item.est_bakingsoda
+        dePowder=item.est_depowder
+        chlorine=item.est_chlorine
+        content={
+            'debugger':dePowder,
+            'schedule_id':maintenanceId,
+            'poolname':poolname,
+            'fromDate':fromDate,
+            'toDate':toDate,
+            'muriaticAcid':muriaticAcid,
+            'sodaAsh':sodaAsh,
+            'dePowder':dePowder,
+            'chlorine':chlorine,
+        }
+        return render(request, 'monitoring/pool technician/maintenance-details-chemicals.html', content)
+    except:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
+
+@login_required(login_url="/monitoring/login")
+def submitMaintenanceChemicals(request):
+    try:
+        maintenanceId=request.POST['maintenanceId']
+        muriaticAcid=request.POST['muriaticAcid']
+        sodaAsh=request.POST['sodaAsh']
+        dePowder=request.POST['dePowder']
+        chlorine=request.POST['chlorine']
+        item = MaintenanceSchedule.objects.get(id=maintenanceId)
+        item.act_chlorine = decimal.Decimal(chlorine)
+        item.act_muriatic = decimal.Decimal(muriaticAcid)
+        item.act_depowder = decimal.Decimal(dePowder)
+        item.act_bakingsoda = decimal.Decimal(sodaAsh)
+        item.status = "Accomplished"
+        item.save()
+        content={
+            'display':"Schedule Complete"
+        }
+        return render(request, 'monitoring/success/success.html', content)
+    except:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
 @login_required(login_url="/monitoring/login")
 def computeChlorine(request):
-    return render(request, 'monitoring/pool technician/chlorine-compute.html')
+    try:
+        pools = Pool.objects.all()
+        content={
+            'pools':pools,
+        }
+        return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
+    except:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
+
+@login_required(login_url="/monitoring/login")
+def displayChlorineChemical(request):
+    try:
+        dc=request.POST['dchlorineLevel']
+        ac=request.POST['chlorineLevel']
+        poolPK=request.POST['poolPK']
+        multiplier=decimal.Decimal(dc) - decimal.Decimal(ac)
+        if multiplier<0:
+            multiplier=0
+        multiplier=decimal.Decimal(multiplier)*decimal.Decimal(0.00013)
+        poolitem = Pool.objects.get(id=poolPK)
+        cubicpool = poolitem.pool_width * poolitem.pool_depth * poolitem.pool_length
+        gallons = cubicpool * decimal.Decimal(7.5)
+        chlorine=0
+        chlorine=multiplier*gallons
+        chlorine=round(chlorine, 2)
+        display="Put "+ str(chlorine) +" ounces of chlorine on "+poolitem.pool_location+" pool."
+        content={
+            'display':display,
+        }
+        return render(request, 'monitoring/success/success.html', content)
+    except:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
+
+@login_required(login_url="/monitoring/login")
+def poolTechList(request):
+    return render(request, 'monitoring/pool owner/view-pool-technicians.html')
 
 
 def success(request):

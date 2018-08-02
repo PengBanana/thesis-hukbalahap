@@ -860,16 +860,45 @@ def submitMaintenanceChemicals(request):
         item.act_bakingsoda = decimal.Decimal(sodaAsh)
         item.status = "Accomplished"
         item.save()
-        return render(request, 'monitoring/success/success.html')
+        content={
+            'display':"Schedule Complete"
+        }
+        return render(request, 'monitoring/success/success.html', content)
     except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
 @login_required(login_url="/monitoring/login")
 def computeChlorine(request):
-    return render(request, 'monitoring/pool technician/chlorine-compute.html')
+    pools = Pool.objects.all()
+    content={
+        'pools':pools,
+    }
+    return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
 
-
+@login_required(login_url="/monitoring/login")
+def displayChlorineChemical(request):
+    if 0==0:
+        dc=request.POST['dchlorineLevel']
+        ac=request.POST['chlorineLevel']
+        poolPK=request.POST['poolPK']
+        multiplier=decimal.Decimal(dc) - decimal.Decimal(ac)
+        if multiplier<0:
+            multiplier=0
+        multiplier=decimal.Decimal(multiplier)*decimal.Decimal(0.00013)
+        poolitem = Pool.objects.get(id=poolPK)
+        cubicpool = poolitem.pool_width * poolitem.pool_depth * poolitem.pool_length
+        gallons = cubicpool * decimal.Decimal(7.5)
+        chlorine=0
+        chlorine=multiplier*gallons
+        chlorine=round(chlorine, 2)
+        display="Put "+ str(chlorine) +" ounces of chlorine on "+poolitem.pool_location+" pool."
+        content={
+            'display':display,
+        }
+        return render(request, 'monitoring/success/success.html', content)
+    else:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 @login_required(login_url="/monitoring/login")
 def poolTechList(request):

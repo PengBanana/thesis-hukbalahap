@@ -60,20 +60,4 @@ else
          pool = Normal
 		 
 		 
-//backup
-{% for event in calendar %}
-        {
-        {% if event.scheduledStart == None %}
-            title          : {{ event.user }},
-            start          : new Date(y, m, 1),
-            backgroundColor: '#f39c12',
-            url            : 'monitoring/index.html'
-            borderColor    : '#f39c12'
-        {% else %}
-            title          : {{ event.user }},
-            start          : new Date(y, m, 1),
-            backgroundColor: '#f56954', //red
-            borderColor    : '#f56954' //red
-        {% endif %}
-        }{% if not forloop.last %},{% endif %}
-        {% endfor %}
+//chlorine formula

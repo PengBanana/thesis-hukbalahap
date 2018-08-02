@@ -827,5 +827,11 @@ def computeChlorine(request):
     return render(request, 'monitoring/pool technician/chlorine-compute.html')
 
 
+
+@login_required(login_url="/monitoring/login")
+def poolTechList(request):
+    return render(request, 'monitoring/pool owner/view-pool-technicians.html')
+
+
 def success(request):
     return render(request, 'monitoring/success/success.html')

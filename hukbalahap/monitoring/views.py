@@ -740,7 +740,7 @@ def viewMaintenance(request):
                 color="#0073b7"
             elif event.status == "Accomplished":
                 color="#00a65a"
-            elif event.status == "Delayed":
+            elif event.status == "Late":
                 color="red"
             #appends
             users.append(event.user)

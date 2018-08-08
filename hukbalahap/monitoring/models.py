@@ -151,3 +151,12 @@ class Chlorine_Effectiveness(models.Model):
 
 	def __str__(self):
 		return self.pool.pool_location
+
+class Notification_Table(models.Model):
+	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+	message = models.TextField()
+	number = models.IntegerField()
+	type = models.TextField()
+
+	def __str__(self):
+		return str(self.user) +" - "+str(self.number)

@@ -11,6 +11,8 @@ class Pool(models.Model):
 	pool_length = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	pool_width = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	pool_depth = models.DecimalField(max_digits=8, decimal_places=2, default="")
+	pool_availabletimestart = models.TimeField(null=True, blank=True)
+	pool_availabletimeend = models.TimeField(null=True, blank=True)
 
 	def __str__(self):
 		return self.pool_location
@@ -82,7 +84,7 @@ class MaintenanceSchedule(models.Model):
 	estimatedEnd = models.DateTimeField(null=True, blank=True)
 	scheduledStart = models.DateTimeField(null=True, blank=True)
 	scheduledEnd = models.DateTimeField(null=True, blank=True)
-	timeAccomplished = models.TimeField(null=True, blank=True)
+	datetimeAccomplished = models.DateTimeField(null=True, blank=True)
 	est_chlorine = models.DecimalField(null=True, max_digits=8, decimal_places=2, default=None)
 	est_muriatic = models.DecimalField(max_digits=8, decimal_places=2, default=None)
 	est_depowder = models.DecimalField(max_digits=8, decimal_places=2, default=None)

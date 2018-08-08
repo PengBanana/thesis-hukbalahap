@@ -12,7 +12,13 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+#import
 
+#end of import
+#start of class
+
+
+#end of class
 def login(request):
     msg = None
     if request.method == 'POST':
@@ -905,6 +911,7 @@ def displayChlorineChemical(request):
 def poolTechList(request):
     return render(request, 'monitoring/pool owner/view-pool-technicians.html')
 
-
+@login_required(login_url="/monitoring/login")
 def success(request):
     return render(request, 'monitoring/success/success.html')
+

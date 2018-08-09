@@ -12,7 +12,7 @@
       <!-- /.box-header -->
       <!-- form start -->
 
-      <form method="POST">
+      <form method="POST" action={% url 'monitoring:submitMaintenanceChemicals' %} >
         {% csrf_token %}
         <div class="row">
           <div class="col-xs-3"></div>
@@ -20,14 +20,14 @@
                 <div>
                 <h4>Actual Chemicals </h4>
                 <label>Muriatic:</label><br>
-                <input type="number" class="form-control" placeholder="gallons" />
+                <input type="number" name="muriaticAcid" class="form-control" placeholder={{ muriaticAcid }} value={{ muriaticAcid }} />
                 <label>Ash Soda:</label><br>
-                <input type="number" class="form-control" placeholder="gallons" />
-                <label>Chlorine:</label><br>
-                <input type="number" class="form-control" placeholder="gallons" />
+                <input type="number" name="sodaAsh" class="form-control" placeholder={{ sodaAsh }} value={{sodaAsh }} />
+                <label>de Powder:</label><br>
+                <input type="number" name="dePowder" class="form-control" placeholder={{ dePowder }} value={{ dePowder }} /><label>chlorine:</label><br>
+                <input type="number" name="chlorine" class="form-control" placeholder={{ chlorine }} value={{ chlorine }} />
                 </div>
-
-
+              <input type="hidden" name="maintenanceId" value={{ schedule_id }}
           </div>
           <div class="col-xs-3"></div>
         </div>

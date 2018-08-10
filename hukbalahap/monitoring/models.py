@@ -157,8 +157,9 @@ class Chlorine_Effectiveness(models.Model):
 class Notification_Table(models.Model):
 	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 	message = models.TextField()
-	number = models.IntegerField()
-	type = models.TextField()
+	number = models.IntegerField(null=True)
+	type = models.TextField(default="Pool Technician")
+	date = models.DateField(null=True, default=datetime.today().strftime('%Y-%m-%d'))
 
 	def __str__(self):
 		return str(self.user) +" - "+str(self.number)

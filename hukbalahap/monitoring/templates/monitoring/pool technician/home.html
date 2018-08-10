@@ -21,6 +21,12 @@
                   <tr>
                     <td style="padding-left:20px;"><div>Chlorine Effectiveness</div></td>
                     <td><strong>{{ chlorinelevel }}</strong></td>
+                    <td>
+                      <svg width="22" height="22">
+                        <rect x="5" y="5" rx="0" ry="0" width="15" height="15" style="fill:red;stroke:black;stroke-width:1;opacity:0.5" />
+                            Sorry, your browser does not support inline SVG.
+                      </svg>
+                  </td>
                   </tr>
                   {% endif %}
                   {% endfor %}
@@ -29,6 +35,12 @@
                 <tr>
                     <td style="padding-left:20px;">pH</td>
                     <td><strong>{{ phlevel }}</strong></td>
+                    <td>
+                      <svg width="22" height="22">
+                        <rect x="5" y="5" rx="0" ry="0" width="15" height="15" style={{ color }} />
+                            Sorry, your browser does not support inline SVG.
+                      </svg>
+                  </td>
                 </tr>
                   {% endif %}
                   {% endfor %}
@@ -38,6 +50,12 @@
                 <tr >
                   <td style="padding-left:20px;" >Turbidity</td>
                   <td><strong>{{ turbiditylevel }}</strong></td>
+                  <td>
+                      <svg width="22" height="22">
+                        <rect x="5" y="5" rx="0" ry="0" width="15" height="15" style="fill:red;stroke:black;stroke-width:1;opacity:0.5" />
+                            Sorry, your browser does not support inline SVG.
+                      </svg>
+                  </td>
 
                 </tr>
                   {% endif %}
@@ -47,6 +65,12 @@
                 <tr>
                   <td style="padding-left:20px;">Temperature</td>
                   <td><strong>{{ temperaturelevel }}</strong></td>
+                  <td>
+                      <svg width="22" height="22">
+                        <rect x="5" y="5" rx="0" ry="0" width="15" height="15" style="fill:red;stroke:black;stroke-width:1;opacity:0.5" />
+                            Sorry, your browser does not support inline SVG.
+                      </svg>
+                  </td>
 
                 </tr>
                   {% endif %}

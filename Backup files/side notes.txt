@@ -1,13 +1,13 @@
 ﻿CODE NI FRANCIS
-#Import for Sensor Reading
-#import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008
+Import for Sensor Reading
+import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008
 from time import sleep
 
 #end of import
 #Sensor Reading Start
 SPI_PORT   = 0
 SPI_DEVICE = 0
-#mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
+mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
 turbidityChannel = 0
 phChannel = 0
 sleepTime = 2

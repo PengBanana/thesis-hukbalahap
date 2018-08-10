@@ -159,7 +159,7 @@ def index(request):
                     chlorine+=decimal.Decimal(185.315)*multiplier
                     multiplier*=item
                     chlorine-=decimal.Decimal(9.90222)*multiplier
-                    chlorine = round(chlorine, 2)
+                    chlorine = round(chlorine, 1)
                     if chlorine>100:
                         chlorine=100
                     elif chlorine<0:
@@ -306,7 +306,7 @@ def setMaintenanceCompute(request):
         #DE powder computation
         dePowder = squarefeet*decimal.Decimal(.1)
         dePowder = dePowder*decimal.Decimal(.8)
-        dePowder = round(dePowder, 2)
+        dePowder = round(dePowder, 1)
         #multiplier
         gallons = poolGallons
         multiplier = 0
@@ -328,7 +328,7 @@ def setMaintenanceCompute(request):
                 sodaAsh = multiplier * 4
             elif phLevel <= 7.4:
                 sodaAsh = multiplier * 3
-            sodaAsh = round(sodaAsh, 2)
+            sodaAsh = round(sodaAsh, 1)
         elif phLevel > 7.4:#muriatic acid computation
             if phLevel > 8.4:
                 muriaticAcid = multiplier * 16
@@ -338,7 +338,7 @@ def setMaintenanceCompute(request):
                 muriaticAcid = multiplier * 8
             elif phLevel > 7.5:
                 muriaticAcid = multiplier * 6
-            muriaticAcid = round(muriaticAcid, 2)
+            muriaticAcid = round(muriaticAcid, 1)
         else:
             print('water is balanced')
             sodaAsh=0
@@ -356,6 +356,7 @@ def setMaintenanceCompute(request):
             'muriaticAcid':muriaticAcid,
             'dePowder':dePowder,
             'notifications':notifications,
+            'color':"fill:green;stroke:black;stroke-width:1;opacity:0.5",
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html', content)
     except:
@@ -903,7 +904,7 @@ def displayChlorineChemical(request):
         gallons = cubicpool * decimal.Decimal(7.5)
         chlorine=0
         chlorine=multiplier*gallons
-        chlorine=round(chlorine, 2)
+        chlorine=round(chlorine, 1)
         display= str(chlorine) +" ounces of chlorine was successfully added on "+poolitem.pool_location+" pool."
         content={
             'display':display,

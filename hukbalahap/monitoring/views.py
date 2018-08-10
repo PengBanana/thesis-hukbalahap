@@ -962,15 +962,8 @@ def computeChlorine(request):
 
 @login_required(login_url="/monitoring/login")
 def displayChlorineChemical(request):
-<<<<<<< HEAD
-<<<<<<< HEAD
     notifications = getNotification(request)
-=======
-=======
-    notifications = getNotification(request)
->>>>>>> efbb812501da65884c4262b358efd0ce2963f2c8
     display = None
->>>>>>> 4a544edd915a6d9317b25a3802a3e5dd0fda6ebe
     try:
         dc=request.POST['dchlorineLevel']
         ac=request.POST['chlorineLevel']
@@ -1001,20 +994,16 @@ def poolTechList(request):
 @login_required(login_url="/monitoring/login")
 def success(request):
     return render(request, 'monitoring/success/success.html')
+
 @login_required(login_url="/monitoring/login")
-<<<<<<< HEAD
-=======
+def getNotification(request):
+    notifications = Notification_Table.objects.all().filter(user=request.user)
+    return notifications
 
 def getNotification(request):
     notifications = Notification_Table.objects.all().filter(user=request.user)
     return notifications
->>>>>>> efbb812501da65884c4262b358efd0ce2963f2c8
 
-<<<<<<< HEAD
-def getNotification(request):
-    notifications = Notification_Table.objects.all().filter(user=request.user)
-    return notifications
-=======
 @login_required(login_url="/monitoring/login")
 def success(request):
     return render(request, 'monitoring/success/success.html')
@@ -1026,4 +1015,3 @@ def personnelEfficiency(request):
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
->>>>>>> 4a544edd915a6d9317b25a3802a3e5dd0fda6ebe

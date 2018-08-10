@@ -15,18 +15,18 @@ from django.template import RequestContext
 #Import for Sensor Reading
 import threading
 import time
-import spidev
+#import spidev
 import datetime
 from time import sleep
-import numpy as np
-import Adafruit_GPIO.SPI as SPI
-import Adafruit_MCP3008
+#import numpy as np
+#import Adafruit_GPIO.SPI as SPI
+#import Adafruit_MCP3008
 
 #end of import
-#Sensor Reading Start 
+#Sensor Reading Start
 SPI_PORT   = 0
 SPI_DEVICE = 0
-mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
+#mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
 turbidityChannel = 0
 phChannel = 0
 sleepTime = 2
@@ -70,7 +70,7 @@ def averageVolt(voltArray, number):
     avg = amount/ (number-2)
     print ("na average na")
     return avg
-    
+
 class TurbiditySensor(threading.Thread):
 
     def run(self):
@@ -953,6 +953,7 @@ def computeChlorine(request):
 
 @login_required(login_url="/monitoring/login")
 def displayChlorineChemical(request):
+    display = None
     try:
         dc=request.POST['dchlorineLevel']
         ac=request.POST['chlorineLevel']
@@ -967,11 +968,11 @@ def displayChlorineChemical(request):
         chlorine=0
         chlorine=multiplier*gallons
         chlorine=round(chlorine, 2)
-        display="Put "+ str(chlorine) +" ounces of chlorine on "+poolitem.pool_location+" pool."
+        display= str(chlorine) +" ounces of chlorine was successfully added on "+poolitem.pool_location+" pool."
         content={
             'display':display,
         }
-        return render(request, 'monitoring/success/success.html', content)
+        return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
     except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
@@ -983,3 +984,17 @@ def poolTechList(request):
 def success(request):
     return render(request, 'monitoring/success/success.html')
 
+@login_required(login_url="/monitoring/login")
+def success(request):
+    return render(request, 'monitoring/success/success.html')
+
+
+@login_required(login_url="/monitoring/login")
+def personnelEfficiency(request):
+    return render(request, 'monitoring/pool owner/personnel-efficiency-report.html')
+
+
+
+@login_required(login_url="/monitoring/login")
+def chemicalConsumption(request):
+    return render(request, 'monitoring/pool owner/chemical-consumption-report.html')

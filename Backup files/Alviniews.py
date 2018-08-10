@@ -12,81 +12,13 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-#Import for Sensor Reading
-import threading
-import time
-#import spidev
-import datetime
-from time import sleep
-#import numpy as np
-#import Adafruit_GPIO.SPI as SPI
-#import Adafruit_MCP3008
+#import
 
 #end of import
-#Sensor Reading Start
-SPI_PORT   = 0
-SPI_DEVICE = 0
-#mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
-turbidityChannel = 0
-phChannel = 0
-sleepTime = 2
-ctr = 0
-arrayLength = 40
-printInterval = .800
-samplingInterval = 20
+#start of class
 
-def voltArray(arrayLength, mcp, channel):
-    voltArray = np.zeros(arrayLength,float)
-    i = 0
-    while i < arrayLength:
-        data = mcp.read_adc(channel)
-        voltArray[i] = data
-        i = i + 1
-        sleep(.800)
-    return voltArray
 
-def averageVolt(voltArray, number):
-    minm = 0
-    maxm = 0
-    avg = 0
-    amount = 0
-
-    if voltArray[0] < voltArray[1]:
-        minm = voltArray[0]
-        maxm = voltArray[1]
-    else:
-        minm = voltArray[1]
-        maxm = voltArray[0]
-    for x in range(2,voltArray.size):
-        if voltArray[x] < minm:
-            amount = amount + minm
-            minm = voltArray[x]
-        else:
-            if voltArray[x] > maxm:
-                amount = amount + maxm
-                maxm = voltArray[x]
-            else:
-                amount = amount + voltArray[x]
-    avg = amount/ (number-2)
-    print ("na average na")
-    return avg
-
-class TurbiditySensor(threading.Thread):
-
-    def run(self):
-        while True:
-            x = voltArray(arrayLength, mcp, phChannel)
-            finalVoltage = averageVolt(x, arrayLength)*5.0/1024
-            print(finalVoltage)
-            ctr =0
-            print("pH Value :" + str(1.5*finalVoltage))
-            ctr = ctr+1
-            sleep(5)
-
-turbidity = TurbiditySensor()
-turbidity.start()
-
-#Sensor Reading end
+#end of class
 def login(request):
     msg = None
     if request.method == 'POST':
@@ -962,11 +894,7 @@ def computeChlorine(request):
 
 @login_required(login_url="/monitoring/login")
 def displayChlorineChemical(request):
-<<<<<<< HEAD
     notifications = getNotification(request)
-=======
-    display = None
->>>>>>> 4a544edd915a6d9317b25a3802a3e5dd0fda6ebe
     try:
         dc=request.POST['dchlorineLevel']
         ac=request.POST['chlorineLevel']
@@ -981,12 +909,12 @@ def displayChlorineChemical(request):
         chlorine=0
         chlorine=multiplier*gallons
         chlorine=round(chlorine, 2)
-        display= str(chlorine) +" ounces of chlorine was successfully added on "+poolitem.pool_location+" pool."
+        display="Put "+ str(chlorine) +" ounces of chlorine on "+poolitem.pool_location+" pool."
         content={
             'display':display,
             'notifications':notifications,
         }
-        return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
+        return render(request, 'monitoring/success/success.html', content)
     except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
@@ -999,23 +927,6 @@ def success(request):
     return render(request, 'monitoring/success/success.html')
 @login_required(login_url="/monitoring/login")
 
-<<<<<<< HEAD
 def getNotification(request):
     notifications = Notification_Table.objects.all().filter(user=request.user)
     return notifications
-=======
-@login_required(login_url="/monitoring/login")
-def success(request):
-    return render(request, 'monitoring/success/success.html')
-
-
-@login_required(login_url="/monitoring/login")
-def personnelEfficiency(request):
-    return render(request, 'monitoring/pool owner/personnel-efficiency-report.html')
-
-
-
-@login_required(login_url="/monitoring/login")
-def chemicalConsumption(request):
-    return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
->>>>>>> 4a544edd915a6d9317b25a3802a3e5dd0fda6ebe

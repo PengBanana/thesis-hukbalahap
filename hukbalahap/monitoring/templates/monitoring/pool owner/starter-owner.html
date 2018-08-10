@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>AdminLTE 2 | StarterOwner</title>
+  <title>HUK | WQMS</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   {% load staticfiles %}
@@ -59,11 +59,11 @@
   <header class="main-header">
 
     <!-- Logo -->
-    <a href="index2.html" class="logo">
+    <a href="{% url 'monitoring:index' %}" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>A</b>LT</span>
+      <span class="logo-mini"></span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>Admin</b>LTE</span>
+      <span class="logo-lg">W Q M S</span>
     </a>
 
     <!-- Header Navbar -->
@@ -164,7 +164,7 @@
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">HEADER</li>
         <!-- Optionally, you can add icons to the links -->
-        <li class="active"><a href="#"><i class="fa fa-home"></i> <span>Home</span></a></li>
+        <li class="active"><a href="{% url 'monitoring:index' %}"><i class="fa fa-home"></i> <span>Home</span></a></li>
         <li class="treeview">
           <a href="#"><i class="fa fa-user-circle"></i> <span>Users</span>
             <span class="pull-right-container">
@@ -173,20 +173,19 @@
           </a>
           <ul class="treeview-menu">
             <li><a href="{% url 'monitoring:addUser' %}">Add Pool Technician </a></li>
-            <li><a >View Pool Technicians </a></li>
+            <li><a href="{% url 'monitoring:poolTechList' %}">View Pool Technicians </a></li>
           </ul>
         </li>
         <li class="treeview">
-          <a href="#"><i class="fa fa-calendar"></i> <span>Reports</span>
+          <a href="{% url 'monitoring:poolTechList' %}"><i class="fa fa-calendar"></i> <span>Reports</span>
             <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
               </span>
           </a>
           <ul class="treeview-menu">
-            <li><a data-toggle="modal" data-target="#modal-add-schedule">Generate Daily Report</a></li>
-            <li><a data-toggle="modal" data-target="#modal-finish-schedule">Generate Weekly Report</a></li>
-            <li><a data-toggle="modal" data-target="#modal-finish-schedule">Generate Monthly Report</a></li>
-          </ul>
+            <li><a href="{% url 'monitoring:personnelEfficiency' %}">Generate Employee <br> Performance Report</a></li>
+            <li><a href="{% url 'monitoring:chemicalConsumption' %}">Generate Weekly Chemical<br> Consumption Report</a></li>
+              </ul>
         </li>
       </ul>
       <!-- /.sidebar-menu -->

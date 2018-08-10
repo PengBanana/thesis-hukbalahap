@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404,redirect
-from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref, MaintenanceSchedule, Notification_Table
+from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref, MaintenanceSchedule
 from .forms import SignUpForm, SignUpType, Pool,EditDetailsForm,ChangePasswordForm
 from django.views.generic import TemplateView
 from django.db.models import Q
@@ -12,21 +12,95 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+#Import for Sensor Reading
+import threading
+import time
+#import spidev
+import datetime
+from time import sleep
+#import numpy as np
+#import Adafruit_GPIO.SPI as SPI
+#import Adafruit_MCP3008
 
+#end of import
+#Sensor Reading Start
+SPI_PORT   = 0
+SPI_DEVICE = 0
+#mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
+turbidityChannel = 0
+phChannel = 0
+sleepTime = 2
+ctr = 0
+arrayLength = 40
+printInterval = .800
+samplingInterval = 20
+
+def voltArray(arrayLength, mcp, channel):
+    voltArray = np.zeros(arrayLength,float)
+    i = 0
+    while i < arrayLength:
+        data = mcp.read_adc(channel)
+        voltArray[i] = data
+        i = i + 1
+        sleep(.800)
+    return voltArray
+
+def averageVolt(voltArray, number):
+    minm = 0
+    maxm = 0
+    avg = 0
+    amount = 0
+
+    if voltArray[0] < voltArray[1]:
+        minm = voltArray[0]
+        maxm = voltArray[1]
+    else:
+        minm = voltArray[1]
+        maxm = voltArray[0]
+    for x in range(2,voltArray.size):
+        if voltArray[x] < minm:
+            amount = amount + minm
+            minm = voltArray[x]
+        else:
+            if voltArray[x] > maxm:
+                amount = amount + maxm
+                maxm = voltArray[x]
+            else:
+                amount = amount + voltArray[x]
+    avg = amount/ (number-2)
+    print ("na average na")
+    return avg
+
+class TurbiditySensor(threading.Thread):
+
+    def run(self):
+        while True:
+            x = voltArray(arrayLength, mcp, phChannel)
+            finalVoltage = averageVolt(x, arrayLength)*5.0/1024
+            print(finalVoltage)
+            ctr =0
+            print("pH Value :" + str(1.5*finalVoltage))
+            ctr = ctr+1
+            sleep(5)
+
+turbidity = TurbiditySensor()
+turbidity.start()
+
+#Sensor Reading end
 def login(request):
     msg = None
     if request.method == 'POST':
         form = AuthenticationForm(request.POST)
         username = request.POST['username']
         password = request.POST['password']
-        userx = authenticate(username=username, password=password)
+        user = authenticate(username=username, password=password)
 
-        if userx is not None:
-            userStat =Status.objects.get(id=userx.pk)
+        if user is not None:
+            userStat =Status.objects.get(id=user.pk)
             notDeactivated =  Status_Ref.objects.get(pk=1)
-            if userx.is_active and userStat.status == notDeactivated:
-                auth_login(request, userx)
-                usertype = Type.objects.get(user=userx)
+            if user.is_active and userStat.status == notDeactivated:
+                auth_login(request, user)
+                usertype = Type.objects.get(pk=user.pk)
                 adminType= Usertype_Ref.objects.get(pk=1)
                 if usertype.type == adminType:
                     return redirect('/monitoring/index/')
@@ -56,11 +130,8 @@ def logout_view(request):
 
 @login_required(login_url="/monitoring/login")
 def index(request):
-    notifications = getNotification(request)
-    usertype = Type.objects.get(user=request.user)
+    usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
-    #notification code
-    notifications = getNotification(request)
     if not usertype.type == adminType:
         poolref = Pool.objects.all().order_by('pk')
         #temperature levels
@@ -175,8 +246,8 @@ def index(request):
             'turbidity':turbidityDeviations,
             'ph':phDeviations,
             'chlorine':chlorineLevels,
-            'notifications':notifications,
         }
+
         return render(request, 'monitoring/pool technician/home.html', content)
 
     else:
@@ -188,7 +259,6 @@ def index(request):
 def poolDetails_view(request, poolitem_id):
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
-    notifications = getNotification(request)
     if not usertype.type == adminType:
         poolref = Pool.objects.get(id=poolitem_id)
         ph = Final_Ph.objects.all().filter(pool=poolref)
@@ -199,7 +269,6 @@ def poolDetails_view(request, poolitem_id):
             'ph':ph,
             'turbidity':turbidity,
             'temperature':temperature,
-            'notifications':notifications,
         }
         print('wwwwwwwwwew')
         return render(request, 'monitoring/pool technician/pool-stat.html', content)
@@ -212,7 +281,6 @@ def poolDetails_view(request, poolitem_id):
 
 @login_required(login_url="/monitoring/login")
 def addUser(request):
-    notifications = getNotification(request)
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
     if usertype.type == adminType:
@@ -231,7 +299,6 @@ def addUser(request):
                 content={
                     'form':form,
                     'msg' : msg,
-                    'notifications':notifications,
                 }
                 return render(request, 'monitoring/pool owner/add-user.html',content)
 
@@ -240,7 +307,6 @@ def addUser(request):
                 content={
                     'form':form,
                     'msg' : msg,
-                    'notifications':notifications,
                 }
                 return render(request, 'monitoring/pool owner/add-user.html',content)
 
@@ -253,12 +319,10 @@ def addUser(request):
 
 @login_required(login_url="/monitoring/login")
 def setMaintenance(request):
-    notifications = getNotification(request)
     try:
         pools = Pool.objects.all()
         content = {
             'pools':pools,
-            'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule.html', content)
     except:
@@ -267,7 +331,6 @@ def setMaintenance(request):
 
 @login_required(login_url="/monitoring/login")
 def setMaintenanceCompute(request):
-    notifications = getNotification(request)
     try:
         poolPK = request.POST['poolPK']
         dRange = request.POST['dRange']
@@ -355,7 +418,6 @@ def setMaintenanceCompute(request):
             'sodaAsh':sodaAsh,
             'muriaticAcid':muriaticAcid,
             'dePowder':dePowder,
-            'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html', content)
     except:
@@ -364,7 +426,6 @@ def setMaintenanceCompute(request):
 
 @login_required(login_url="/monitoring/login")
 def submitMaintenanceRequest(request):
-    notifications = getNotification(request)
     try:
         poolPK = request.POST['poolPK']
         dateStart = request.POST['dateStart']
@@ -392,8 +453,7 @@ def submitMaintenanceRequest(request):
         ms.save()
         content={
             'debugger':"",
-            'message':"Maintenance Schedule has been set!",
-            'notifications':notifications,
+            'message':"Maintenance Schedule has been set!"
         }
         return render(request, 'monitoring/pool technician/success.html', content)
     except:
@@ -404,7 +464,6 @@ def submitMaintenanceRequest(request):
 def searchPT(request):
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
-    notifications = getNotification(request)
     if usertype.type == adminType:
         item = request.POST['item']
 
@@ -418,7 +477,6 @@ def searchPT(request):
             content={
                 'searchedItem': item,
                 'items':filtered,
-                'notifications':notifications,
             }
         return render(request, 'monitoring/pool owner/search-technician.html', content,)
     else:
@@ -430,7 +488,6 @@ def searchPT(request):
 def profile(request,item_id):
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
-    notifications = getNotification(request)
     if usertype.type == adminType:
         user = User.objects.get(id=item_id)
         msg = None
@@ -448,6 +505,7 @@ def profile(request,item_id):
                     u = form2.save()
                     alert = 'success'
                     update_session_auth_hash(request, u)
+
                     content = {
                         'item_id': user,
                         'form2': form2,
@@ -455,7 +513,7 @@ def profile(request,item_id):
                         'msg':alert,
                         'status':status,
                         'btnFlag':btnFlag,
-                        'notifications':notifications,
+
                     }
 
             elif (request.method == 'POST' ) & ('editDetails' in request.POST):
@@ -476,7 +534,7 @@ def profile(request,item_id):
                         'msg':alert,
                         'status':status,
                         'btnFlag':btnFlag,
-                        'notifications':notifications,
+
                     }
             elif (request.method == 'POST' ) & ('deactivate' in request.POST):
                 Status.objects.filter(pk=user.pk).update(status=2)
@@ -493,7 +551,7 @@ def profile(request,item_id):
                     'form2': form2,
                     'status':status,
                     'btnFlag':btnFlag,
-                    'notifications':notifications,
+
                 }
             return render(request, 'monitoring/pool owner/technician-profile.html', content)
         else:
@@ -505,7 +563,7 @@ def profile(request,item_id):
                     'item_id': user,
                     'status':status,
                     'btnFlag':btnFlag,
-                    'notifications':notifications,
+
                     }
                 return render(request, 'monitoring/pool owner/home-owner.html', content)
             else:
@@ -514,7 +572,7 @@ def profile(request,item_id):
                     'item_id': user,
                     'status':status,
                     'btnFlag':btnFlag,
-                    'notifications':notifications,
+
                     }
 
         return render(request, 'monitoring/pool owner/technician-profile.html', content)
@@ -525,7 +583,6 @@ def profile(request,item_id):
 
 @login_required(login_url="/monitoring/login")
 def editDetails(request):
-    notifications = getNotification(request)
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
     if usertype.type == adminType:
@@ -541,15 +598,19 @@ def editDetails(request):
                 userForm = form2.save()
                 alert = 'Password Successfully Changed.'
                 update_session_auth_hash()
+
+
                 content = {
                     'form2': form2,
                     'alertmsg':alert,
                     'curr_fname' : curr_fname,
                     'curr_lname' : curr_lname,
                     'username' : current_user.username,
-                    'notifications':notifications,
+
                 }
                 return render(request, 'monitoring/pool technician/edit-details.html',content)
+
+
         elif (request.method == 'POST' ) & ('editDetails' in request.POST):
             form1 =EditDetailsForm(request.POST)
             if form1.is_valid():
@@ -565,9 +626,11 @@ def editDetails(request):
                     'curr_fname' : fname,
                     'curr_lname' : lname,
                     'username' : current_user.username,
-                    'notifications':notifications,
+
                 }
                 return render(request, 'monitoring/pool technician/edit-details.html',content)
+
+
         elif (request.method == 'POST' ) & ('deactivate' in request.POST):
             print('suhhh')
             print(current_user)
@@ -576,6 +639,9 @@ def editDetails(request):
             Status.objects.filter(pk=request.user.id).update(status=2)
             logout(request)
             return render(request,'registration/logout.html')
+
+
+
         else:
             form1 = EditDetailsForm()
             form2 = ChangePasswordForm(current_user)
@@ -585,7 +651,7 @@ def editDetails(request):
                 'curr_fname' : curr_fname,
                 'curr_lname' : curr_lname,
                 'username' : current_user.username,
-                'notifications':notifications,
+
             }
 
 
@@ -604,6 +670,9 @@ def editDetails(request):
                 userForm = form2.save()
                 alert = 'Password Successfully Changed.'
                 update_session_auth_hash(request, userForm)
+
+
+
                 content = {
                     'form2': form2,
                     'form1': form1,
@@ -611,8 +680,10 @@ def editDetails(request):
                     'curr_fname' : curr_fname,
                     'curr_lname' : curr_lname,
                     'username' : current_user.username,
-                    'notifications':notifications,
+
                 }
+
+
         elif (request.method == 'POST' ) & ('editDetails' in request.POST):
             form1 =EditDetailsForm(request.POST)
             form2 = ChangePasswordForm(current_user, request.POST)
@@ -630,8 +701,9 @@ def editDetails(request):
                     'curr_fname' : fname,
                     'curr_lname' : lname,
                     'username' : current_user.username,
-                    'notifications':notifications,
+
                 }
+
         elif (request.method == 'POST' ) & ('deactivate' in request.POST):
             print('suhhh')
             print(current_user)
@@ -640,6 +712,9 @@ def editDetails(request):
             Status.objects.filter(pk=request.user.id).update(status=2)
             logout(request)
             return render(request,'registration/logout.html')
+
+
+
         else:
             form1 = EditDetailsForm()
             form2 = ChangePasswordForm(current_user)
@@ -649,15 +724,17 @@ def editDetails(request):
                 'curr_fname' : curr_fname,
                 'curr_lname' : curr_lname,
                 'username' : current_user.username,
-                'notifications':notifications,
+
             }
+
+
         return render(request, 'monitoring/pool technician/edit-details.html',content)
     else:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
+
 @login_required(login_url="/monitoring/login")
 def filterPoolStat(request):
-    notifications = getNotification(request)
     try:
         poolPk = request.POST['poolPK']
         startDate = request.POST['dateStart']
@@ -677,7 +754,6 @@ def filterPoolStat(request):
             'ph':ph,
             'turbidity':turbidity,
             'temperature':temperature,
-            'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/pool-stat.html', content)
     except:
@@ -700,7 +776,6 @@ def filterPoolStat(request):
                 'ph':ph,
                 'turbidity':turbidity,
                 'temperature':temperature,
-                'notifications':notifications,
             }
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
         except:
@@ -708,7 +783,6 @@ def filterPoolStat(request):
 
 @login_required(login_url="/monitoring/login")
 def viewMaintenance(request):
-    notifications = getNotification(request)
     try:
         maintenanceSchedule = MaintenanceSchedule.objects.all()
         #"October 13, 2014 11:13:00"
@@ -755,7 +829,6 @@ def viewMaintenance(request):
             'ends': endSchedules,
             'backgroundColors': colors,
             'ids': eventids,
-            'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
     except:
@@ -776,7 +849,6 @@ def personnel(request):
 
 @login_required(login_url="/monitoring/login")
 def maintenanceDetails(request, schedule_id):
-    notifications = getNotification(request)
     try:
         item = MaintenanceSchedule.objects.get(id=schedule_id)
         if item.scheduledStart == None:
@@ -810,8 +882,7 @@ def maintenanceDetails(request, schedule_id):
             'dePowder':dePowder,
             'chlorine':chlorine,
             'showButton':showButton,
-            'status':status,
-            'notifications':notifications,
+            'status':status
         }
         #insert notification here content.append/content.add(function())
         return render(request, 'monitoring/pool technician/maintenance-details.html', content)
@@ -821,7 +892,6 @@ def maintenanceDetails(request, schedule_id):
 
 @login_required(login_url="/monitoring/login")
 def maintenanceDetailsChemicals(request):
-    notifications = getNotification(request)
     try:
         maintenanceId=request.POST['maintenanceid']
         item = MaintenanceSchedule.objects.get(id=maintenanceId)
@@ -842,7 +912,6 @@ def maintenanceDetailsChemicals(request):
             'sodaAsh':sodaAsh,
             'dePowder':dePowder,
             'chlorine':chlorine,
-            'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/maintenance-details-chemicals.html', content)
     except:
@@ -850,7 +919,6 @@ def maintenanceDetailsChemicals(request):
 
 @login_required(login_url="/monitoring/login")
 def submitMaintenanceChemicals(request):
-    notifications = getNotification(request)
     try:
         maintenanceId=request.POST['maintenanceId']
         muriaticAcid=request.POST['muriaticAcid']
@@ -865,8 +933,7 @@ def submitMaintenanceChemicals(request):
         item.status = "Accomplished"
         item.save()
         content={
-            'display':"Schedule Complete",
-            'notifications':notifications,
+            'display':"Schedule Complete"
         }
         return render(request, 'monitoring/success/success.html', content)
     except:
@@ -875,12 +942,10 @@ def submitMaintenanceChemicals(request):
 
 @login_required(login_url="/monitoring/login")
 def computeChlorine(request):
-    notifications = getNotification(request)
     try:
         pools = Pool.objects.all()
         content={
             'pools':pools,
-            'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
     except:
@@ -888,7 +953,6 @@ def computeChlorine(request):
 
 @login_required(login_url="/monitoring/login")
 def displayChlorineChemical(request):
-    notifications = getNotification(request)
     display = None
     try:
         dc=request.POST['dchlorineLevel']
@@ -907,7 +971,6 @@ def displayChlorineChemical(request):
         display= str(chlorine) +" ounces of chlorine was successfully added on "+poolitem.pool_location+" pool."
         content={
             'display':display,
-            'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
     except:
@@ -922,21 +985,15 @@ def success(request):
     return render(request, 'monitoring/success/success.html')
 
 @login_required(login_url="/monitoring/login")
-def getNotification(request):
-    notifications = Notification_Table.objects.all().filter(user=request.user)
-    return notifications
-
-def getNotification(request):
-    notifications = Notification_Table.objects.all().filter(user=request.user)
-    return notifications
-
-@login_required(login_url="/monitoring/login")
 def success(request):
     return render(request, 'monitoring/success/success.html')
+
 
 @login_required(login_url="/monitoring/login")
 def personnelEfficiency(request):
     return render(request, 'monitoring/pool owner/personnel-efficiency-report.html')
+
+
 
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):

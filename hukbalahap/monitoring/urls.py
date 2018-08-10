@@ -45,4 +45,7 @@ urlpatterns = [
     url(r'^displayChlorineChemical/$', views.displayChlorineChemical, name='displayChlorineChemical'),
     url(r'^success/$', views.success, name='success'),
     url(r'^poolTechList/$', views.poolTechList, name='poolTechList'),
+    url(r'^personnelEfficiency/$', views.personnelEfficiency, name='personnelEfficiency'),
+    url(r'^chemicalConsumption/$', views.chemicalConsumption, name='chemicalConsumption'),
+
 ]

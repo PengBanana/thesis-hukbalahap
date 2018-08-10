@@ -12,21 +12,27 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+#import
 
+#end of import
+#start of class
+
+
+#end of class
 def login(request):
     msg = None
     if request.method == 'POST':
         form = AuthenticationForm(request.POST)
         username = request.POST['username']
         password = request.POST['password']
-        userx = authenticate(username=username, password=password)
+        user = authenticate(username=username, password=password)
 
-        if userx is not None:
-            userStat =Status.objects.get(id=userx.pk)
+        if user is not None:
+            userStat =Status.objects.get(id=user.pk)
             notDeactivated =  Status_Ref.objects.get(pk=1)
-            if userx.is_active and userStat.status == notDeactivated:
-                auth_login(request, userx)
-                usertype = Type.objects.get(user=userx)
+            if user.is_active and userStat.status == notDeactivated:
+                auth_login(request, user)
+                usertype = Type.objects.get(pk=user.pk)
                 adminType= Usertype_Ref.objects.get(pk=1)
                 if usertype.type == adminType:
                     return redirect('/monitoring/index/')
@@ -57,7 +63,7 @@ def logout_view(request):
 @login_required(login_url="/monitoring/login")
 def index(request):
     notifications = getNotification(request)
-    usertype = Type.objects.get(user=request.user)
+    usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
     #notification code
     notifications = getNotification(request)
@@ -889,7 +895,6 @@ def computeChlorine(request):
 @login_required(login_url="/monitoring/login")
 def displayChlorineChemical(request):
     notifications = getNotification(request)
-    display = None
     try:
         dc=request.POST['dchlorineLevel']
         ac=request.POST['chlorineLevel']
@@ -904,12 +909,12 @@ def displayChlorineChemical(request):
         chlorine=0
         chlorine=multiplier*gallons
         chlorine=round(chlorine, 2)
-        display= str(chlorine) +" ounces of chlorine was successfully added on "+poolitem.pool_location+" pool."
+        display="Put "+ str(chlorine) +" ounces of chlorine on "+poolitem.pool_location+" pool."
         content={
             'display':display,
             'notifications':notifications,
         }
-        return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
+        return render(request, 'monitoring/success/success.html', content)
     except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
@@ -920,24 +925,8 @@ def poolTechList(request):
 @login_required(login_url="/monitoring/login")
 def success(request):
     return render(request, 'monitoring/success/success.html')
-
 @login_required(login_url="/monitoring/login")
-def getNotification(request):
-    notifications = Notification_Table.objects.all().filter(user=request.user)
-    return notifications
 
 def getNotification(request):
     notifications = Notification_Table.objects.all().filter(user=request.user)
     return notifications
-
-@login_required(login_url="/monitoring/login")
-def success(request):
-    return render(request, 'monitoring/success/success.html')
-
-@login_required(login_url="/monitoring/login")
-def personnelEfficiency(request):
-    return render(request, 'monitoring/pool owner/personnel-efficiency-report.html')
-
-@login_required(login_url="/monitoring/login")
-def chemicalConsumption(request):
-    return render(request, 'monitoring/pool owner/chemical-consumption-report.html')

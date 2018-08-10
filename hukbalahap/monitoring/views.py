@@ -93,14 +93,14 @@ def login(request):
         form = AuthenticationForm(request.POST)
         username = request.POST['username']
         password = request.POST['password']
-        user = authenticate(username=username, password=password)
+        userx = authenticate(username=username, password=password)
 
-        if user is not None:
-            userStat =Status.objects.get(id=user.pk)
+        if userx is not None:
+            userStat =Status.objects.get(id=userx.pk)
             notDeactivated =  Status_Ref.objects.get(pk=1)
-            if user.is_active and userStat.status == notDeactivated:
-                auth_login(request, user)
-                usertype = Type.objects.get(pk=user.pk)
+            if userx.is_active and userStat.status == notDeactivated:
+                auth_login(request, userx)
+                usertype = Type.objects.get(user=userx)
                 adminType= Usertype_Ref.objects.get(pk=1)
                 if usertype.type == adminType:
                     return redirect('/monitoring/index/')
@@ -131,7 +131,7 @@ def logout_view(request):
 @login_required(login_url="/monitoring/login")
 def index(request):
     notifications = getNotification(request)
-    usertype = Type.objects.get(pk=request.user.pk)
+    usertype = Type.objects.get(user=request.user)
     adminType= Usertype_Ref.objects.get(pk=1)
     #notification code
     notifications = getNotification(request)

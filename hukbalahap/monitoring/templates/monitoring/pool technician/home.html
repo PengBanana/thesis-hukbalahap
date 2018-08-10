@@ -8,7 +8,7 @@
         <div class="box box-success" type="submit">
           <div class="box-header with-border">
             <h3 class="box-title">
-                <a href="{% url 'monitoring:poolDetails' poolitem.id %}">{{ poolitem.pool_location }}</a>
+                <a href="{% url 'monitoring:poolDetails' poolitem.id %}" style="font-size:25px;">{{ poolitem.pool_location }}</a>
               </h3>
             <a href="pool"></a>
           </div>
@@ -19,8 +19,14 @@
                 <table id="example2" class="table table-bordered ">
                   <tbody>
                   <tr>
+                    <td style="padding-left:20px;font-size:15px;"><div><strong>Water Quality Average</strong></div></td>
+                    <td><strong>ahhhh</strong></td>
+                    <td></td>
+                  </tr>
+                  <tr>
                     <td style="padding-left:20px;"><div>Chlorine Effectiveness</div></td>
                     <td><strong>{{ chlorinelevel }}</strong></td>
+                    <td></td>
                   </tr>
                   {% endif %}
                   {% endfor %}
@@ -29,6 +35,7 @@
                 <tr>
                     <td style="padding-left:20px;">pH</td>
                     <td><strong>{{ phlevel }}</strong></td>
+                    <td></td>
                 </tr>
                   {% endif %}
                   {% endfor %}
@@ -38,6 +45,7 @@
                 <tr >
                   <td style="padding-left:20px;" >Turbidity</td>
                   <td><strong>{{ turbiditylevel }}</strong></td>
+                  <td></td>
 
                 </tr>
                   {% endif %}

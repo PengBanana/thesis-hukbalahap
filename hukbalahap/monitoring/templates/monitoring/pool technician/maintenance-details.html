@@ -7,20 +7,20 @@
 
     <div class="box box-primary">
       <div class="box-header with-border">
-        <h3 class="box-title">{{ poolname }}</h3><br>
-        <small>{{ fromDate }} - {{ toDate }}</small><br>
+        <h1 class="box-title" style="font-size:25px;">{{ poolname }}</h1><br>
+        <small style="font-size:18px;">{{ fromDate }} - {{ toDate }}</small><br>
         {% if status == 'Notified' %}
-          <small class="label label-warning">
+          <label class="label label-warning" style="font-size:15px">
             Notified
-          </small>
+          </label>
          {% elif status == 'Accomplished' %}
-         <small class="label label-success">
+         <label class="label label-success" style="font-size:15px">
            Accomplished
-         </small>
+         </label>
         {% elif status == 'Late' %}
-        <small class="label label-danger">
+        <label class="label label-danger" style="font-size:15px">
           Late
-        </small>
+        </label>
         {% endif %}
       </div>
 
@@ -37,8 +37,7 @@
             <div>
               <div>
                 <div>
-                  <h4>Estimated Chemical Volume</h4>
-                  <small>The Following are the measurements of chemical that you need to pour in the pool water</small>
+                  <h3>Estimated Chemical Volume</h3>
                   </div>
 
 

@@ -130,7 +130,7 @@ def batchCount10pH():
                  ('Enrique Razon Building', pHStandardDev, datetime.datetime.now())
         conn.commit()
         batchCount = 0
-    sleep(1800)
+    
     return batchCount
 
 def batchCount10Temp:
@@ -160,7 +160,7 @@ def batchCount10Temp:
                  ('Enrique Razon Building', tempStandardDev, datetime.datetime.now())
         conn.commit()
         batchCount = 0
-    sleep(1800)
+    
     return batchCount
 
 def batchCount10Turbidity:
@@ -190,7 +190,7 @@ def batchCount10Turbidity:
                  ('Enrique Razon Building', turbidityStandardDev, datetime.datetime.now())
         conn.commit()
         batchCount = 0
-    sleep(1800)
+    
     return batchCount
 
 class sensorReading(threading.Thread):

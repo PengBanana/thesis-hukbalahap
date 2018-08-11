@@ -13,6 +13,295 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+#start of import by migs and  francis
+import threading
+import time
+import spidev
+import datetime
+from time import sleep
+import numpy as np
+import Adafruit_GPIO.SPI as SPI
+import Adafruit_MCP3008
+import os
+#important
+import sqlite3
+
+#important
+conn = sqlite3.connect('db.sqlite3')
+c = conn.cursor()
+
+#end of import
+#Sensor Reading Start
+SPI_PORT   = 0
+SPI_DEVICE = 0
+mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
+turbidityChannel = 1
+phChannel = 0
+sleepTime = 2
+ctr = 0
+arrayLength = 60
+printInterval = .800
+samplingInterval = 20
+
+def sensor():
+    for i in os.listdir('/sys/bus/w1/devices'):
+        if i != 'w1_bus_master1':
+            ds18b20 = i
+    return ds18b20
+
+def voltArray(arrayLength, mcp, channel):
+    voltArray = np.zeros(arrayLength,float)
+    i = 0
+    while i < arrayLength:
+        data = mcp.read_adc(channel)
+        voltArray[i] = data
+        i = i + 1
+        sleep(.800)
+    return voltArray
+
+def averageVolt(voltArray, number):
+    minm = 0
+    maxm = 0
+    avg = 0
+    amount = 0
+
+    if voltArray[0] < voltArray[1]:
+        minm = voltArray[0]
+        maxm = voltArray[1]
+    else:
+        minm = voltArray[1]
+        maxm = voltArray[0]
+    for x in range(2,voltArray.size):
+        if voltArray[x] < minm:
+            amount = amount + minm
+            minm = voltArray[x]
+        else:
+            if voltArray[x] > maxm:
+                amount = amount + maxm
+                maxm = voltArray[x]
+            else:
+                amount = amount + voltArray[x]
+    avg = amount/ (number-2)
+    #print ("na average na")
+    return avg
+
+def getTurbidity(voltage):
+    turbValue = (-1120.4*voltage*voltage) + (5742.3*voltage) - 4352.9
+    if turbValue < 0:
+        return 0
+    else:
+        return turbValue
+
+def read(ds18b20):
+    location = '/sys/bus/w1/devices/' + ds18b20 + '/w1_slave'
+    tfile = open(location)
+    text = tfile.read()
+    tfile.close()
+    secondline = text.split("\n")[1]
+    temperaturedata = secondline.split(" ")[9]
+    temperature = float(temperaturedata[2:])
+    celsius = temperature / 1000
+    return celsius
+
+def batchCount10pH():
+    #important
+    conn = sqlite3.connect('db.sqlite3')
+    c = conn.cursor()
+    pHList = Temp_Ph.objects.all().filter(pool=poolref.get(pk='1'))
+    tempSum=0
+    tempCount=0
+    for item in pHList:
+        tempSum+=item.temp_phlevel
+        tempCount+=1
+    if(tempCount>0):
+        tempMean = tempSum/tempCount
+        tempx = []
+        for level in pHList:
+            reading = level.temp_phlevel
+            reading -=tempMean
+            tempx.append(reading)
+        newTempSum = 0
+        for read in tempx:
+            newTempSum+= read
+        phVariance = newTempSum/tempCount
+        pHStandardDev = math.sqrt(phVariance)
+        pHStandardDev= decimal.Decimal(pHStandardDev)+tempMean
+        c.execute('INSERT INTO Final_Ph VALUES {?, ?, ?}'),
+                 ('Enrique Razon Building', pHStandardDev, datetime.datetime.now())
+        conn.commit()
+        batchCount = 0
+    sleep(1800)
+    return batchCount
+
+def batchCount10Temp:
+    #important
+    conn = sqlite3.connect('db.sqlite3')
+    c = conn.cursor()
+    temperatureList = Temp_Temperature.objects.all().filter(pool=poolref.get(pk='1'))
+    tempSum=0
+    tempCount=0
+    for item in temperatureList:
+        tempSum+=item.temp_temperaturelevel
+        tempCount+=1
+    if(tempCount>0):
+        tempMean = tempSum/tempCount
+        tempx = []
+        for level in temperatureList:
+            reading = level.temp_temperaturelevel
+            reading -=tempMean
+            tempx.append(reading)
+        newTempSum = 0
+        for read in tempx:
+            newTempSum+= read
+        tempVariance = newTempSum/tempCount
+        tempStandardDev = math.sqrt(tempVariance)
+        tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
+        c.execute('INSERT INTO Final_Temperature VALUES {?, ?, ?}'),
+                 ('Enrique Razon Building', tempStandardDev, datetime.datetime.now())
+        conn.commit()
+        batchCount = 0
+    sleep(1800)
+    return batchCount
+
+def batchCount10Turbidity:
+    #important
+    conn = sqlite3.connect('db.sqlite3')
+    c = conn.cursor()
+    turbidityList = Temp_Turbidity.objects.all().filter(pool=poolref.get(pk='1'))
+    tempSum=0
+    tempCount=0
+    for item in turbidityList:
+        tempSum+=item.temp_turbiditylevel
+        tempCount+=1
+    if(tempCount>0):
+        tempMean = tempSum/tempCount
+        tempx = []
+        for level in turbidityList:
+            reading = level.temp_turbiditylevel
+            reading -=tempMean
+            tempx.append(reading)
+        newTempSum = 0
+        for read in tempx:
+            newTempSum+= read
+        turbidityVariance = newTempSum/tempCount
+        turbidityStandardDev = math.sqrt(turbidityVariance)
+        turbidityStandardDev= decimal.Decimal(turbidityStandardDev)+tempMean
+        c.execute('INSERT INTO Final_Turbidity VALUES {?, ?, ?}'),
+                 ('Enrique Razon Building', turbidityStandardDev, datetime.datetime.now())
+        conn.commit()
+        batchCount = 0
+    sleep(1800)
+    return batchCount
+
+class sensorReading(threading.Thread):
+
+    def run(self):
+        while True:
+            #query code below for pH
+            c.execute('SELECT count(*) FROM Temp_Ph')
+            rowCount = c.fetchone()
+            print("Preliminary Row Count for pH: " + str(rowCount))
+            batchCount = 0
+            while rowCount != 10:
+                #reads pH value voltage and translates to actual pH value
+                phVoltage = voltArray(arrayLength, mcp, phChannel)
+                finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
+                phValue = round((1.5 * finalPhVoltage),2)
+                c.execute('INSERT INTO Temp_Ph VALUES {?, ?, ?}'),
+                         ('Enrique Razon Building', phValue, datetime.datetime.now())
+                conn.commit()
+                batchCount += 1
+                sleep(180)
+            while batchCount == 10:
+                batchCount = batchCount10pH()
+            while rowCount == 10:
+                phVoltage = voltArray(arrayLength, mcp, phChannel)
+                finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
+                phValue = round((1.5 * finalPhVoltage),2)
+                c.execute('DELETE TOP FROM Temp_Ph')
+                conn.commit()
+                c.execute('INSERT INTO Temp_Ph VALUES {?, ?, ?}'),
+                         ('Enrique Razon Building', phValue, datetime.datetime.now())
+                conn.commit()
+                batchCount += 1
+                if(batchCount == 10)
+                    batchCount = batchCount10pH()
+                print("pH Value: " + str(phValue))
+                sleep(180)
+
+            #query code below for turbidity
+            c.execute('SELECT count(*) FROM Temp_Turbidity')
+            rowCount = c.fetchone()
+            print("Preliminary Row Count for Turbidity: " + str(rowCount))
+            batchCount = 0
+            while rowCount != 10:
+                #reads turbidity voltage
+                turbVoltage = voltArray(arrayLength, mcp, turbidityChannel)
+                finalTurbVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
+                turbValue = round((getTurbidity(finalTurbVoltage)),2)
+                c.execute('INSERT INTO Temp_Turbidity VALUES {?, ?, ?}'),
+                         ('Enrique Razon Building', turbValue, datetime.datetime.now())
+                conn.commit()
+                batchCount += 1
+                sleep(180)
+            while batchCount == 10:
+                batchCount = batchCount10Turbidity()
+            while rowCount == 10:
+                turbVoltage = voltArray(arrayLength, mcp, turbidityChannel)
+                finalTurbVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
+                turbValue = round((getTurbidity(finalTurbVoltage)),2)
+                c.execute('DELETE TOP FROM Temp_Turbidity')
+                conn.commit()
+                c.execute('INSERT INTO Temp_Turbidity VALUES {?, ?, ?}'),
+                         ('Enrique Razon Building', turbValue, datetime.datetime.now())
+                conn.commit()
+                batchCount += 1
+                if(batchCount)
+                    batchCount = batchCount10Temp()
+                print("Turbidity Value: " + str(turbValue))
+                sleep(180)
+
+            #query code below for temp
+            c.execute('SELECT count(*) FROM Temp_Temperature')
+            rowCount = c.fetchone()
+            print("Preliminary Row Count for Temp: " + str(rowCount))
+            batchCount = 0
+            while rowCount != 10:
+                #reads temperature sensor
+                serialNum = sensor()
+                tempData = read(serialNum)
+                c.execute('INSERT INTO Temp_Temperature VALUES {?, ?, ?}'),
+                         ('Enrique Razon Building', tempData, datetime.datetime.now())
+                conn.commit()
+                batchCount += 1
+                sleep(180)
+            while batchCount == 10:
+                batchCount = batchCount10Temp()
+            while rowCount == 10:
+                serialNum = sensor()
+                tempData = read(serialNum)
+                c.execute('DELETE TOP FROM Temp_Temperature')
+                conn.commit()
+                c.execute('INSERT INTO Temp_Temperature VALUES {?, ?, ?}'),
+                         ('Enrique Razon Building', tempData, datetime.datetime.now())
+                conn.commit()
+                batchCount += 1
+                if(batchCount)
+                    batchCount = batchCount10Temp()
+                print("Temperature Value: " + str(tempData))
+                sleep(180)
+
+            #print("pH Value: " + str(phValue) + " Turbidity: "+ str(turbValue) + " Temperature in Celsius: " + str(tempData))
+
+            ctr =0
+            ctr = ctr+1
+            #sleep(100)
+
+sensorRead = sensorReading()
+sensorRead.start()
+
+#Sensor Reading end
+
 def login(request):
     msg = None
     if request.method == 'POST':

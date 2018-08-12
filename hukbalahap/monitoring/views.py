@@ -123,6 +123,7 @@ def batchCount10pH():
         for level in pHList:
             reading = level.temp_phlevel
             reading -=tempMean
+            reading = reading * reading
             tempx.append(reading)
         newTempSum = 0
         for read in tempx:
@@ -130,6 +131,18 @@ def batchCount10pH():
         phVariance = newTempSum/tempCount
         pHStandardDev = math.sqrt(phVariance)
         pHStandardDev= decimal.Decimal(pHStandardDev)+tempMean
+        phStandardDev = round(phStandardDev, 1)
+        ##new notification
+        if phStandardDev < 7.2 or phStandardDev > 7.8:
+            userx = User.objects.get(Username="pooltech3")
+            messagex=poolx.pool_location+" needs attention"
+            newNotification= Notification_Table(
+                user=userx,
+                message=messagex,
+                number = 1
+            )
+            newNotification.save()
+        ##end of new notification
         Final_Ph.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
         print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))
 
@@ -168,6 +181,7 @@ def batchCount10Turbidity():
         for level in turbidityList:
             reading = level.temp_turbiditylevel
             reading -=tempMean
+            reading = reading * reading
             tempx.append(reading)
         newTempSum = 0
         for read in tempx:
@@ -211,6 +225,7 @@ def batchCount10Temp():
         for level in temperatureList:
             reading = level.temp_temperaturelevel
             reading -=tempMean
+            reading = reading * reading
             tempx.append(reading)
         newTempSum = 0
         for read in tempx:

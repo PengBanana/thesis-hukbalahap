@@ -348,199 +348,198 @@ def index(request):
     adminType= Usertype_Ref.objects.get(pk=1)
     #notification code
     notifications = getNotification(request)
-    if not usertype.type == adminType:
-        poolref = Pool.objects.all().order_by('pk')
-        #temperature levels
-        tempDeviations = []
-        tempColors = []
-        for poolitem in Pool.objects.all().order_by('pk'):
-            temperatureList = Temp_Temperature.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
-            tempSum=0
-            tempCount=0
-            for item in temperatureList:
-                tempSum+=item.temp_temperaturelevel
-                tempCount+=1
-            if(tempCount>0):
-                tempMean = tempSum/tempCount
-                tempx = []
-                for level in temperatureList:
-                    reading = level.temp_temperaturelevel
-                    reading -=tempMean
-                    tempx.append(reading)
-                newTempSum = 0
-                for read in tempx:
-                    newTempSum+= read
-                tempVariance = newTempSum/tempCount
-                tempStandardDev = math.sqrt(tempVariance)
-                tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
-                tempStandardDev=round(tempStandardDev, 2)
-                #color assignment
-                if tempStandardDev >= 95:
-                    tempColors.append("green")
-                elif (tempStandardDev >= 85):
-                    tempColors.append("green")
-                elif (tempStandardDev >= 80):
-                    tempColors.append("yellow")
-                elif(tempStandardDev < 80):
-                    tempColors.append("red")
-                else:
-                    tempColors.append("White")
-                degreeSign=u'\N{DEGREE SIGN}'
-                tempStandardDev=str(tempStandardDev)+degreeSign+'C'
-                tempDeviations.append(tempStandardDev)
+    poolref = Pool.objects.all().order_by('pk')
+    #temperature levels
+    tempDeviations = []
+    tempColors = []
+    for poolitem in Pool.objects.all().order_by('pk'):
+        temperatureList = Temp_Temperature.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
+        tempSum=0
+        tempCount=0
+        for item in temperatureList:
+            tempSum+=item.temp_temperaturelevel
+            tempCount+=1
+        if(tempCount>0):
+            tempMean = tempSum/tempCount
+            tempx = []
+            for level in temperatureList:
+                reading = level.temp_temperaturelevel
+                reading -=tempMean
+                tempx.append(reading)
+            newTempSum = 0
+            for read in tempx:
+                newTempSum+= read
+            tempVariance = newTempSum/tempCount
+            tempStandardDev = math.sqrt(tempVariance)
+            tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
+            tempStandardDev=round(tempStandardDev, 2)
+            #color assignment
+            if tempStandardDev >= 95:
+                tempColors.append("green")
+            elif (tempStandardDev >= 85):
+                tempColors.append("green")
+            elif (tempStandardDev >= 80):
+                tempColors.append("yellow")
+            elif(tempStandardDev < 80):
+                tempColors.append("red")
             else:
                 tempColors.append("White")
-                tempDeviations.append('No Readings')
+            degreeSign=u'\N{DEGREE SIGN}'
+            tempStandardDev=str(tempStandardDev)+degreeSign+'C'
+            tempDeviations.append(tempStandardDev)
+        else:
+            tempColors.append("White")
+            tempDeviations.append('No Readings')
 
-        #turbidity levels
-        turbidityDeviations = []
-        turbidityColors = []
-        #standard deviation of turbidity
-        for poolitem in Pool.objects.all().order_by('pk'):
-            turbidityList = Temp_Turbidity.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
+    #turbidity levels
+    turbidityDeviations = []
+    turbidityColors = []
+    #standard deviation of turbidity
+    for poolitem in Pool.objects.all().order_by('pk'):
+        turbidityList = Temp_Turbidity.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
 
-            turbiditySum=0
-            turbidityCount=0
-            for item in turbidityList:
-                turbiditySum+=item.temp_turbiditylevel
-                turbidityCount+=1
-            if(turbidityCount>0):
-                turbidityMean = turbiditySum/turbidityCount
-                turbidityx = []
-                for level in turbidityList:
-                    reading = level.temp_turbiditylevel
-                    reading -=turbidityMean
-                    turbidityx.append(reading)
-                newTurbiditySum = 0
-                for read in turbidityx:
-                    newTurbiditySum+= read
-                turbidityVariance = newTurbiditySum/turbidityCount
-                turbidityStandardDev = math.sqrt(turbidityVariance)
-                turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
-                #color assignment
-                if turbidityStandardDev >= 95:
-                    turbidityColors.append("green")
-                elif (turbidityStandardDev >= 85):
-                     turbidityColors.append("green")
-                elif (turbidityStandardDev >= 80):
-                     turbidityColors.append("yellow")
-                elif(turbidityStandardDev < 80):
-                     turbidityColors.append("red")
-                else:
-                    turbidityColors.append("White")
-                turbidityStandardDev=str(turbidityStandardDev)+" ntu"
-                turbidityDeviations.append(turbidityStandardDev)
+        turbiditySum=0
+        turbidityCount=0
+        for item in turbidityList:
+            turbiditySum+=item.temp_turbiditylevel
+            turbidityCount+=1
+        if(turbidityCount>0):
+            turbidityMean = turbiditySum/turbidityCount
+            turbidityx = []
+            for level in turbidityList:
+                reading = level.temp_turbiditylevel
+                reading -=turbidityMean
+                turbidityx.append(reading)
+            newTurbiditySum = 0
+            for read in turbidityx:
+                newTurbiditySum+= read
+            turbidityVariance = newTurbiditySum/turbidityCount
+            turbidityStandardDev = math.sqrt(turbidityVariance)
+            turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
+            #color assignment
+            if turbidityStandardDev >= 95:
+                turbidityColors.append("green")
+            elif (turbidityStandardDev >= 85):
+                 turbidityColors.append("green")
+            elif (turbidityStandardDev >= 80):
+                 turbidityColors.append("yellow")
+            elif(turbidityStandardDev < 80):
+                 turbidityColors.append("red")
             else:
                 turbidityColors.append("White")
-                turbidityDeviations.append('No Readings')
-
-        #ph level
-        phDeviations = []
-        phColors = []
-        for poolitem in Pool.objects.all().order_by('pk'):
-            phList = Temp_Ph.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
-            phSum=0
-            phCount=0
-            for item in phList:
-                phSum+=item.temp_phlevel
-                phCount+=1
-            if(phCount>0):
-                phMean = phSum/phCount
-                phx = []
-                for level in phList:
-                    reading = level.temp_phlevel
-                    reading -=phMean
-                    phx.append(reading)
-                newPhSum = 0
-                for read in phx:
-                    newPhSum+= read
-                phVariance = newPhSum/phCount
-                phStandardDev = math.sqrt(phVariance)
-                phStandardDev=decimal.Decimal(phStandardDev)+turbidityMean
-                phStandardDev=round(phStandardDev, 1)
-                #color assignment
-                if phStandardDev >= 7.3 and phStandardDev <=7.5:
-                    phColors.append("green")
-                elif ((phStandardDev >= 7.1 and phStandardDev <= 7.2) or (phStandardDev >= 7.6 and phStandardDev <= 7.7)):
-                     phColors.append("green")
-                elif((phStandardDev < 7.1 and phStandardDev > 6.9) or (phStandardDev > 7.7 and phStandardDev < 7.9)):
-                     phColors.append("yellow")
-                elif(phStandardDev >= 7.9 or phStandardDev <= 6.9):
-                     phColors.append("red")
-                else:
-                    phColors.append("White")
-                phDeviations.append(phStandardDev)
-            else:
-                phDeviations.append('No Readings')
-                phColors.append("White")
-
-            #2615.97 - 1175.23 x + 185.315 x^2 - 9.90222 x^3
-            chlorineLevels=[]
-            chlorineColors=[]
-            for item in phDeviations:
-                debug=2615.97 - 1175.23*5.57+ 185.315*5.57*5.57 - 9.90222*5.57*5.57*5.57
-                try:
-                    #multiplier=8
-                    chlorine = decimal.Decimal(2615.97)
-                    multiplier = item
-                    chlorine-= decimal.Decimal(1175.23)*multiplier
-                    multiplier*=item
-                    chlorine+=decimal.Decimal(185.315)*multiplier
-                    multiplier*=item
-                    chlorine-=decimal.Decimal(9.90222)*multiplier
-                    chlorine = round(chlorine, 1)
-                    if chlorine>100:
-                        chlorine=100
-                    elif chlorine<0:
-                        chlorine=0
-                    #color assignment
-                    if chlorine >= 95:
-                        chlorineColors.append("green")
-                    elif (chlorine >= 85):
-                         chlorineColors.append("green")
-                    elif (chlorine >= 80):
-                         chlorineColors.append("yellow")
-                    elif(chlorine < 80):
-                         chlorineColors.append("red")
-                    else:
-                        chlorineColors.append("White")
-                    chlorine=str(chlorine)+'%'
-                    chlorineLevels.append(chlorine)
-                except:
-                    chlorineColors.append("White")
-                    chlorineLevels.append('Cannot Compute')
-        waterColors = []
-        waterQuality=0
-        #color assignment
-        if waterQuality >= 95:
-            waterColors.append("green")
-        elif (waterQuality >= 85):
-             waterColors.append("green")
-        elif (waterQuality >= 80):
-             waterColors.append("yellow")
-        elif(waterQuality < 80):
-             waterColors.append("red")
+            turbidityStandardDev=str(turbidityStandardDev)+" ntu"
+            turbidityDeviations.append(turbidityStandardDev)
         else:
-            waterColors.append("White")
-        content= {
-            'debug_check': "",
-            'pool':poolref,
-            'temperature':tempDeviations,
-            'turbidity':turbidityDeviations,
-            'ph':phDeviations,
-            'chlorine':chlorineLevels,
-            'notifications':notifications,
-            'color':"green",
-            'phColors':phColors,
-            'chlorineColors':chlorineColors,
-            'turbidityColors':turbidityColors,
-            'tempColors':tempColors,
-            'waterColors':"white",
-        }
-    if usertype.type == adminType:
+            turbidityColors.append("White")
+            turbidityDeviations.append('No Readings')
+
+    #ph level
+    phDeviations = []
+    phColors = []
+    for poolitem in Pool.objects.all().order_by('pk'):
+        phList = Temp_Ph.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
+        phSum=0
+        phCount=0
+        for item in phList:
+            phSum+=item.temp_phlevel
+            phCount+=1
+        if(phCount>0):
+            phMean = phSum/phCount
+            phx = []
+            for level in phList:
+                reading = level.temp_phlevel
+                reading -=phMean
+                phx.append(reading)
+            newPhSum = 0
+            for read in phx:
+                newPhSum+= read
+            phVariance = newPhSum/phCount
+            phStandardDev = math.sqrt(phVariance)
+            phStandardDev=decimal.Decimal(phStandardDev)+turbidityMean
+            phStandardDev=round(phStandardDev, 1)
+            #color assignment
+            if phStandardDev >= 7.3 and phStandardDev <=7.5:
+                phColors.append("green")
+            elif ((phStandardDev >= 7.1 and phStandardDev <= 7.2) or (phStandardDev >= 7.6 and phStandardDev <= 7.7)):
+                 phColors.append("green")
+            elif((phStandardDev < 7.1 and phStandardDev > 6.9) or (phStandardDev > 7.7 and phStandardDev < 7.9)):
+                 phColors.append("yellow")
+            elif(phStandardDev >= 7.9 or phStandardDev <= 6.9):
+                 phColors.append("red")
+            else:
+                phColors.append("White")
+            phDeviations.append(phStandardDev)
+        else:
+            phDeviations.append('No Readings')
+            phColors.append("White")
+
+        #2615.97 - 1175.23 x + 185.315 x^2 - 9.90222 x^3
+        chlorineLevels=[]
+        chlorineColors=[]
+        for item in phDeviations:
+            debug=2615.97 - 1175.23*5.57+ 185.315*5.57*5.57 - 9.90222*5.57*5.57*5.57
+            try:
+                #multiplier=8
+                chlorine = decimal.Decimal(2615.97)
+                multiplier = item
+                chlorine-= decimal.Decimal(1175.23)*multiplier
+                multiplier*=item
+                chlorine+=decimal.Decimal(185.315)*multiplier
+                multiplier*=item
+                chlorine-=decimal.Decimal(9.90222)*multiplier
+                chlorine = round(chlorine, 1)
+                if chlorine>100:
+                    chlorine=100
+                elif chlorine<0:
+                    chlorine=0
+                #color assignment
+                if chlorine >= 95:
+                    chlorineColors.append("green")
+                elif (chlorine >= 85):
+                     chlorineColors.append("green")
+                elif (chlorine >= 80):
+                     chlorineColors.append("yellow")
+                elif(chlorine < 80):
+                     chlorineColors.append("red")
+                else:
+                    chlorineColors.append("White")
+                chlorine=str(chlorine)+'%'
+                chlorineLevels.append(chlorine)
+            except:
+                chlorineColors.append("White")
+                chlorineLevels.append('Cannot Compute')
+    waterColors = []
+    waterQuality=0
+    #color assignment
+    if waterQuality >= 95:
+        waterColors.append("green")
+    elif (waterQuality >= 85):
+         waterColors.append("green")
+    elif (waterQuality >= 80):
+         waterColors.append("yellow")
+    elif(waterQuality < 80):
+         waterColors.append("red")
+    else:
+        waterColors.append("White")
+    content= {
+        'debug_check': "",
+        'pool':poolref,
+        'temperature':tempDeviations,
+        'turbidity':turbidityDeviations,
+        'ph':phDeviations,
+        'chlorine':chlorineLevels,
+        'notifications':notifications,
+        'color':"green",
+        'phColors':phColors,
+        'chlorineColors':chlorineColors,
+        'turbidityColors':turbidityColors,
+        'tempColors':tempColors,
+        'waterColors':"white",
+    }
+    if not usertype.type == adminType:
         return render(request, 'monitoring/pool technician/home.html', content)
     else:
-        return render(request, 'monitoring/pool owner/home-owner.html', content)
+        return render(request, 'monitoring/pool owner/home-owner.html')
 
 
 
@@ -575,7 +574,7 @@ def addUser(request):
     notifications = getNotification(request)
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
-    
+    if usertype.type == adminType:
         if request.method == 'POST':
             msg = None
             print('request POST')

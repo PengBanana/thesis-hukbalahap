@@ -7,13 +7,13 @@
       <div class="alert alert-danger alert-dismissible">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
         <h4><i class="icon fa fa-ban"></i> Failed!</h4>
-        Fail to add new user.
+        Fail to register new pool.
       </div>
      {% elif msg == 'success' %}
       <div class="alert alert-success alert-dismissible">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
         <h4><i class="icon fa fa-check"></i>Success!</h4>
-          A new user has been successfully added!
+          A new pool has been successfully added!
       </div>
 
     {% endif %}
@@ -30,6 +30,61 @@
         <div class="row">
           <div class="col-xs-3"></div>
           <div class="col-xs-6">
+            {{form.pool_location.label_tag}}
+            {{form.pool_location}}
+            {{form.pool_location.errors}}
+
+            {{form.pool_length.label_tag}}
+            {{form.pool_length}}
+            {{form.pool_length.errors}}
+
+            {{form.pool_width.label_tag}}
+            {{form.pool_width}}
+            {{form.pool_width.errors}}
+
+            {{form.pool_depth.label_tag}}
+            {{form.pool_depth}}
+            {{form.pool_depth.errors}}
+
+
+            <div class="bootstrap-timepicker">
+              <div class="form-group">
+                {{form.pool_availabletimestart.label_tag}}
+
+                <div class="input-group">
+                  {{form.pool_availabletimestart}}
+
+                  <div class="input-group-addon">
+                    <i class="fa fa-clock-o"></i>
+                  </div>
+                </div>
+                <!-- /.input group -->
+              </div>
+              <!-- /.form group -->
+            </div>
+            {{form.pool_availabletimestart.errors}}
+
+
+            <div class="bootstrap-timepicker">
+              <div class="form-group">
+                {{form.pool_availabletimeend.label_tag}}
+
+                <div class="input-group">
+                  {{form.pool_availabletimeend}}
+
+                  <div class="input-group-addon">
+                    <i class="fa fa-clock-o"></i>
+                  </div>
+                </div>
+                <!-- /.input group -->
+              </div>
+              <!-- /.form group -->
+            </div>
+            {{form.pool_availabletimeend.errors}}
+
+
+
+
 
           </div>
           <div class="col-xs-3"></div>

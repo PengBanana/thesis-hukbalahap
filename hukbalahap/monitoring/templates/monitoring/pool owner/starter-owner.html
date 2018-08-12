@@ -41,6 +41,7 @@
   <!-- DataTables -->
   <link rel="stylesheet" href="{% static 'bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
 
+
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[if lt IE 9]>
@@ -191,8 +192,7 @@
               </span>
           </a>
           <ul class="treeview-menu"  style="background-color:#3c8dbc;">
-            <li><a href="{% url 'monitoring:personnelEfficiency' %}">Add New Pool</a></li>
-            <li><a href="{% url 'monitoring:chemicalConsumption' %}">View Pool List</a></li>
+            <li><a href="{% url 'monitoring:addPool' %}">Add New Pool</a></li>
               </ul>
         </li>
         <li class="treeview">
@@ -405,7 +405,11 @@
 
     //Timepicker
     $('.timepicker').timepicker({
+      use24hours: true,
+      timeFormat: 'HH:mm:ss',
+      showMeridian: false,
       showInputs: false
+
     })
 
   })

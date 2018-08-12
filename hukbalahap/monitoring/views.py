@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404,redirect
 from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref, MaintenanceSchedule, Notification_Table
-from .forms import SignUpForm, SignUpType, Pool,EditDetailsForm,ChangePasswordForm
+from .forms import SignUpForm, SignUpType, Pool,EditDetailsForm,ChangePasswordForm,RegisterPool
 from django.views.generic import TemplateView
 from django.db.models import Q
 from django.db.models import Sum, Count
@@ -1432,4 +1432,39 @@ def chemicalConsumption(request):
 
 @login_required(login_url="/monitoring/login")
 def addPool(request):
-    return render(request, 'monitoring/pool owner/add-pool.html')
+    notifications = getNotification(request)
+    usertype = Type.objects.get(pk=request.user.pk)
+    adminType= Usertype_Ref.objects.get(pk=1)
+    if usertype.type == adminType:
+        if request.method == 'POST':
+            msg = None
+            print('request POST')
+            form = RegisterPool(request.POST)
+            if form.is_valid():
+                print('forms valid YEYYYYYYYYYYYY')
+                form.save()
+                print('form1 saved')
+
+                msg='success'
+                form = RegisterPool()
+                content={
+                    'form':form,
+                    'msg' : msg,
+                    'notifications':notifications,
+                }
+                return render(request, 'monitoring/pool owner/add-pool.html',content)
+
+            else:
+                msg='error'
+                content={
+                    'form':form,
+                    'msg' : msg,
+                    'notifications':notifications,
+                }
+                return render(request, 'monitoring/pool owner/add-pool.html',content)
+
+        else:
+            form = RegisterPool()
+            return render(request, 'monitoring/pool owner/add-pool.html',locals())
+    else:
+        return render(request, 'monitoring/pool owner/result-not-found.html')

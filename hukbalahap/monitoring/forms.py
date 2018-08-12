@@ -28,6 +28,18 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
 
+class RegisterPool(forms.ModelForm):
+    pool_location = forms.CharField(max_length = 250, required= True, label=('Pool Location'),widget = forms.TextInput( attrs = {'class': 'form-control','id': 'pool_location'}))
+    pool_length = forms.DecimalField(max_digits=8, decimal_places=2, required= True, label=('Pool Length'),widget = forms.TextInput( attrs = {'class': 'form-control','id': 'pool_length'}))
+    pool_width = forms.DecimalField(max_digits=8, decimal_places=2, required= True, label=('Pool Width'),widget = forms.TextInput( attrs = {'class': 'form-control','id': 'pool_width'}))
+    pool_depth = forms.DecimalField(max_digits=8, decimal_places=2, required= True, label=('Pool Depth'),widget = forms.TextInput( attrs = {'class': 'form-control','id': 'pool_depth'}))
+    pool_availabletimestart = forms.TimeField( required= True, label=('Open Time'),widget = forms.TextInput( attrs = {'class': 'form-control timepicker','id': 'pool_availabletimestart'}))
+    pool_availabletimeend = forms.TimeField( required= True, label=('Close Time'),widget = forms.TextInput( attrs = {'class': 'form-control timepicker','id': 'pool_availabletimeend'}))
+
+    class Meta:
+        model = Pool
+        fields = ('pool_location','pool_length','pool_width','pool_depth','pool_availabletimestart','pool_availabletimeend')
+
 class SignUpType(forms.ModelForm):
     type = forms.ModelChoiceField(queryset=Usertype_Ref.objects.all(), required=True,widget=forms.Select(attrs={'class': 'form-control','autocomplete':'off'}))
 

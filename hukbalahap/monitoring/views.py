@@ -13,7 +13,6 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-
 #start of import by migs and  francis
 import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
 from time import sleep
@@ -174,7 +173,7 @@ def batchCount10Turbidity():
             newTempSum+= read
         turbidityVariance = newTempSum/tempCount
         turbidityStandardDev = math.sqrt(turbidityVariance)
-        turbidityStandardDev= decimal.Decimal(turbidityStandardDev)+tempMean
+        turbidityStandardDev = decimal.Decimal(turbidityStandardDev)+tempMean
         Final_Turbidity.objects.create(pool_id='1', final_turbiditylevel=turbidityStandardDev, final_turbiditydatetime=datetime.datetime.now())
         print("Final_Turbidity Value Added: Enrique Razon Building, " + str(turbidityStandardDev) + ", " + str(datetime.datetime.now()))
 
@@ -523,7 +522,7 @@ def index(request):
         else:
             waterColors.append("White")
         content= {
-            'debug_check': phDeviations,
+            'debug_check': "",
             'pool':poolref,
             'temperature':tempDeviations,
             'turbidity':turbidityDeviations,
@@ -753,7 +752,7 @@ def setMaintenanceCompute(request):
 @login_required(login_url="/monitoring/login")
 def submitMaintenanceRequest(request):
     notifications = getNotification(request)
-    try:
+    if 0==0:
         poolPK = request.POST['poolPK']
         dateStart = request.POST['dateStart']
         dateEnd = request.POST['dateEnd']
@@ -784,7 +783,7 @@ def submitMaintenanceRequest(request):
             'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/success.html', content)
-    except:
+    else:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
@@ -1165,7 +1164,7 @@ def personnel(request):
 @login_required(login_url="/monitoring/login")
 def maintenanceDetails(request, schedule_id):
     notifications = getNotification(request)
-    if 0==0:
+    try:
         actual=0
         item = MaintenanceSchedule.objects.get(id=schedule_id)
         pool = item.pool
@@ -1194,6 +1193,7 @@ def maintenanceDetails(request, schedule_id):
             phList = Temp_Ph.objects.all().filter(pool=poolitem)
             phSum=0
             phCount=0
+            phStandardDev="No Value"
             for phItem in phList:
                 phSum+=phItem.temp_phlevel
                 phCount+=1
@@ -1306,8 +1306,11 @@ def maintenanceDetails(request, schedule_id):
         }
         #insert notification here content.append/content.add(function())
         return render(request, 'monitoring/pool technician/maintenance-details.html', content)
-    else:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+    except:
+        content={
+            "backUrl":"monitoring:viewMaintenance"
+        }
+        return render(request, 'monitoring/pool owner/result-not-found.html', content)
 
 
 @login_required(login_url="/monitoring/login")

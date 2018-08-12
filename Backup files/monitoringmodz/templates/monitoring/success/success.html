@@ -1,0 +1,10 @@
+{% extends "successTemplate.html" %}
+
+{% block content %}
+{{ display }}
+<h3>Success!!</h3>
+
+<div class="box-body no-padding">
+    <strong style="font-size:30px;"><a href="{% url 'monitoring:index' %}">return to home</a></strong>
+  </div>
+{% endblock %}

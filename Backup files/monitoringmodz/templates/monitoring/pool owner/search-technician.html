@@ -1,0 +1,23 @@
+{% extends "monitoring/pool owner/starter-owner.html" %}
+{% block content %}
+<div class="box">
+  <div class="box-header">
+    <h3 class="page-header">Searches related with {{ searchedItem }}.....</h3>
+  </div>
+  <!-- /.box-header -->
+  <div class="box-body no-padding">
+    <table class="table table-striped">
+      </tr>
+      {% for item in items%}
+      <tr>
+        <td><a class="page-header" href="{% url 'monitoring:profile' item.id %}"> {{item.first_name}} {{item.last_name}} </a>
+          <br> <div class="pull-left">{{item.username}}</div>
+        </td>
+      </tr>
+
+      {% endfor %}
+    </table>
+  </div>
+  <!-- /.box-body -->
+</div>
+{% endblock %}

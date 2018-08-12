@@ -1,0 +1,61 @@
+{% extends "monitoring/pool technician/starter.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">Set Maintenance Schedule</h3><br>
+      </div>
+      <!-- /.box-header -->
+      <!-- form start -->
+
+      <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-xs-3"></div>
+          <div class="col-xs-6">
+
+            <div style="padding-top:50px;">
+              <h4>Select Maintenance Schedule</h4>
+              </div>
+              <div class="form-group" style="padding-top:15px;">
+                <label>Select Pool</label>
+                <select class="form-control">
+                  <option> 1</option>
+                </select>
+              </div>
+
+              <div style="padding-top:20;">
+                <h4>Actual Chemicals </h4>
+                <label>Muriatic:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                <label>Ash Soda:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                <label>Chlorine:</label><br>
+                <input type="number" class="form-control" placeholder="gallons" />
+                </div>
+
+
+          </div>
+          <div class="col-xs-3"></div>
+        </div>
+        <div class="box-footer">
+          <div class="row">
+            <div class="col-xs-9">
+            <button type="submit"  class="btn btn-primary pull-right">Next</button>
+          </div>
+          </div>
+        </div>
+
+      </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}

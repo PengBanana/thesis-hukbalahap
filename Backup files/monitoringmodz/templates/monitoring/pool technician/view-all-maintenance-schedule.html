@@ -1,0 +1,42 @@
+{% extends "monitoring/pool technician/starter.html" %}
+{% block jscripts %}
+        {% for event in titles %}
+        {
+          title          : '{{ event }}',
+{% for item in starts%}
+    {% if forloop.counter == forloop.parentloop.counter %}
+          start          : new Date("{{ item }}"),
+    {% endif %}
+{% endfor %}
+{% for item in ends%}
+    {% if forloop.counter == forloop.parentloop.counter %}
+          end            : new Date("{{ item }}"),
+    {% endif %}
+{% endfor %}
+{% for item in ids%}
+    {% if forloop.counter == forloop.parentloop.counter %}
+          url            : "{{ item }}",
+    {% endif %}
+{% endfor %}
+{% for item in backgroundColors%}
+    {% if forloop.counter == forloop.parentloop.counter %}
+          backgroundColor: "{{ item }}",
+          borderColor    : "{{ item }}"
+    {% endif %}
+{% endfor %}
+}{% if not forloop.last %},{% endif %}
+{% endfor %}
+{% endblock %}
+{% block content %}
+{{ debugger }}
+{% for event in calendar %}
+{{ event.estimatedStart }}
+{% endfor %}
+<div class="box box-primary">
+  <div class="box-body no-padding">
+    <!-- THE CALENDAR -->
+    <div id="calendar"></div>
+  </div>
+  <!-- /.box-body -->
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% block content %}
+<!--finish schedule  modal-->
+  <div class="modal fade" id="modal-finish-schedule">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Set Maintenance Schedule</h4>
+        </div>
+        <form method="post" action="clientProfile.php">
+        <div class="modal-body">
+        <div class="required">
+          <label>Select Schedule</label>
+          <select class="form-control">
+            <option>Pool 2 - June 7, 2018 5pm to 6pm</option>
+            <option>Pool 3 - June 7, 2018 5pm to 6pm</option>
+          </select>
+        </div>
+
+        <div class="required">
+          <label>Actual time finished</label>
+          <div class="form-group">
+            <label>Date and time range:</label>
+
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-clock-o"></i>
+              </div>
+              <input type="text" class="form-control pull-right" id="finishtime">
+            </div>
+            <!-- /.input group -->
+          </div>
+        </div>
+        <div>
+            <h4><b>Actual Chemical Volume </b></h4>
+            <label>Muriatic Acid</label>
+                <input type="text" class="form-control" id="qty" placeholder="muriatic" required>
+            <label>DE Powder</label>
+                <input type="text" class="form-control" id="qty" placeholder="de" required>
+            <label>Chlorine</label>
+                <input type="text" class="form-control" id="qty" placeholder="chlorine" required>
+        </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          <input type="submit" name="edit"  value="Save Changes "class="btn btn-primary" id="submitBtn">
+        </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!--end of  finish schedule balance -->
+
+{% endblock%}

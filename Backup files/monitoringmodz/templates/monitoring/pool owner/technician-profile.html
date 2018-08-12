@@ -1,0 +1,217 @@
+{% extends "monitoring/pool owner/starter-owner.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-xs-12">
+    <div class="box box-primary">
+
+
+      {% if btnFlag == 'Active' %}
+        <div class="box-header with-border" style="float:right" >
+          <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-default"><i class="fa fa-edit"></i>
+            Edit Details
+          </button>
+          <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-password"><i class="fa fa-gear"></i>
+            Change Password
+          </button>
+
+          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-remove-client"><i class="fa fa-trash-o"></i>
+            Deactivate Account
+          </button>
+
+        </div>
+       {% elif btnFlag == 'Inactive' %}
+         <div class="box-header with-border" style="float:right" >
+           <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-reactivate-client"><i class="fa fa-user-o"></i>
+             Re-Activate Account
+           </button>
+         </div>
+
+      {% endif %}
+
+      <!--<div class="box-header with-border" style="float:right" >
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-default"><i class="fa fa-edit"></i>
+          Edit Details
+        </button>
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-password"><i class="fa fa-gear"></i>
+          Change Password
+        </button>
+
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-remove-client"><i class="fa fa-trash-o"></i>
+          Deactivate Account
+        </button>
+
+      </div>
+    -->
+
+      <div class="modal fade" id="modal-default">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Change Password</h4>
+            </div>
+            <form method="POST" >
+              {% csrf_token %}
+            <div class="modal-body">
+              {{form1.first_name.label_tag}}
+              {{form1.first_name}}
+              {{form1.last_name.label_tag}}
+              {{form1.last_name}}
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+              <input type="submit" name="editDetails"  value="Save Changes "class="btn btn-primary" id="submitBtn">
+            </div>
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
+
+      <div class="modal fade" id="modal-password">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Edit Details</h4>
+              <small>Fill up the input boxes that you wish to change.</small>
+            </div>
+            <form method="POST" >
+              {% csrf_token %}
+            <div class="modal-body">
+              {{form2.old_password.label_tag}}
+              {{form2.old_password}}
+              {{form2.new_password1.label_tag}}
+              {{form2.new_password1}}
+              {{form2.new_password2.label_tag}}
+              {{form2.new_password2}}
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+              <input type="submit" name="password"  value="Save Changes "class="btn btn-primary" id="submitBtn">
+            </div>
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
+      <!--Modal Remove Client-->
+
+      <div class="modal fade" id="modal-remove-client">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Deactivate User</h4>
+            </div>
+            <form method="POST">
+              {% csrf_token %}
+            <div class="modal-body">
+              <p>Are you sure you deactivate this user?</p>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+              <input type="submit" name='deactivate' value="Deactivate"class="btn btn-primary btn-sm btn-flat">
+            </div>
+          </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+
+      <div class="modal fade" id="modal-reactivate-client">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Reactivate User</h4>
+            </div>
+            <form method="POST">
+              {% csrf_token %}
+            <div class="modal-body">
+              <p>Are you sure you reactivate this user?</p>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+              <input type="submit" name='activate' value="Activate"class="btn btn-primary btn-sm btn-flat">
+            </div>
+          </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+
+      <div class="box-body">
+            <h3>{{ item_id.first_name }} {{ item_id.last_name }}</h3><br>
+            <small>{{item_id}}</small>
+
+
+      </div>
+      <!-- /.box-body -->
+
+  </div>
+
+  <section class="content">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="box">
+          <div class="box-header">
+            <h3 class="box-title">Employee Pool Monitoring Performance</h3><br>
+            <small>This shows the performance of the pool technician</small>
+          </div>
+          <!-- /.box-header -->
+          <div class="box-body">
+            <table id="example2" class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <th>Maintenance Date </th>
+                <th>Time</th>
+                <th>Actual Time</th>
+                <th>Action</th>
+
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+
+
+
+                </td>
+
+
+              </tr>
+            </table>
+
+          </div>
+          <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+
+
+        <!-- /.box -->
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </section>
+
+</div>
+
+</div>
+{% endblock %}

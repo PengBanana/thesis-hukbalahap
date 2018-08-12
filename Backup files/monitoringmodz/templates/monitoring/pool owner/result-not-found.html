@@ -1,0 +1,14 @@
+{% extends "error.html" %}
+{% block content %}
+{{ debugger }}
+<div class="box">
+  <div class="box-header">
+    <h1 class="page-header">PAGE NOT FOUND!</h1>
+  </div>
+  <!-- /.box-header -->
+  <div class="box-body no-padding">
+    <strong style="font-size:30px;"><a href="{% url 'monitoring:index' %}">return to home</a></strong>
+  </div>
+  <!-- /.box-body -->
+</div>
+{% endblock %}

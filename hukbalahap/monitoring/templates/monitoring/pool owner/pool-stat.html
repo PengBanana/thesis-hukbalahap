@@ -1,0 +1,209 @@
+{% extends "monitoring/pool owner/starter-owner.html" %}
+{% block scripts %}
+
+<script>
+    new Morris.Line({
+        element: 'phChart',
+        data: [
+            {% for item in ph %}
+            {y: '{{item.final_phdatetime|date:"Y-m-d H:00:00"}}', item1: '{{item.final_phlevel}}' }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        xkey: 'y',
+        ykeys: ['item1'],
+        lineColors: ['#3c8dbc'],
+        labels: ['PH level']
+    });
+
+    new Morris.Line({
+        element: 'tempChart',
+        data: [
+            {% for item in temperature %}
+            {y: '{{item.final_temperaturedatetime|date:"Y-m-d H:00:00"}}', item1: '{{item.final_temperaturelevel}}' }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        xkey: 'y',
+        ykeys: ['item1'],
+        lineColors: ['#3c8dbc'],
+        labels: ['Temperature level']
+    });
+
+    new Morris.Line({
+        element: 'turbidityChart',
+        data: [
+            {% for item in turbidity %}
+            {y: '{{item.final_turbiditydatetime|date:"Y-m-d H:00:00"}}', item1: '{{item.final_turbiditylevel}}' }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        xkey: 'y',
+        ykeys: ['item1'],
+        lineColors: ['#3c8dbc'],
+        labels: ['Temperature level']
+    });
+
+    $('.applyBtn').on('click', function() {
+        var dateValue = $('.date-value').text()
+        var datestart = dateValue.split('-')[0]
+        var dateend = dateValue.split('-')[1]
+        $('.date-value-start').val(datestart)
+        $('.date-value-end').val(dateend)
+        $('.date-form').submit();
+        //console.log(dateValue.split('-')[0] )
+        //console.log(dateValue.split('-')[1] )
+    })
+</script>
+{% endblock %}
+{% block content %}
+  <div>
+    <ol class="breadcrumb" style="background-color: #ecf0f5;font-size:20px;">
+      <li><a href="{% url 'monitoring:index' %}"><i class="fa fa-arrow-circle-o-left "></i> Back</a></li>
+    </ol>
+  </div>
+  <h1>{{pool.pool_location}}</h1>
+
+  <table>
+    <tr>
+      <td>
+        <div class="form-group">
+          <div class="input-group">
+            <button type="button" class="date-btn btn btn-default pull-right" id="daterange-btn">
+              <span class="date-value">
+                <i class="fa fa-calendar"></i> Select Date Range
+              </span>
+              <i class="fa fa-caret-down"></i>
+            </button>
+          </div>
+        </div>
+      </td>
+      <td style="padding-left:10px;padding-bottom:13px;">
+        <button type="button" class="applyBtn btn btn-success">apply
+          </button>
+      </td>
+    </tr>
+  </table>
+<!--
+  <div class="row">
+    <div class ="col-xs-1">
+      <div class="form-group">
+        <div class="input-group">
+          <button type="button" class="date-btn btn btn-default pull-right" id="daterange-btn">
+            <span class="date-value">
+              <i class="fa fa-calendar"></i> Select Date Range
+            </span>
+            <i class="fa fa-caret-down"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+      <div class="col-xs-10"  style="padding-left:5%;">
+        <button type="button" class="applyBtn btn btn-success">apply
+          </button>
+      </div>
+  </div>
+-->
+  <div class="row">
+    <div class="col-md-12">
+      <!-- LINE CHART -->
+      <div class="box box-info">
+        <div class="box-header with-border">
+          <h3 class="box-title">pH Level</h3>
+
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="box-body chart-responsive">
+          <div class="chart" id="phChart" style="height: 150px;">
+
+          </div>
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box -->
+
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <!-- LINE CHART -->
+      <div class="box box-info">
+        <div class="box-header with-border">
+          <h3 class="box-title">Temperature Level</h3>
+
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="box-body chart-responsive">
+          <div class="chart" id="tempChart" style="height: 150px;">
+
+          </div>
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box -->
+
+
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <!-- LINE CHART -->
+      <div class="box box-info">
+        <div class="box-header with-border">
+          <h3 class="box-title">Turbidity Level</h3>
+
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="box-body chart-responsive">
+          <div class="chart" id="turbidityChart" style="height: 150px;">
+
+          </div>
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box -->
+
+
+    </div>
+  </div>
+
+<!--  <div class="row">
+    <div class="col-md-12">
+
+      <div class="box box-info">
+        <div class="box-header with-border">
+          <h3 class="box-title">Chlorine Effectiveness Level</h3>
+
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="box-body chart-responsive">
+          <div class="chart" id="line-chart-chlorine" style="height: 150px;">
+
+          </div>
+        </div>
+        <!-- /.box-body
+      </div>
+      <!-- /.box
+    -->
+
+
+    </div>
+  </div>
+<form method="post" action={% url 'monitoring:filterPoolStat' %} class="date-form">
+{% csrf_token %}
+<input type='hidden'  name="poolPK" value='{{ pool.pk }}'>
+<input type='hidden' class='date-value-start' name="dateStart">
+<input type='hidden' class='date-value-end' name="dateEnd">
+</form>
+  {% endblock %}

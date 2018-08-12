@@ -1,11 +1,4 @@
 
-
-#start of import by migs and  francis
-import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
-from time import sleep
-import sqlite3
-
-#end of import
 #Sensor Reading Start
 SPI_PORT   = 0
 SPI_DEVICE = 0
@@ -109,6 +102,7 @@ def batchCount10pH():
         for level in pHList:
             reading = level.temp_phlevel
             reading -=tempMean
+            reading = reading * reading
             tempx.append(reading)
         newTempSum = 0
         for read in tempx:
@@ -116,6 +110,22 @@ def batchCount10pH():
         phVariance = newTempSum/tempCount
         pHStandardDev = math.sqrt(phVariance)
         pHStandardDev= decimal.Decimal(pHStandardDev)+tempMean
+        phStandardDev = round(phStandardDev, 1)
+        ##new notification
+        if phStandardDev < 7.2 or phStandardDev > 7.8:
+            poolx=Pool.objects.get(id=1)
+            userx = User.objects.get(Username="pooltech3")
+            messagex=poolx.pool_location+" needs attention"
+            try:
+                getNotification=Notification_Table.objects.get(user=userx, number=1)
+            except Notification_Table.DoesNotExist:
+                newNotification= Notification_Table(
+                    user=userx,
+                    message=messagex,
+                    number = 1
+                )
+                newNotification.save()
+        ##end of new notification
         Final_Ph.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
         print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))
 
@@ -160,7 +170,7 @@ def batchCount10Turbidity():
             newTempSum+= read
         turbidityVariance = newTempSum/tempCount
         turbidityStandardDev = math.sqrt(turbidityVariance)
-        turbidityStandardDev= decimal.Decimal(turbidityStandardDev)+tempMean
+        turbidityStandardDev = decimal.Decimal(turbidityStandardDev)+tempMean
         Final_Turbidity.objects.create(pool_id='1', final_turbiditylevel=turbidityStandardDev, final_turbiditydatetime=datetime.datetime.now())
         print("Final_Turbidity Value Added: Enrique Razon Building, " + str(turbidityStandardDev) + ", " + str(datetime.datetime.now()))
 
@@ -214,9 +224,9 @@ def count_temp_temperature():
 class sensorReading(threading.Thread):
 
     def run(self):
-        pH_batchCount = 0
-        turb_batchCount = 0
-        temp_batchCount = 0
+        pH_batchCount = 8
+        turb_batchCount = 8
+        temp_batchCount = 8
         while True:
             #query code below
             pH_rowCount = count_temp_ph()
@@ -284,4 +294,4 @@ class sensorReading(threading.Thread):
 sensorRead = sensorReading()
 sensorRead.start()
 
-#Sensor Reading end
+#Sensor Reading end#

@@ -253,7 +253,7 @@ def index(request):
     if not usertype.type == adminType:
         return render(request, 'monitoring/pool technician/home.html', content)
     else:
-        return render(request, 'monitoring/pool owner/home-owner.html')
+        return render(request, 'monitoring/pool owner/home-owner.html', content)
 
 
 

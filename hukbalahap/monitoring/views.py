@@ -13,7 +13,6 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-
 #start of import by migs and  francis###
 import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
 from time import sleep
@@ -185,7 +184,6 @@ def batchCount10Turbidity():
         for level in turbidityList:
             reading = level.temp_turbiditylevel
             reading -=tempMean
-            reading = reading * reading
             tempx.append(reading)
         newTempSum = 0
         for read in tempx:
@@ -229,7 +227,6 @@ def batchCount10Temp():
         for level in temperatureList:
             reading = level.temp_temperaturelevel
             reading -=tempMean
-            reading = reading * reading
             tempx.append(reading)
         newTempSum = 0
         for read in tempx:
@@ -384,7 +381,6 @@ def index(request):
             for level in temperatureList:
                 reading = level.temp_temperaturelevel
                 reading -=tempMean
-                reading = reading * reading
                 tempx.append(reading)
             newTempSum = 0
             for read in tempx:
@@ -427,7 +423,6 @@ def index(request):
             for level in turbidityList:
                 reading = level.temp_turbiditylevel
                 reading -=turbidityMean
-                reading = reading * reading
                 turbidityx.append(reading)
             newTurbiditySum = 0
             for read in turbidityx:
@@ -435,7 +430,6 @@ def index(request):
             turbidityVariance = newTurbiditySum/turbidityCount
             turbidityStandardDev = math.sqrt(turbidityVariance)
             turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
-            turbidityStandardDev=round(turbidityStandardDev, 2)
             #color assignment
             if turbidityStandardDev >= 1:
                 turbidityColors.append("green")
@@ -467,15 +461,14 @@ def index(request):
             for level in phList:
                 reading = level.temp_phlevel
                 reading -=phMean
-                reading = reading * reading
                 phx.append(reading)
             newPhSum = 0
             for read in phx:
                 newPhSum+= read
             phVariance = newPhSum/phCount
             phStandardDev = math.sqrt(phVariance)
-            phStandardDev= decimal.Decimal(phStandardDev)+phMean
-            phStandardDev = round(phStandardDev, 1)
+            phStandardDev=decimal.Decimal(phStandardDev)+turbidityMean
+            phStandardDev=round(phStandardDev, 1)
             #color assignment
             if phStandardDev >= 7.3 and phStandardDev <=7.7:
                 phColors.append("green")
@@ -562,10 +555,10 @@ def index(request):
 
 @login_required(login_url="/monitoring/login")
 def poolDetails_view(request, poolitem_id):
-    try:
-        usertype = Type.objects.get(pk=request.user.pk)
-        adminType= Usertype_Ref.objects.get(pk=1)
-        notifications = getNotification(request)
+    usertype = Type.objects.get(pk=request.user.pk)
+    adminType= Usertype_Ref.objects.get(pk=1)
+    notifications = getNotification(request)
+    if not usertype.type == adminType:
         poolref = Pool.objects.get(id=poolitem_id)
         ph = Final_Ph.objects.all().filter(pool=poolref)
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref)
@@ -578,13 +571,10 @@ def poolDetails_view(request, poolitem_id):
             'notifications':notifications,
         }
         print('wwwwwwwwwew')
-        if not usertype.type == adminType:
-            return render(request, 'monitoring/pool technician/pool-stat.html', content)
-        else:
-            return render(request, 'monitoring/pool owner/pool-stat.html', content)
-    except:
+        return render(request, 'monitoring/pool technician/pool-stat.html', content)
+    else:
         print('yopooooo')
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+        return render(request, 'monitoring/pool owner/result-not-found.html', content)
 
 
 
@@ -670,7 +660,6 @@ def setMaintenanceCompute(request):
             for level in phList:
                 reading = level.temp_phlevel
                 reading -=phMean
-                reading =  reading * reading
                 phx.append(reading)
             newPhSum = 0
             for read in phx:
@@ -860,7 +849,6 @@ def profile(request,item_id):
     notifications = getNotification(request)
     if usertype.type == adminType:
         user = User.objects.get(id=item_id)
-        userSchedule = MaintenanceSchedule.objects.all().filter(user=user)
         msg = None
         content = None
         status = user.status.status
@@ -877,7 +865,6 @@ def profile(request,item_id):
                     alert = 'success'
                     update_session_auth_hash(request, u)
                     content = {
-                        "userSchedule":userSchedule,
                         'item_id': user,
                         'form2': form2,
                         'form1': form1,
@@ -899,7 +886,6 @@ def profile(request,item_id):
                     user.save()
                     alert = 'success'
                     content = {
-                        "userSchedule":userSchedule,
                         'item_id': user,
                         'form1': form1,
                         'form2': form2,
@@ -910,12 +896,14 @@ def profile(request,item_id):
                     }
             elif (request.method == 'POST' ) & ('deactivate' in request.POST):
                 Status.objects.filter(pk=user.pk).update(status=2)
-                return render(request, 'monitoring/success/success.html', content)
+
+                return render(request, 'monitoring/pool owner/home-owner.html', content)
+
+
             else:
                 form1 = EditDetailsForm()
                 form2 = ChangePasswordForm(request.user)
                 content = {
-                    "userSchedule":userSchedule,
                     'item_id': user,
                     'form1': form1,
                     'form2': form2,
@@ -935,11 +923,10 @@ def profile(request,item_id):
                     'btnFlag':btnFlag,
                     'notifications':notifications,
                     }
-                return render(request, 'monitoring/success/success.html', content)
+                return render(request, 'monitoring/pool owner/home-owner.html', content)
             else:
                 btnFlag = 'Inactive'
                 content = {
-                    "userSchedule":userSchedule,
                     'item_id': user,
                     'status':status,
                     'btnFlag':btnFlag,
@@ -1245,7 +1232,6 @@ def maintenanceDetails(request, schedule_id):
                 for level in phList:
                     reading = level.temp_phlevel
                     reading -=phMean
-                    reading = reading * reading
                     phx.append(reading)
                 newPhSum = 0
                 for read in phx:

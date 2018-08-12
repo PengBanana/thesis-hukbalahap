@@ -180,12 +180,18 @@
             <table id="example2" class="table table-bordered table-hover">
               <thead>
               <tr>
-                <th>Maintenance Date </th>
-                <th>Time</th>
-                <th>Actual Time</th>
-                <th>Action</th>
+                <th>Date and Time Notified</th>
+                <th>Time Scheduled</th>
+                <th>Status</th>
 
               </tr>
+            {% for item in userSchedule %}
+            <tr>
+            <td>{{item.estimatedStart}}</td>
+            <td>{{item.scheduledStart}} - {{item.scheduledEnd}}</td>
+            <td>{{item.status}}</td>
+            </tr>
+            {% endfor %}
               </thead>
               <tbody>
               <tr>

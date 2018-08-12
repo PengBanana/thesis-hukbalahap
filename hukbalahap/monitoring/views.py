@@ -132,6 +132,7 @@ def batchCount10pH():
         pHStandardDev= decimal.Decimal(pHStandardDev)+tempMean
         phStandardDev = round(phStandardDev, 1)
         ##new notification
+        try:
         if phStandardDev < 7.2 or phStandardDev > 7.8:
             poolx=Pool.objects.get(id=1)
             userx = User.objects.get(Username="pooltech3")
@@ -145,6 +146,8 @@ def batchCount10pH():
                     number = 1
                 )
                 newNotification.save()
+        except:
+            print("yah")
         ##end of new notification
         Final_Ph.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
         print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))

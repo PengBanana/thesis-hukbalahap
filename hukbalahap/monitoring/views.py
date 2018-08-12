@@ -137,15 +137,15 @@ def batchCount10pH():
             poolx=Pool.objects.get(id=1)
             userx = User.objects.get(Username="pooltech3")
             messagex=poolx.pool_location+" needs attention"
-            try:
-                getNotification=Notification_Table.objects.get(user=userx, number=1)
-            except Notification_Table.DoesNotExist:
-                newNotification= Notification_Table(
-                    user=userx,
-                    message=messagex,
-                    number = 1
-                )
-                newNotification.save()
+            #try:
+            getNotification=Notification_Table.objects.get(user=userx, number=1)
+            #except Notification_Table.DoesNotExist:
+            newNotification= Notification_Table(
+                user=userx,
+                message=messagex,
+                number = 1
+            )
+            newNotification.save()
         print("yah")
         ##end of new notification
         Final_Ph.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())

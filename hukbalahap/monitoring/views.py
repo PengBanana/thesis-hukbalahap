@@ -523,7 +523,7 @@ def index(request):
         else:
             waterColors.append("White")
         content= {
-            'debug_check': '',
+            'debug_check': phDeviations,
             'pool':poolref,
             'temperature':tempDeviations,
             'turbidity':turbidityDeviations,

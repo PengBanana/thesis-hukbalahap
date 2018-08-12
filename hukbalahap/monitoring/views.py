@@ -134,14 +134,18 @@ def batchCount10pH():
         phStandardDev = round(phStandardDev, 1)
         ##new notification
         if phStandardDev < 7.2 or phStandardDev > 7.8:
+            poolx=Pool.objects.get(id=1)
             userx = User.objects.get(Username="pooltech3")
             messagex=poolx.pool_location+" needs attention"
-            newNotification= Notification_Table(
-                user=userx,
-                message=messagex,
-                number = 1
-            )
-            newNotification.save()
+            try:
+                getNotification=Notification_Table.objects.get(user=userx, number=1)
+            except Notification_Table.DoesNotExist:
+                newNotification= Notification_Table(
+                    user=userx,
+                    message=messagex,
+                    number = 1
+                )
+                newNotification.save()
         ##end of new notification
         Final_Ph.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
         print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))
@@ -243,9 +247,9 @@ def count_temp_temperature():
 class sensorReading(threading.Thread):
 
     def run(self):
-        pH_batchCount = 0
-        turb_batchCount = 0
-        temp_batchCount = 0
+        pH_batchCount = 8
+        turb_batchCount = 8
+        temp_batchCount = 8
         while True:
             #query code below
             pH_rowCount = count_temp_ph()
@@ -390,13 +394,11 @@ def index(request):
             tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
             tempStandardDev=round(tempStandardDev, 2)
             #color assignment
-            if tempStandardDev >= 95:
+            if tempStandardDev >= 25 and tempStandardDev <= 28:
                 tempColors.append("green")
-            elif (tempStandardDev >= 85):
-                tempColors.append("green")
-            elif (tempStandardDev >= 80):
+            elif (tempStandardDev >= 23 and tempStandardDev < 25) or (tempStandardDev > 28 and tempStandardDev <= 30):
                 tempColors.append("yellow")
-            elif(tempStandardDev < 80):
+            elif(tempStandardDev < 23 or tempStandardDev > 30):
                 tempColors.append("red")
             else:
                 tempColors.append("White")
@@ -435,13 +437,11 @@ def index(request):
             turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
             turbidityStandardDev=round(turbidityStandardDev, 2)
             #color assignment
-            if turbidityStandardDev >= 95:
+            if turbidityStandardDev >= 1:
                 turbidityColors.append("green")
-            elif (turbidityStandardDev >= 85):
-                 turbidityColors.append("green")
-            elif (turbidityStandardDev >= 80):
+            elif (turbidityStandardDev > 1 and turbidityStandardDev < 1.5):
                  turbidityColors.append("yellow")
-            elif(turbidityStandardDev < 80):
+            elif(turbidityStandardDev > 1.5):
                  turbidityColors.append("red")
             else:
                 turbidityColors.append("White")
@@ -477,13 +477,11 @@ def index(request):
             phStandardDev= decimal.Decimal(phStandardDev)+phMean
             phStandardDev = round(phStandardDev, 1)
             #color assignment
-            if phStandardDev >= 7.3 and phStandardDev <=7.5:
+            if phStandardDev >= 7.3 and phStandardDev <=7.7:
                 phColors.append("green")
-            elif ((phStandardDev >= 7.1 and phStandardDev <= 7.2) or (phStandardDev >= 7.6 and phStandardDev <= 7.7)):
-                 phColors.append("green")
-            elif((phStandardDev < 7.1 and phStandardDev > 6.9) or (phStandardDev > 7.7 and phStandardDev < 7.9)):
+            elif((phStandardDev < 7.3 and phStandardDev >= 7.2) or (phStandardDev > 7.7 and phStandardDev < 7.9)):
                  phColors.append("yellow")
-            elif(phStandardDev >= 7.9 or phStandardDev <= 6.9):
+            elif(phStandardDev < 7.2 or phStandardDev > 7.8):
                  phColors.append("red")
             else:
                 phColors.append("White")
@@ -512,13 +510,13 @@ def index(request):
                 elif chlorine<0:
                     chlorine=0
                 #color assignment
-                if chlorine >= 95:
+                if chlorine >= 85:
                     chlorineColors.append("green")
-                elif (chlorine >= 85):
-                     chlorineColors.append("green")
-                elif (chlorine >= 80):
+                elif (chlorine >= 65):
+                     chlorineColors.append("orange")
+                elif (chlorine >= 50):
                      chlorineColors.append("yellow")
-                elif(chlorine < 80):
+                elif(chlorine < 50):
                      chlorineColors.append("red")
                 else:
                     chlorineColors.append("White")

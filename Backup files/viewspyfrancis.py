@@ -13,10 +13,17 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-
 #start of import by migs and  francis
-import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
+import threading
+import time
+import spidev
+import datetime
 from time import sleep
+import numpy as np
+import Adafruit_GPIO.SPI as SPI
+import Adafruit_MCP3008
+import os
+#important
 import sqlite3
 
 #end of import
@@ -523,7 +530,7 @@ def index(request):
         else:
             waterColors.append("White")
         content= {
-            'debug_check': phDeviations,
+            'debug_check': '',
             'pool':poolref,
             'temperature':tempDeviations,
             'turbidity':turbidityDeviations,
@@ -667,13 +674,6 @@ def setMaintenanceCompute(request):
         dePowder = squarefeet*decimal.Decimal(.1)
         dePowder = dePowder*decimal.Decimal(.8)
         dePowder = round(dePowder, 1)
-        if dePowder > 0:
-            dePowderOutput = str(dePowder)+" oz / "
-            dePowder =  dePowder * decimal.Decimal(0.0625)
-            dePowder = round(dePowder, 2)
-            dePowderOutput = dePowderOutput+str(dePowder)+" lbs"
-        else:
-            dePowderOutput = "No Need"
         #multiplier
         gallons = poolGallons
         multiplier = 0
@@ -686,9 +686,7 @@ def setMaintenanceCompute(request):
             gallons-=5000
 
         #soda ash computation
-        showButton=1
         if phLevel < 7.4:
-            muriaticAcidOutput="No Need"
             if phLevel < 6.7:
                 sodaAsh = multiplier * 8
             elif phLevel <= 7:
@@ -698,15 +696,7 @@ def setMaintenanceCompute(request):
             elif phLevel <= 7.4:
                 sodaAsh = multiplier * 3
             sodaAsh = round(sodaAsh, 1)
-            if(sodaAsh>0):
-                sodaAshOutput = str(sodaAsh)+" oz / "
-                sodaAsh = sodaAsh*decimal.Decimal(0.0625)
-                sodaAsh = round(sodaAsh, 2)
-                sodaAshOutput = str(sodaAshOutput)+" lbs"
-            else:
-                sodaAshOutput="No Need"
         elif phLevel > 7.4:#muriatic acid computation
-            sodaAshOutput="No Need"
             if phLevel > 8.4:
                 muriaticAcid = multiplier * 16
             elif phLevel >= 8:
@@ -716,20 +706,11 @@ def setMaintenanceCompute(request):
             elif phLevel > 7.5:
                 muriaticAcid = multiplier * 6
             muriaticAcid = round(muriaticAcid, 1)
-            if muriaticAcid > 0:
-                muriaticAcidOutput = str(muriaticAcid)+" oz / "
-                muriaticAcid = muriaticAcid * decimal.Decimal(0.03125)
-                muriaticAcid = round(muriaticAcid, 2)
-                muriaticAcidOutput = muriaticAcidOutput + str(muriaticAcid)+" qts"
-            else:
-                muriaticAcidOutput = "No need"
         else:
             print('water is balanced')
-            sodaAshOutput="No Need"
-            muriaticAcidOutput="No Need"
-            dePowderOutput="No Need"
-            muriaticAcidOutput="No Need"
-            showButton=0
+            sodaAsh=0
+            muriaticAcid=0
+            dePowder=0
         #no chlorine computation
         content = {
             'debugger':"",
@@ -738,12 +719,11 @@ def setMaintenanceCompute(request):
             'dateEnd':eDate,
             'timeStart':tStart,
             'timeEnd':tEnd,
-            'sodaAsh':sodaAshOutput,
-            'muriaticAcid':muriaticAcidOutput,
-            'dePowder':dePowderOutput,
+            'sodaAsh':sodaAsh,
+            'muriaticAcid':muriaticAcid,
+            'dePowder':dePowder,
             'notifications':notifications,
             'color':"fill:green;stroke:black;stroke-width:1;opacity:0.5",
-            'showButton':showButton,
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html', content)
     except:
@@ -1165,11 +1145,9 @@ def personnel(request):
 @login_required(login_url="/monitoring/login")
 def maintenanceDetails(request, schedule_id):
     notifications = getNotification(request)
-    if 0==0:
+    try:
         actual=0
         item = MaintenanceSchedule.objects.get(id=schedule_id)
-        pool = item.pool
-        poolPK=pool.pk
         if item.scheduledStart == None:
             fromDate=item.estimatedStart
             toDate=item.estimatedEnd
@@ -1184,105 +1162,10 @@ def maintenanceDetails(request, schedule_id):
             actual=1
             showButton=0
         else:
-            #OLD
-            #muriaticAcid=item.est_muriatic
-            #sodaAsh=item.est_bakingsoda
-            #dePowder=item.est_depowder
-            #chlorine=item.est_chlorine
-            #NEW
-            poolitem = Pool.objects.get(pk=poolPK)
-            phList = Temp_Ph.objects.all().filter(pool=poolitem)
-            phSum=0
-            phCount=0
-            for phItem in phList:
-                phSum+=phItem.temp_phlevel
-                phCount+=1
-            if(phCount>0):
-                phMean = phSum/phCount
-                phx = []
-                for level in phList:
-                    reading = level.temp_phlevel
-                    reading -=phMean
-                    phx.append(reading)
-                newPhSum = 0
-                for read in phx:
-                    newPhSum+= read
-                phVariance = newPhSum/phCount
-                phStandardDev = math.sqrt(phVariance)
-                phStandardDev=decimal.Decimal(phStandardDev)+phMean
-            phLevel =  phStandardDev
-            #get gallons
-            cubicpool = poolitem.pool_width * poolitem.pool_depth * poolitem.pool_length
-            poolGallons = cubicpool * decimal.Decimal(7.5)
-            squarefeet= poolitem.pool_length * poolitem.pool_width
-            #DE powder computation
-            dePowder = squarefeet*decimal.Decimal(.1)
-            dePowder = dePowder*decimal.Decimal(.8)
-            dePowder = round(dePowder, 1)
-            if dePowder > 0:
-                dePowderOutput = str(dePowder)+" oz / "
-                dePowder =  dePowder * decimal.Decimal(0.0625)
-                dePowder = round(dePowder, 2)
-                dePowderOutput = dePowderOutput+str(dePowder)+" lbs"
-                dePowder=dePowderOutput
-            else:
-                dePowderOutput = "No Need"
-                dePowder=dePowderOutput
-            #multiplier
-            gallons = poolGallons
-            multiplier = 0
-            sodaAsh=0
-            muriaticAcid=0
-            chlorine=0
-
-            while gallons >= 5000:
-                multiplier+=1
-                gallons-=5000
-
-            #soda ash computation
-            showButton=1
-            if phLevel < 7.4:
-                muriaticAcidOutput="No Need"
-                if phLevel < 6.7:
-                    sodaAsh = multiplier * 8
-                elif phLevel <= 7:
-                    sodaAsh = multiplier * 6
-                elif phLevel <= 7.2:
-                    sodaAsh = multiplier * 4
-                elif phLevel <= 7.4:
-                    sodaAsh = multiplier * 3
-                sodaAsh = round(sodaAsh, 1)
-                if(sodaAsh>0):
-                    sodaAshOutput = str(sodaAsh)+" oz / "
-                    sodaAsh = sodaAsh*decimal.Decimal(0.0625)
-                    sodaAsh = round(sodaAsh, 2)
-                    sodaAshOutput = str(sodaAshOutput)+" lbs"
-                    sodAsh=sodaAshOutput
-                else:
-                    sodaAshOutput="No Need"
-                    sodAsh=sodaAshOutput
-            elif phLevel > 7.4:#muriatic acid computation
-                sodaAshOutput="No Need"
-                sodAsh=sodaAshOutput
-                if phLevel > 8.4:
-                    muriaticAcid = multiplier * 16
-                elif phLevel >= 8:
-                    muriaticAcid = multiplier * 12
-                elif phLevel >= 7.8:
-                    muriaticAcid = multiplier * 8
-                elif phLevel > 7.5:
-                    muriaticAcid = multiplier * 6
-                muriaticAcid = round(muriaticAcid, 1)
-                if muriaticAcid > 0:
-                    muriaticAcidOutput = str(muriaticAcid)+" oz / "
-                    muriaticAcid = muriaticAcid * decimal.Decimal(0.03125)
-                    muriaticAcid = round(muriaticAcid, 2)
-                    muriaticAcidOutput = muriaticAcidOutput + str(muriaticAcid)+" qts"
-                    muriaticAcid=muriaticAcidOutput
-                else:
-                    muriaticAcidOutput = "No need"
-                    muriaticAcid=muriaticAcidOutput
-            #END OF NEW
+            muriaticAcid=item.est_muriatic
+            sodaAsh=item.est_bakingsoda
+            dePowder=item.est_depowder
+            chlorine=item.est_chlorine
             if item.status == "Unfinished":
                 showButton=0
             else:
@@ -1306,7 +1189,7 @@ def maintenanceDetails(request, schedule_id):
         }
         #insert notification here content.append/content.add(function())
         return render(request, 'monitoring/pool technician/maintenance-details.html', content)
-    else:
+    except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
@@ -1427,13 +1310,4 @@ def personnelEfficiency(request):
 
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):
-<<<<<<< HEAD
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
-
-
-@login_required(login_url="/monitoring/login")
-def addPool(request):
-    return render(request, 'monitoring/pool owner/add-pool.html')
-=======
-    return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
->>>>>>> 72ca32bfc34e13953aa00323eaf60e2dcb951f1c

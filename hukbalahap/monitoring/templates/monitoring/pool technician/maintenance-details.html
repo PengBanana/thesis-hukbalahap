@@ -67,10 +67,6 @@
                           <td><label>DE Powder:</label></td>
                           <td  align="right">{{ dePowder }}</td>
                       </tr>
-                      <tr>
-                          <td><label>Chlorine:</label></td>
-                          <td  align="right">{{ chlorine }}</td>
-                      </tr>
 
 
                       </table>
@@ -91,6 +87,7 @@
         {% if showButton == 1 %}
             <button type="submit"  class="btn btn-primary pull-right">Finish Maintenance</button>
         {% endif %}
+            <a href="{% url 'monitoring:viewMaintenance' %}">Back</a> 
           </div>
           </div>
         </div>

@@ -13,6 +13,8 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+
+
 #start of import by migs and  francis###
 import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
 from time import sleep
@@ -134,8 +136,8 @@ def batchCount10pH():
         ##new notification
         if pHStandardDev < 7.2 or pHStandardDev > 7.8:
             poolx=Pool.objects.get(id=1)
+            messagex = poolx.pool_location+" needs attention"
             userx = User.objects.get(username="pooltech3")
-            messagex=poolx.pool_location+" needs attention"
             #try:
             getNotification=Notification_Table.objects.get(user=userx, number=1)
             #except Notification_Table.DoesNotExist:
@@ -360,6 +362,7 @@ def logout_view(request):
 
 @login_required(login_url="/monitoring/login")
 def index(request):
+    debugger=""
     notifications = getNotification(request)
     usertype = Type.objects.get(user=request.user)
     adminType= Usertype_Ref.objects.get(pk=1)
@@ -533,7 +536,7 @@ def index(request):
     else:
         waterColors.append("White")
     content= {
-        'debug_check': "",
+        'debug_check': debugger,
         'pool':poolref,
         'temperature':tempDeviations,
         'turbidity':turbidityDeviations,

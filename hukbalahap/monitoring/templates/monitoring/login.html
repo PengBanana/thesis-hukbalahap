@@ -57,7 +57,7 @@
   <!-- /.login-logo -->
   <div class="login-box-body">
     <p class="login-box-msg">Log In</p>
-    
+    {{ debugger }}
     <form action={% url 'monitoring:attempt_login' %} method="post">
     {% if error == 1 %}
     <p>Wrong username and password</p>

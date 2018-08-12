@@ -121,8 +121,8 @@ def batchCount10pH():
         ##new notification
         if pHStandardDev < 7.2 or pHStandardDev > 7.8:
             poolx=Pool.objects.get(id=1)
-            userx = User.objects.get(Username="pooltech3")
-            messagex=poolx.pool_location+" needs attention"
+			messagex=poolx.pool_location+" needs attention"
+            userx = User.objects.get(username="pooltech3")
             #try:
             getNotification=Notification_Table.objects.get(user=userx, number=1)
             #except Notification_Table.DoesNotExist:

@@ -149,7 +149,7 @@ def batchCount10pH():
                     message=messagex,
                     number = 1
                 )
-            newNotification.save()
+                newNotification.save()
         ##end of new notification
 
 def count_temp_ph():

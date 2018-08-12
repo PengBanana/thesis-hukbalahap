@@ -13,7 +13,6 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-
 #start of import by migs and  francis###
 import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
 from time import sleep
@@ -135,7 +134,7 @@ def batchCount10pH():
         ##new notification
         if pHStandardDev < 7.2 or pHStandardDev > 7.8:
             poolx=Pool.objects.get(id=1)
-            userx = User.objects.get(Username="pooltech3")
+            userx = User.objects.get(username="pooltech3")
             messagex=poolx.pool_location+" needs attention"
             #try:
             getNotification=Notification_Table.objects.get(user=userx, number=1)
@@ -148,7 +147,7 @@ def batchCount10pH():
             newNotification.save()
         print("yah")
         ##end of new notification
-        Final_Ph.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
+        Final_U.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
         print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))
 
 def count_temp_ph():

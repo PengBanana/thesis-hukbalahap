@@ -25,7 +25,7 @@ SECRET_KEY = 'rpw$6#i7ud&y5f#r@8f9^hi+_u#kauz50h1uu=szvdnc##vkae'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.1.45', 'localhost', '127.0.0.1']
 
 
 # Application definition

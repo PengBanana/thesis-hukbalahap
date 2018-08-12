@@ -93,7 +93,7 @@ class MaintenanceSchedule(models.Model):
 	act_muriatic = models.DecimalField(max_digits=8, decimal_places=2, default=None)
 	act_depowder = models.DecimalField(max_digits=8, decimal_places=2, default=None)
 	act_bakingsoda = models.DecimalField(max_digits=8, decimal_places=2, default=None)
-	status = models.TextField(default="Notified")
+	status = models.TextField(default="Scheduled")
 
 	def __str__(self):
 		return self.user.username + " - " + self.pool.pool_location

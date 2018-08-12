@@ -128,13 +128,13 @@ def batchCount10pH():
         newTempSum = 0
         for read in tempx:
             newTempSum+= read
-        phVariance = newTempSum/tempCount
-        pHStandardDev = math.sqrt(phVariance)
+        pHVariance = newTempSum/tempCount
+        pHStandardDev = math.sqrt(pHVariance)
         pHStandardDev= decimal.Decimal(pHStandardDev)+tempMean
-        phStandardDev = round(phStandardDev, 1)
+        pHStandardDev = round(pHStandardDev, 1)
         ##new notification
         try:
-            if phStandardDev < 7.2 or phStandardDev > 7.8:
+            if pHStandardDev < 7.2 or pHStandardDev > 7.8:
                 poolx=Pool.objects.get(id=1)
                 userx = User.objects.get(Username="pooltech3")
                 messagex=poolx.pool_location+" needs attention"

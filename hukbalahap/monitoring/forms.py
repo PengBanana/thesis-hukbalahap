@@ -8,7 +8,7 @@ class SignUpForm(UserCreationForm):
     first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'First Name'}),max_length=30, required=True)
     last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control','autocomplete':'off','placeholder':'Last Name'}),max_length=30, required=True)
     password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control','autocomplete':'off'}),required=True, max_length=30, label=("Password"))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control','autocomplete':'off'}),required=True, max_length=30, label=("Password"))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control','autocomplete':'off'}),required=True, max_length=30, label=("Re-type Password"))
     #email = forms.EmailField(max_length=254,required=False)
 
     def clean_username(self):

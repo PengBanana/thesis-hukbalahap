@@ -537,10 +537,10 @@ def index(request):
             'tempColors':tempColors,
             'waterColors':"white",
         }
+    if usertype.type == adminType:
         return render(request, 'monitoring/pool technician/home.html', content)
-
     else:
-        return render(request, 'monitoring/pool owner/home-owner.html')
+        return render(request, 'monitoring/pool owner/home-owner.html', content)
 
 
 
@@ -575,7 +575,7 @@ def addUser(request):
     notifications = getNotification(request)
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
-    if usertype.type == adminType:
+    
         if request.method == 'POST':
             msg = None
             print('request POST')

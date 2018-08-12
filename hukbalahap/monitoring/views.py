@@ -13,9 +13,6 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-<<<<<<< HEAD
-=======
-
 #start of import by migs and  francis
 import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
 from time import sleep
@@ -302,7 +299,6 @@ sensorRead.start()
 
 #Sensor Reading end
 
->>>>>>> 272f9fc85f1de49337d7e3d3996d919cb03e730b
 def login(request):
     msg = None
     if request.method == 'POST':

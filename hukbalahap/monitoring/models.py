@@ -96,7 +96,7 @@ class MaintenanceSchedule(models.Model):
 	status = models.TextField(default="Notified")
 
 	def __str__(self):
-		return self.user.username
+		return self.user.username + " - " + self.pool.pool_location
 
 class Temp_Turbidity(models.Model):
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)

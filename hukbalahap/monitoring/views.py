@@ -174,7 +174,7 @@ def batchCount10Turbidity():
             newTempSum+= read
         turbidityVariance = newTempSum/tempCount
         turbidityStandardDev = math.sqrt(turbidityVariance)
-        turbidityStandardDev= decimal.Decimal(turbidityStandardDev)+tempMean
+        turbidityStandardDev = decimal.Decimal(turbidityStandardDev)+tempMean
         Final_Turbidity.objects.create(pool_id='1', final_turbiditylevel=turbidityStandardDev, final_turbiditydatetime=datetime.datetime.now())
         print("Final_Turbidity Value Added: Enrique Razon Building, " + str(turbidityStandardDev) + ", " + str(datetime.datetime.now()))
 

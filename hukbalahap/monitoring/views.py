@@ -134,7 +134,6 @@ def batchCount10pH():
         pHStandardDev= decimal.Decimal(pHStandardDev)+tempMean
         pHStandardDev = round(pHStandardDev, 1)
         print("yah")
-        ##end of new notification
         Final_Ph.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
         print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))
         ##new notification
@@ -143,7 +142,7 @@ def batchCount10pH():
             messagex = poolx.pool_location+" needs attention"
             userx = User.objects.get(username="pooltech3")
             try:
-                getNotification=Notification_Table.objects.get(user=userx, number=1)
+                getNotification=Notification_Table.objects.all().filter(user=userx, number=1)
             except Notification_Table.DoesNotExist:
                 newNotification= Notification_Table(
                     user=userx,
@@ -151,6 +150,7 @@ def batchCount10pH():
                     number = 1
                 )
             newNotification.save()
+        ##end of new notification
 
 def count_temp_ph():
     rc = Temp_Ph.objects.count()

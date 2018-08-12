@@ -247,9 +247,9 @@ def count_temp_temperature():
 class sensorReading(threading.Thread):
 
     def run(self):
-        pH_batchCount = 9
-        turb_batchCount = 9
-        temp_batchCount = 9
+        pH_batchCount = 10
+        turb_batchCount = 10
+        temp_batchCount = 10
         while True:
             #query code below
             pH_rowCount = count_temp_ph()

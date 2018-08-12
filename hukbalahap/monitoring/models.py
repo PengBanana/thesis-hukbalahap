@@ -36,7 +36,7 @@ class Usertype_Ref(models.Model):
 
 class Type(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	type = models.ForeignKey(Usertype_Ref, default = 1, on_delete=models.CASCADE)
+	type = models.ForeignKey(Usertype_Ref, default = 2, on_delete=models.CASCADE)
 
 	def __str__(self):
 		return str(self.user)

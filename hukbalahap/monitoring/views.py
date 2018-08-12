@@ -264,7 +264,7 @@ class sensorReading(threading.Thread):
             if(temp_rowCount >= 10 and temp_batchCount != 10):
                 del_insert_to_temp_temperature()
                 temp_batchCount += 1
-            
+
             #if row and batch is 10
             if(pH_rowCount >= 10 and pH_batchCount == 10):
                 del_insert_to_temp_pH()
@@ -278,7 +278,7 @@ class sensorReading(threading.Thread):
                 del_insert_to_temp_temperature()
                 batchCount10Temp()
                 temp_batchCount = 1
-            
+
             #if rowcount NOT 10 and batch IS 10
             if(pH_rowCount < 10 and pH_batchCount == 10):
                 insert_to_temp_pH()
@@ -1427,13 +1427,9 @@ def personnelEfficiency(request):
 
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):
-<<<<<<< HEAD
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
 
 
 @login_required(login_url="/monitoring/login")
 def addPool(request):
     return render(request, 'monitoring/pool owner/add-pool.html')
-=======
-    return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
->>>>>>> 72ca32bfc34e13953aa00323eaf60e2dcb951f1c

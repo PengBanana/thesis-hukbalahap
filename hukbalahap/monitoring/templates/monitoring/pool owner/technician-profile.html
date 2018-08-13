@@ -1,4 +1,19 @@
 {% extends "monitoring/pool owner/starter-owner.html" %}
+{% block scripts %}
+<script>
+  $(function () {
+    $('#example1').DataTable()
+    $('#example2').DataTable({
+      'paging'      : true,
+      'lengthChange': false,
+      'searching'   : false,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : false
+    })
+  })
+</script>
+{% endblock %}
 {% block content %}
 <div class="row">
   <div class="col-xs-12">

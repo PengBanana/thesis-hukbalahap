@@ -438,14 +438,13 @@ def index(request):
             turbidityVariance = newTurbiditySum/turbidityCount
             turbidityStandardDev = math.sqrt(turbidityVariance)
             turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
-            turbidityStandardDev=round(turbidityStandardDev, 1)
             #color assignment
-            if turbidityStandardDev < 1:
+            if turbidityStandardDev >= 1:
                 turbidityColors.append("green")
-            elif (turbidityStandardDev => 1 and turbidityStandardDev < 2):
-                turbidityColors.append("yellow")
-            elif(turbidityStandardDev >= 2):
-                turbidityColors.append("red")
+            elif (turbidityStandardDev > 1 and turbidityStandardDev < 1.5):
+                 turbidityColors.append("yellow")
+            elif(turbidityStandardDev > 1.5):
+                 turbidityColors.append("red")
             else:
                 turbidityColors.append("White")
             turbidityStandardDev=str(turbidityStandardDev)+" ntu"
@@ -565,8 +564,10 @@ def index(request):
 
 @login_required(login_url="/monitoring/login")
 def poolDetails_view(request, poolitem_id):
-    try:
-        notifications = getNotification(request)
+    usertype = Type.objects.get(pk=request.user.pk)
+    adminType= Usertype_Ref.objects.get(pk=1)
+    notifications = getNotification(request)
+    if not usertype.type == adminType:
         poolref = Pool.objects.get(id=poolitem_id)
         ph = Final_Ph.objects.all().filter(pool=poolref)
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref)
@@ -580,9 +581,9 @@ def poolDetails_view(request, poolitem_id):
         }
         print('wwwwwwwwwew')
         return render(request, 'monitoring/pool technician/pool-stat.html', content)
-    except:
+    else:
         print('yopooooo')
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+        return render(request, 'monitoring/pool owner/result-not-found.html', content)
 
 
 
@@ -858,7 +859,6 @@ def profile(request,item_id):
     notifications = getNotification(request)
     if usertype.type == adminType:
         user = User.objects.get(id=item_id)
-        userSchedule = MaintenanceSchedule.objects.all().filter(user=user)
         msg = None
         content = None
         status = user.status.status
@@ -906,6 +906,7 @@ def profile(request,item_id):
                     }
             elif (request.method == 'POST' ) & ('deactivate' in request.POST):
                 Status.objects.filter(pk=user.pk).update(status=2)
+
                 return render(request, 'monitoring/pool owner/home-owner.html', content)
 
 
@@ -913,7 +914,6 @@ def profile(request,item_id):
                 form1 = EditDetailsForm()
                 form2 = ChangePasswordForm(request.user)
                 content = {
-                    "userSchedule":userSchedule,
                     'item_id': user,
                     'form1': form1,
                     'form2': form2,
@@ -937,7 +937,6 @@ def profile(request,item_id):
             else:
                 btnFlag = 'Inactive'
                 content = {
-                    "userSchedule":userSchedule,
                     'item_id': user,
                     'status':status,
                     'btnFlag':btnFlag,

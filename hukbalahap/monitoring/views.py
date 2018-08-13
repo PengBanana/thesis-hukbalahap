@@ -565,10 +565,8 @@ def index(request):
 
 @login_required(login_url="/monitoring/login")
 def poolDetails_view(request, poolitem_id):
-    usertype = Type.objects.get(pk=request.user.pk)
-    adminType= Usertype_Ref.objects.get(pk=1)
-    notifications = getNotification(request)
-    if not usertype.type == adminType:
+    try:
+        notifications = getNotification(request)
         poolref = Pool.objects.get(id=poolitem_id)
         ph = Final_Ph.objects.all().filter(pool=poolref)
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref)
@@ -582,7 +580,7 @@ def poolDetails_view(request, poolitem_id):
         }
         print('wwwwwwwwwew')
         return render(request, 'monitoring/pool technician/pool-stat.html', content)
-    else:
+    except:
         print('yopooooo')
         return render(request, 'monitoring/pool owner/result-not-found.html')
 

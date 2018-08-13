@@ -17,6 +17,10 @@
           <label class="label label-warning" style="font-size:15px">
             Notified
           </label>
+          {% if status == 'Scheduled' %}
+          <label class="label label-warning" style="font-size:15px">
+            Notified
+          </label>
          {% elif status == 'Accomplished' %}
          <label class="label label-success" style="font-size:15px">
            Accomplished
@@ -24,6 +28,10 @@
         {% elif status == 'Late' %}
         <label class="label label-danger" style="font-size:15px">
           Late
+        </label>
+          {% elif status == 'Unfinished' %}
+        <label class="label label-danger" style="font-size:15px">
+          Unfinished
         </label>
         {% endif %}
       </div>

@@ -442,7 +442,7 @@ def index(request):
             #color assignment
             if turbidityStandardDev < 1:
                 turbidityColors.append("green")
-            elif (turbidityStandardDev => 1 and turbidityStandardDev < 2):
+            elif (turbidityStandardDev >= 1 and turbidityStandardDev < 2):
                 turbidityColors.append("yellow")
             elif(turbidityStandardDev >= 2):
                 turbidityColors.append("red")

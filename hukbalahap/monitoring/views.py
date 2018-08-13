@@ -187,6 +187,7 @@ def batchCount10Turbidity():
         for level in turbidityList:
             reading = level.temp_turbiditylevel
             reading -=tempMean
+            reading = reading * reading
             tempx.append(reading)
         newTempSum = 0
         for read in tempx:
@@ -230,6 +231,7 @@ def batchCount10Temp():
         for level in temperatureList:
             reading = level.temp_temperaturelevel
             reading -=tempMean
+            reading = reading*reading
             tempx.append(reading)
         newTempSum = 0
         for read in tempx:
@@ -252,7 +254,7 @@ class sensorReading(threading.Thread):
         temp_batchCount = 6
         while True:
             #query code below
-            pH_rowCount = count_temp_ph(
+            pH_rowCount = count_temp_ph()
             print("Preliminary Row Count for pH: " + str(pH_rowCount))
             print("Preliminary Batch Count for pH: " + str(pH_batchCount))
             turb_rowCount = count_temp_turbidity()
@@ -385,6 +387,7 @@ def index(request):
             for level in temperatureList:
                 reading = level.temp_temperaturelevel
                 reading -=tempMean
+                reading = reading*reading
                 tempx.append(reading)
             newTempSum = 0
             for read in tempx:
@@ -427,6 +430,7 @@ def index(request):
             for level in turbidityList:
                 reading = level.temp_turbiditylevel
                 reading -=turbidityMean
+                reading = reading*reading
                 turbidityx.append(reading)
             newTurbiditySum = 0
             for read in turbidityx:
@@ -465,13 +469,14 @@ def index(request):
             for level in phList:
                 reading = level.temp_phlevel
                 reading -=phMean
+                reading = reading * reading
                 phx.append(reading)
             newPhSum = 0
             for read in phx:
                 newPhSum+= read
             phVariance = newPhSum/phCount
             phStandardDev = math.sqrt(phVariance)
-            phStandardDev=decimal.Decimal(phStandardDev)+turbidityMean
+            phStandardDev=decimal.Decimal(phStandardDev)+phMean
             phStandardDev=round(phStandardDev, 1)
             #color assignment
             if phStandardDev >= 7.3 and phStandardDev <=7.7:
@@ -664,6 +669,7 @@ def setMaintenanceCompute(request):
             for level in phList:
                 reading = level.temp_phlevel
                 reading -=phMean
+                reading = reading * reading
                 phx.append(reading)
             newPhSum = 0
             for read in phx:
@@ -1236,6 +1242,7 @@ def maintenanceDetails(request, schedule_id):
                 for level in phList:
                     reading = level.temp_phlevel
                     reading -=phMean
+                    reading = reading * reading
                     phx.append(reading)
                 newPhSum = 0
                 for read in phx:

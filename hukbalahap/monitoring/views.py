@@ -440,12 +440,12 @@ def index(request):
             turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
             turbidityStandardDev=round(turbidityStandardDev, 1)
             #color assignment
-            if turbidityStandardDev >= 1:
+            if turbidityStandardDev < 1:
                 turbidityColors.append("green")
-            elif (turbidityStandardDev > 1 and turbidityStandardDev < 1.5):
-                 turbidityColors.append("yellow")
-            elif(turbidityStandardDev > 1.5):
-                 turbidityColors.append("red")
+            elif (turbidityStandardDev => 1 and turbidityStandardDev < 2):
+                turbidityColors.append("yellow")
+            elif(turbidityStandardDev >= 2):
+                turbidityColors.append("red")
             else:
                 turbidityColors.append("White")
             turbidityStandardDev=str(turbidityStandardDev)+" ntu"

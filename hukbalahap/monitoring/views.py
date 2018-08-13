@@ -438,7 +438,7 @@ def index(request):
             turbidityVariance = newTurbiditySum/turbidityCount
             turbidityStandardDev = math.sqrt(turbidityVariance)
             turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
-            turbdityStandardDev=round(turbdityStandardDev, 1)
+            turbidityStandardDev=round(turbidityStandardDev, 1)
             #color assignment
             if turbidityStandardDev >= 1:
                 turbidityColors.append("green")

@@ -1273,7 +1273,7 @@ def personnel(request):
 @login_required(login_url="/monitoring/login")
 def maintenanceDetails(request, schedule_id):
     notifications = getNotification(request)
-    if 0==0:
+    try:
         actual=0
         item = MaintenanceSchedule.objects.get(id=schedule_id)
         pool = item.pool
@@ -1416,7 +1416,7 @@ def maintenanceDetails(request, schedule_id):
         }
         #insert notification here content.append/content.add(function())
         return render(request, 'monitoring/pool technician/maintenance-details.html', content)
-    else:
+    except:
         content={
             "backUrl":"monitoring:viewMaintenance"
         }

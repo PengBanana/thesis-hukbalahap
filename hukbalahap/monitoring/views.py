@@ -589,7 +589,7 @@ def index(request):
             if mainCount == pCount:
                 phIQ=phIndexItem
         waterQuality=(tempIQ+turbIQ+phIQ)/decimal.Decimal(.29)
-        waterQuality=100-waterquality
+        waterQuality=100-waterQuality
         waterQuality=round(waterQuality, 1)
         wqIndexes.append(waterQuality)
         if waterQuality >= 95:

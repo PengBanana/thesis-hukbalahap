@@ -49,9 +49,9 @@
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Change Password</h4>
+              <h4 class="modal-title">Edit Profile Details</h4>
             </div>
-            <form method="POST" >
+            <form method="POST">
               {% csrf_token %}
             <div class="modal-body">
               {{form1.first_name.label_tag}}
@@ -79,10 +79,10 @@
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Edit Details</h4>
+              <h4 class="modal-title">Change Password</h4>
               <small>Fill up the input boxes that you wish to change.</small>
             </div>
-            <form method="POST" >
+            <form method="POST">
               {% csrf_token %}
             <div class="modal-body">
               {{form2.old_password.label_tag}}

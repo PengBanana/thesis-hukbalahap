@@ -2,11 +2,10 @@
 {% block scripts %}
 <script>
   $(function () {
-    $('#example1').DataTable()
     $('#example2').DataTable({
       'paging'      : true,
       'lengthChange': false,
-      'searching'   : false,
+      'searching'   : true,
       'ordering'    : true,
       'info'        : true,
       'autoWidth'   : false
@@ -15,7 +14,6 @@
 </script>
 {% endblock %}
 {% block content %}
-
 <section class="content">
   <div class="row">
     <div class="col-xs-12">
@@ -25,7 +23,7 @@
         </div>
         <!-- /.box-header -->
         <div class="box-body">
-          <table id="example1" class="table table-bordered table-striped">
+          <table id="example2" class="table table-bordered table-hover">
             <thead>
             <tr>
               <th>Name</th>

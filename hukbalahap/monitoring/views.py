@@ -584,7 +584,7 @@ def poolDetails_view(request, poolitem_id):
         return render(request, 'monitoring/pool technician/pool-stat.html', content)
     else:
         print('yopooooo')
-        return render(request, 'monitoring/pool owner/result-not-found.html', content)
+        return render(request, 'monitoring/pool owner/result-not-found.html')
 
 
 

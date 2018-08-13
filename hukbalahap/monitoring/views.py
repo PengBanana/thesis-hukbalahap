@@ -860,6 +860,7 @@ def profile(request,item_id):
     notifications = getNotification(request)
     if usertype.type == adminType:
         user = User.objects.get(id=item_id)
+        userSchedule = MaintenanceSchedule.objects.all().filter(user=user)
         msg = None
         content = None
         status = user.status.status
@@ -907,7 +908,6 @@ def profile(request,item_id):
                     }
             elif (request.method == 'POST' ) & ('deactivate' in request.POST):
                 Status.objects.filter(pk=user.pk).update(status=2)
-
                 return render(request, 'monitoring/pool owner/home-owner.html', content)
 
 
@@ -915,6 +915,7 @@ def profile(request,item_id):
                 form1 = EditDetailsForm()
                 form2 = ChangePasswordForm(request.user)
                 content = {
+                    "userSchedule":userSchedule,
                     'item_id': user,
                     'form1': form1,
                     'form2': form2,
@@ -938,6 +939,7 @@ def profile(request,item_id):
             else:
                 btnFlag = 'Inactive'
                 content = {
+                    "userSchedule":userSchedule,
                     'item_id': user,
                     'status':status,
                     'btnFlag':btnFlag,

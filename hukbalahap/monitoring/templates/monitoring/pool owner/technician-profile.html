@@ -2,11 +2,10 @@
 {% block scripts %}
 <script>
   $(function () {
-    $('#example1').DataTable()
-    $('#example2').DataTable({
+    $('#example1').DataTable({
       'paging'      : true,
       'lengthChange': false,
-      'searching'   : false,
+      'searching'   : true,
       'ordering'    : true,
       'info'        : true,
       'autoWidth'   : false
@@ -42,21 +41,6 @@
          </div>
 
       {% endif %}
-
-      <!--<div class="box-header with-border" style="float:right" >
-        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-default"><i class="fa fa-edit"></i>
-          Edit Details
-        </button>
-        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-password"><i class="fa fa-gear"></i>
-          Change Password
-        </button>
-
-        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-remove-client"><i class="fa fa-trash-o"></i>
-          Deactivate Account
-        </button>
-
-      </div>
-    -->
 
       <div class="modal fade" id="modal-default">
         <div class="modal-dialog">
@@ -192,32 +176,42 @@
           </div>
           <!-- /.box-header -->
           <div class="box-body">
-            <table id="example2" class="table table-bordered table-hover">
-              <thead>
-              <tr>
-                <th>Date and Time Notified</th>
-                <th>Time Scheduled</th>
-                <th>Status</th>
+              <table id="example1" class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                  <th>Date and Time Notified</th>
+                  <th>Time Scheduled</th>
+                  <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                  {% for item in userSchedule %}
+                  <tr>
+                  <td>{{item.estimatedStart}}</td>
+                  <td>{{item.scheduledStart}} - {{item.scheduledEnd}}</td>
+                  {% if item.status == 'Accomplished' %}
+                    <td style="background-color:#00a65a;color:white;">{{item.status}}</td>
 
-              </tr>
-            {% for item in userSchedule %}
-            <tr>
-            <td>{{item.estimatedStart}}</td>
-            <td>{{item.scheduledStart}} - {{item.scheduledEnd}}</td>
-            <td>{{item.status}}</td>
-            </tr>
-            {% endfor %}
-              </thead>
-              <tbody>
-              <tr>
+                  {% elif item.status == 'Scheduled' %}
+                  <td style="background-color:#0073b7;color:white;">{{item.status}}</td>
+
+                  {% elif item.status == 'Late' %}
+                  <td style="background-color:yellow;color:white;">{{item.status}}</td>
+                  {% elif item.status == 'Unfinished' %}
+                  <td style="background-color:red;color:white;">{{item.status}}</td>
+                  {% else %}
+                  <td>{{item.status}}</td>
+
+
+                  {% endif %}
 
 
 
-                </td>
 
-
-              </tr>
-            </table>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
 
           </div>
           <!-- /.box-body -->

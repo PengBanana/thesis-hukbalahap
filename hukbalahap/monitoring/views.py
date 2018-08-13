@@ -264,55 +264,65 @@ class sensorReading(threading.Thread):
             print("Preliminary Row Count for Temperature: " + str(temp_rowCount))
             print("Preliminary Batch Count for Temperature: " + str(temp_batchCount))
 
-            #while row and batch NOT 10
+            #while pH counters
             if(pH_rowCount < 10 and pH_batchCount != 10):
                 insert_to_temp_pH()
                 pH_batchCount += 1
+            elif(pH_rowCount >= 10 and pH_batchCount != 10):
+                del_insert_to_temp_pH()
+                pH_batchCount += 1
+            elif(pH_rowCount >= 10 and pH_batchCount == 10):
+                batchCount10pH()
+                pH_batchCount = 0
+                sleep(180)
+                del_insert_to_temp_pH()
+                pH_batchCount += 1
+            elif(pH_rowCount < 10 and pH_batchCount == 10):
+                batchCount10pH()
+                pH_batchCount = 0
+                sleep(180)
+                insert_to_temp_pH()
+                pH_batchCount += 1
+
+            #while turb counters
             if(turb_rowCount < 10 and turb_batchCount != 10):
                 insert_to_temp_turbidity()
                 turb_batchCount += 1
+            elif(turb_rowCount >= 10 and turb_batchCount != 10):
+                del_insert_to_temp_turbidity()
+                turb_batchCount += 1
+            elif(turb_rowCount >= 10 and turb_batchCount == 10):
+                batchCount10Turbidity()
+                turb_batchCount = 0
+                sleep(180)
+                del_insert_to_temp_turbidity()
+                turb_batchCount += 1
+            elif(turb_rowCount < 10 and turb_batchCount == 10):
+                batchCount10Turbidity()
+                turb_batchCount = 0
+                sleep(180)
+                insert_to_temp_turbidity()
+                turb_batchCount += 1
+
+            #while temp counters
             if(temp_rowCount < 10 and pH_batchCount != 10):
                 insert_to_temp_temperature()
                 temp_batchCount += 1
-
-            #if rowcount IS 10 and batch NOT 10
-            if(pH_rowCount >= 10 and pH_batchCount != 10):
-                del_insert_to_temp_pH()
-                pH_batchCount += 1
-            if(turb_rowCount >= 10 and turb_batchCount != 10):
-                del_insert_to_temp_turbidity()
-                turb_batchCount += 1
-            if(temp_rowCount >= 10 and temp_batchCount != 10):
+            elif(temp_rowCount >= 10 and temp_batchCount != 10):
                 del_insert_to_temp_temperature()
                 temp_batchCount += 1
-
-            #if row and batch is 10
-            if(pH_rowCount >= 10 and pH_batchCount == 10):
-                del_insert_to_temp_pH()
-                batchCount10pH()
-                pH_batchCount = 1
-            if(turb_rowCount >= 10 and turb_batchCount == 10):
-                del_insert_to_temp_turbidity()
-                batchCount10Turbidity()
-                turb_batchCount = 1
-            if(temp_rowCount >= 10 and temp_batchCount == 10):
+            elif(temp_rowCount >= 10 and temp_batchCount == 10):
+                batchCount10Temp()
+                temp_batchCount = 0
+                sleep(180)
                 del_insert_to_temp_temperature()
+                temp_batchCount += 1
+            elif(temp_rowCount < 10 and temp_batchCount == 10):
                 batchCount10Temp()
-                temp_batchCount = 1
-
-            #if rowcount NOT 10 and batch IS 10
-            if(pH_rowCount < 10 and pH_batchCount == 10):
-                insert_to_temp_pH()
-                batchCount10pH()
-                pH_batchCount = 1
-            if(turb_rowCount < 10 and turb_batchCount == 10):
-                insert_to_temp_turbidity()
-                batchCount10Turbidity()
-                turb_batchCount = 1
-            if(temp_rowCount < 10 and temp_batchCount == 10):
+                temp_batchCount = 0
+                sleep(180)
                 insert_to_temp_temperature()
-                batchCount10Temp()
-                temp_batchCount = 1
+                temp_batchCount += 1
 
         sleep(180)
 

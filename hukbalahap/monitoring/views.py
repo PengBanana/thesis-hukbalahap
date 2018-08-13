@@ -14,313 +14,6 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 
-
-#start of import by migs and  francis###
-import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
-from time import sleep
-import sqlite3
-
-#end of import
-#Sensor Reading Start
-SPI_PORT   = 0
-SPI_DEVICE = 0
-mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
-turbidityChannel = 1
-phChannel = 0
-sleepTime = 2
-ctr = 0
-arrayLength = 60
-printInterval = .800
-samplingInterval = 20
-
-def sensor():
-    for i in os.listdir('/sys/bus/w1/devices'):
-        if i != 'w1_bus_master1':
-            ds18b20 = i
-    return ds18b20
-
-def voltArray(arrayLength, mcp, channel):
-    voltArray = np.zeros(arrayLength,float)
-    i = 0
-    while i < arrayLength:
-        data = mcp.read_adc(channel)
-        voltArray[i] = data
-        i = i + 1
-        sleep(.800)
-    return voltArray
-
-def averageVolt(voltArray, number):
-    minm = 0
-    maxm = 0
-    avg = 0
-    amount = 0
-
-    if voltArray[0] < voltArray[1]:
-        minm = voltArray[0]
-        maxm = voltArray[1]
-    else:
-        minm = voltArray[1]
-        maxm = voltArray[0]
-    for x in range(2,voltArray.size):
-        if voltArray[x] < minm:
-            amount = amount + minm
-            minm = voltArray[x]
-        else:
-            if voltArray[x] > maxm:
-                amount = amount + maxm
-                maxm = voltArray[x]
-            else:
-                amount = amount + voltArray[x]
-    avg = amount/ (number-2)
-    #print ("na average na")
-    return avg
-
-def getTurbidity(voltage):
-    turbValue = (-1120.4*voltage*voltage) + (5742.3*voltage) - 4352.9
-    if turbValue < 0:
-        return 0
-    else:
-        return turbValue
-
-def read(ds18b20):
-    location = '/sys/bus/w1/devices/' + ds18b20 + '/w1_slave'
-    tfile = open(location)
-    text = tfile.read()
-    tfile.close()
-    secondline = text.split("\n")[1]
-    temperaturedata = secondline.split(" ")[9]
-    temperature = float(temperaturedata[2:])
-    celsius = temperature / 1000
-    return celsius
-
-#temp_pH queries
-def insert_to_temp_pH():
-    #reads pH value voltage and translates to actual pH value
-    phVoltage = voltArray(arrayLength, mcp, phChannel)
-    finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
-    phValue = round((1.5 * finalPhVoltage),2)
-    Temp_Ph.objects.create(pool_id='1', temp_phlevel=phValue, temp_phdatetime=datetime.datetime.now())
-    print("Temp_Ph Value Added: Enrique Razon Building, " + str(phValue) + ", " + str(datetime.datetime.now()))
-
-def del_insert_to_temp_pH():
-    phVoltage = voltArray(arrayLength, mcp, phChannel)
-    finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
-    phValue = round((1.5 * finalPhVoltage),2)
-    print("Deleted: " + str(Temp_Ph.objects.all()[0]))
-    Temp_Ph.objects.all()[0].delete()
-    Temp_Ph.objects.create(pool_id='1', temp_phlevel=phValue, temp_phdatetime=datetime.datetime.now())
-    print("Temp_Ph Value Added: Enrique Razon Building, " + str(phValue) + ", " + str(datetime.datetime.now()))
-
-def batchCount10pH():
-    pHList = Temp_Ph.objects.all().filter(pool_id = '1')
-    tempSum=0
-    tempCount=0
-    for item in pHList:
-        tempSum+=item.temp_phlevel
-        tempCount+=1
-    if(tempCount>0):
-        tempMean = tempSum/tempCount
-        tempx = []
-        for level in pHList:
-            reading = level.temp_phlevel
-            reading -=tempMean
-            reading = reading * reading
-            tempx.append(reading)
-        newTempSum = 0
-        for read in tempx:
-            newTempSum+= read
-        pHVariance = newTempSum/tempCount
-        pHStandardDev = math.sqrt(pHVariance)
-        pHStandardDev= decimal.Decimal(pHStandardDev)+tempMean
-        pHStandardDev = round(pHStandardDev, 1)
-        print("yah")
-        Final_Ph.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
-        print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))
-        ##new notification
-        if pHStandardDev < 7.2 or pHStandardDev > 7.8:
-            poolx=Pool.objects.get(id=1)
-            messagex = poolx.pool_location+" needs attention"
-            userx = User.objects.get(username="pooltech3")
-            try:
-                getNotification=Notification_Table.objects.all().filter(user=userx, number=1)
-            except Notification_Table.DoesNotExist:
-                newNotification= Notification_Table(
-                    user=userx,
-                    message=messagex,
-                    number = 1
-                )
-                newNotification.save()
-        ##end of new notification
-
-def count_temp_ph():
-    rc = Temp_Ph.objects.count()
-    return rc
-
-#temp_turbidity queries
-def insert_to_temp_turbidity():
-    #reads turbidity voltage
-    turbVoltage = voltArray(arrayLength, mcp, turbidityChannel)
-    finalTurbVoltage = averageVolt(turbVoltage, arrayLength)*5.0/1024
-    turbValue = round((getTurbidity(finalTurbVoltage)),2)
-    Temp_Turbidity.objects.create(pool_id='1', temp_turbiditylevel=turbValue, temp_turbiditydatetime=datetime.datetime.now())
-    print("Temp_Turbidity Value Added: Enrique Razon Building, " + str(turbValue) + ", " + str(datetime.datetime.now()))
-
-def del_insert_to_temp_turbidity():
-    turbVoltage = voltArray(arrayLength, mcp, turbidityChannel)
-    finalTurbVoltage = averageVolt(turbVoltage, arrayLength)*5.0/1024
-    turbValue = round((getTurbidity(finalTurbVoltage)),2)
-    print("Deleted: " + str(Temp_Turbidity.objects.all()[0]))
-    Temp_Turbidity.objects.all()[0].delete()
-    Temp_Turbidity.objects.create(pool_id='1', temp_turbiditylevel=turbValue, temp_turbiditydatetime=datetime.datetime.now())
-    print("Temp_Turbidity Value Added: Enrique Razon Building, " + str(turbValue) + ", " + str(datetime.datetime.now()))
-
-def batchCount10Turbidity():
-    turbidityList = Temp_Turbidity.objects.all().filter(pool_id = '1')
-    tempSum=0
-    tempCount=0
-    for item in turbidityList:
-        tempSum+=item.temp_turbiditylevel
-        tempCount+=1
-    if(tempCount>0):
-        tempMean = tempSum/tempCount
-        tempx = []
-        for level in turbidityList:
-            reading = level.temp_turbiditylevel
-            reading -=tempMean
-            reading = reading * reading
-            tempx.append(reading)
-        newTempSum = 0
-        for read in tempx:
-            newTempSum+= read
-        turbidityVariance = newTempSum/tempCount
-        turbidityStandardDev = math.sqrt(turbidityVariance)
-        turbidityStandardDev = decimal.Decimal(turbidityStandardDev)+tempMean
-        Final_Turbidity.objects.create(pool_id='1', final_turbiditylevel=turbidityStandardDev, final_turbiditydatetime=datetime.datetime.now())
-        print("Final_Turbidity Value Added: Enrique Razon Building, " + str(turbidityStandardDev) + ", " + str(datetime.datetime.now()))
-
-def count_temp_turbidity():
-    rc = Temp_Turbidity.objects.count()
-    return rc
-
-#temp_temperature queries
-def insert_to_temp_temperature():
-    #reads temperature sensor
-    serialNum = sensor()
-    tempData = read(serialNum)
-    Temp_Temperature.objects.create(pool_id='1', temp_temperaturelevel=tempData, temp_temperaturedatetime=datetime.datetime.now())
-    print("Temp_Temperature Value Added: Enrique Razon Building, " + str(tempData) + ", " + str(datetime.datetime.now()))
-
-def del_insert_to_temp_temperature():
-    serialNum = sensor()
-    tempData = read(serialNum)
-    print("Deleted: " + str(Temp_Temperature.objects.all()[0]))
-    Temp_Temperature.objects.all()[0].delete()
-    Temp_Temperature.objects.create(pool_id='1', temp_temperaturelevel=tempData, temp_temperaturedatetime=datetime.datetime.now())
-    print("Temp_Temperature Value Added: Enrique Razon Building, " + str(tempData) + ", " + str(datetime.datetime.now()))
-
-def batchCount10Temp():
-    temperatureList = Temp_Temperature.objects.all().filter(pool_id = '1')
-    tempSum=0
-    tempCount=0
-    for item in temperatureList:
-        tempSum+=item.temp_temperaturelevel
-        tempCount+=1
-    if(tempCount>0):
-        tempMean = tempSum/tempCount
-        tempx = []
-        for level in temperatureList:
-            reading = level.temp_temperaturelevel
-            reading -=tempMean
-            reading = reading*reading
-            tempx.append(reading)
-        newTempSum = 0
-        for read in tempx:
-            newTempSum+= read
-        tempVariance = newTempSum/tempCount
-        tempStandardDev = math.sqrt(tempVariance)
-        tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
-        Final_Temperature.objects.create(pool_id='1', final_temperaturelevel=tempStandardDev, final_temperaturedatetime=datetime.datetime.now())
-        print("Final_Temperature Value Added: Enrique Razon Building, " + str(tempStandardDev) + ", " + str(datetime.datetime.now()))
-
-def count_temp_temperature():
-    rc = Temp_Temperature.objects.count()
-    return rc
-
-class sensorReading(threading.Thread):
-
-    def run(self):
-        pH_batchCount = 6
-        turb_batchCount = 6
-        temp_batchCount = 6
-        while True:
-            #query code below
-            pH_rowCount = count_temp_ph()
-            print("Preliminary Row Count for pH: " + str(pH_rowCount))
-            print("Preliminary Batch Count for pH: " + str(pH_batchCount))
-            turb_rowCount = count_temp_turbidity()
-            print("Preliminary Row Count for Turbidity: " + str(turb_rowCount))
-            print("Preliminary Batch Count for Turbidity: " + str(turb_batchCount))
-            temp_rowCount = count_temp_temperature()
-            print("Preliminary Row Count for Temperature: " + str(temp_rowCount))
-            print("Preliminary Batch Count for Temperature: " + str(temp_batchCount))
-
-            #while row and batch NOT 10
-            if(pH_rowCount < 10 and pH_batchCount != 10):
-                insert_to_temp_pH()
-                pH_batchCount += 1
-            if(turb_rowCount < 10 and turb_batchCount != 10):
-                insert_to_temp_turbidity()
-                turb_batchCount += 1
-            if(temp_rowCount < 10 and pH_batchCount != 10):
-                insert_to_temp_temperature()
-                temp_batchCount += 1
-
-            #if rowcount IS 10 and batch NOT 10
-            if(pH_rowCount >= 10 and pH_batchCount != 10):
-                del_insert_to_temp_pH()
-                pH_batchCount += 1
-            if(turb_rowCount >= 10 and turb_batchCount != 10):
-                del_insert_to_temp_turbidity()
-                turb_batchCount += 1
-            if(temp_rowCount >= 10 and temp_batchCount != 10):
-                del_insert_to_temp_temperature()
-                temp_batchCount += 1
-
-            #if row and batch is 10
-            if(pH_rowCount >= 10 and pH_batchCount == 10):
-                del_insert_to_temp_pH()
-                batchCount10pH()
-                pH_batchCount = 1
-            if(turb_rowCount >= 10 and turb_batchCount == 10):
-                del_insert_to_temp_turbidity()
-                batchCount10Turbidity()
-                turb_batchCount = 1
-            if(temp_rowCount >= 10 and temp_batchCount == 10):
-                del_insert_to_temp_temperature()
-                batchCount10Temp()
-                temp_batchCount = 1
-
-            #if rowcount NOT 10 and batch IS 10
-            if(pH_rowCount < 10 and pH_batchCount == 10):
-                insert_to_temp_pH()
-                batchCount10pH()
-                pH_batchCount = 1
-            if(turb_rowCount < 10 and turb_batchCount == 10):
-                insert_to_temp_turbidity()
-                batchCount10Turbidity()
-                turb_batchCount = 1
-            if(temp_rowCount < 10 and temp_batchCount == 10):
-                insert_to_temp_temperature()
-                batchCount10Temp()
-                temp_batchCount = 1
-
-        sleep(180)
-
-sensorRead = sensorReading()
-sensorRead.start()
-
-#Sensor Reading end###
-
 def login(request):
     msg = None
     if request.method == 'POST':
@@ -374,6 +67,8 @@ def index(request):
     #temperature levels
     tempDeviations = []
     tempColors = []
+    temperatureIndexes = []
+    WaterQualityIndexes = []
     for poolitem in Pool.objects.all().order_by('pk'):
         temperatureList = Temp_Temperature.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
         tempSum=0
@@ -396,6 +91,16 @@ def index(request):
             tempStandardDev = math.sqrt(tempVariance)
             tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
             tempStandardDev=round(tempStandardDev, 2)
+            #Water Quality Temperature
+            observedVal=tempStandardDev
+            idealVal=25
+            weightVal=.10
+            if observedVal>=25:
+                badVal=38.5
+            else:
+                badVal=6.3
+            temperatureIndex=Quality(observedVal, idealVal, badVal, weightVal)
+            temperatureIndexes.append(temperatureIndex)
             #color assignment
             if tempStandardDev >= 25 and tempStandardDev <= 28:
                 tempColors.append("green")
@@ -409,12 +114,14 @@ def index(request):
             tempStandardDev=str(tempStandardDev)+degreeSign+'C'
             tempDeviations.append(tempStandardDev)
         else:
+            temperatureIndexes.append(0)
             tempColors.append("White")
             tempDeviations.append('No Readings')
 
     #turbidity levels
     turbidityDeviations = []
     turbidityColors = []
+    turbidityIndexes = []
     #standard deviation of turbidity
     for poolitem in Pool.objects.all().order_by('pk'):
         turbidityList = Temp_Turbidity.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
@@ -439,10 +146,17 @@ def index(request):
             turbidityStandardDev = math.sqrt(turbidityVariance)
             turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
             turbidityStandardDev=round(turbidityStandardDev, 1)
+            #Water Quality Turbidity
+            observedVal=turbidityStandardDev
+            idealVal=0
+            weightVal=.08
+            badVal=26
+            turbidityIndex=Quality(observedVal, idealVal, badVal, weightVal)
+            turbidityIndexes.append(turbidityIndex)
             #color assignment
             if turbidityStandardDev < 1:
                 turbidityColors.append("green")
-            elif (turbidityStandardDev => 1 and turbidityStandardDev < 2):
+            elif (turbidityStandardDev >= 1 and turbidityStandardDev < 2):
                 turbidityColors.append("yellow")
             elif(turbidityStandardDev >= 2):
                 turbidityColors.append("red")
@@ -451,12 +165,14 @@ def index(request):
             turbidityStandardDev=str(turbidityStandardDev)+" ntu"
             turbidityDeviations.append(turbidityStandardDev)
         else:
+            turbidityIndexes.append(0)
             turbidityColors.append("White")
             turbidityDeviations.append('No Readings')
 
     #ph level
     phDeviations = []
     phColors = []
+    phIndexes=[]
     for poolitem in Pool.objects.all().order_by('pk'):
         phList = Temp_Ph.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
         phSum=0
@@ -479,6 +195,16 @@ def index(request):
             phStandardDev = math.sqrt(phVariance)
             phStandardDev=decimal.Decimal(phStandardDev)+phMean
             phStandardDev=round(phStandardDev, 1)
+            #Water Quality pH
+            observedVal=phStandardDev
+            idealVal=7.4
+            weightVal=.11
+            if phStandardDev>=7.4:
+                badVal=8.2
+            else:
+                badVal=6.8
+            phIndex=Quality(observedVal, idealVal, badVal, weightVal)
+            phIndexes.append(phIndex)
             #color assignment
             if phStandardDev >= 7.3 and phStandardDev <=7.7:
                 phColors.append("green")
@@ -490,6 +216,7 @@ def index(request):
                 phColors.append("White")
             phDeviations.append(phStandardDev)
         else:
+            phIndexes.append(0)
             phDeviations.append('No Readings')
             phColors.append("White")
 
@@ -529,18 +256,36 @@ def index(request):
                 chlorineColors.append("White")
                 chlorineLevels.append('Cannot Compute')
     waterColors = []
-    waterQuality=0
-    #color assignment
-    if waterQuality >= 95:
-        waterColors.append("green")
-    elif (waterQuality >= 85):
-         waterColors.append("green")
-    elif (waterQuality >= 80):
-         waterColors.append("yellow")
-    elif(waterQuality < 80):
-         waterColors.append("red")
-    else:
-        waterColors.append("White")
+    wqIndexes =[]
+    #Water Quality color assignment
+    mainCount=0
+    for tempIndexItem in temperatureIndexes:
+        waterQuality = 0
+        tCount=0
+        pCount=0
+        tempIQ=tempIndexItem
+        mainCount+=1
+        for turbIndexItem in turbidityIndexes:
+            tCount+=1
+            if mainCount == tCount:
+                turbIQ=turbIndexItem
+        for phIndexItem in phIndexes:
+            pCount+=1
+            if mainCount == pCount:
+                phIQ=phIndexItem
+        waterQuality=(tempIQ+turbIQ+phIQ)/decimal.Decimal(.29)
+        waterQuality=round(waterQuality, 1)
+        wqIndexes.append(waterQuality)
+        if waterQuality >= 95:
+            waterColors.append("green")
+        elif (waterQuality >= 85):
+             waterColors.append("green")
+        elif (waterQuality >= 80):
+             waterColors.append("yellow")
+        elif(waterQuality < 80):
+             waterColors.append("red")
+        else:
+            waterColors.append("White")
     content= {
         'debug_check': debugger,
         'pool':poolref,
@@ -554,7 +299,8 @@ def index(request):
         'chlorineColors':chlorineColors,
         'turbidityColors':turbidityColors,
         'tempColors':tempColors,
-        'waterColors':"white",
+        'waterColors':waterColors,
+        'wqIndexes':wqIndexes,
     }
     if not usertype.type == adminType:
         return render(request, 'monitoring/pool technician/home.html', content)
@@ -566,6 +312,8 @@ def index(request):
 @login_required(login_url="/monitoring/login")
 def poolDetails_view(request, poolitem_id):
     try:
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
         notifications = getNotification(request)
         poolref = Pool.objects.get(id=poolitem_id)
         ph = Final_Ph.objects.all().filter(pool=poolref)
@@ -579,7 +327,10 @@ def poolDetails_view(request, poolitem_id):
             'notifications':notifications,
         }
         print('wwwwwwwwwew')
-        return render(request, 'monitoring/pool technician/pool-stat.html', content)
+        if not usertype.type == adminType:
+            return render(request, 'monitoring/pool technician/pool-stat.html', content)
+        else:
+            return render(request, 'monitoring/pool ownder/pool-stat.html', content)
     except:
         print('yopooooo')
         return render(request, 'monitoring/pool owner/result-not-found.html')
@@ -1168,6 +919,8 @@ def viewMaintenance(request):
             elif event.status == "Accomplished":
                 color="#00a65a"
             elif event.status == "Late":
+                color="yellow"
+            elif event.status == "Unfinished":
                 color="red"
             #appends
             users.append(event.user)
@@ -1515,3 +1268,16 @@ def addPool(request):
             return render(request, 'monitoring/pool owner/add-pool.html',locals())
     else:
         return render(request, 'monitoring/pool owner/result-not-found.html')
+
+def Quality(observedVal, idealVal, badVal, weightVal):
+    observedVal = decimal.Decimal(observedVal)
+    idealVal = decimal.Decimal(idealVal)
+    badVal = decimal.Decimal(badVal)
+    weightVal = decimal.Decimal(weightVal)
+    indexNum=0
+    qualityIndex=(observedVal-idealVal)/(badVal-idealVal)
+    qualityIndex=qualityIndex*100
+    indexNum=qualityIndex*weightVal
+    indexNum=indexNum
+    indexNum=round(indexNum, 0)
+    return indexNum

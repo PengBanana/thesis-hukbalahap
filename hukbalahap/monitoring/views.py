@@ -96,7 +96,7 @@ def insert_to_temp_pH():
     #reads pH value voltage and translates to actual pH value
     phVoltage = voltArray(arrayLength, mcp, phChannel)
     finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
-    phValue = round((1.5 * finalPhVoltage),2)
+    phValue = round(((1.5 * finalPhVoltage)+1),2)
     Temp_Ph.objects.create(pool_id='1', temp_phlevel=phValue, temp_phdatetime=datetime.datetime.now())
     print("Temp_Ph Value Added: Enrique Razon Building, " + str(phValue) + ", " + str(datetime.datetime.now()))
 
@@ -602,6 +602,7 @@ def index(request):
              waterColors.append("red")
         else:
             waterColors.append("White")
+    debugger=""
     content= {
         'debug_check': debugger,
         'pool':poolref,
@@ -646,7 +647,7 @@ def poolDetails_view(request, poolitem_id):
         if not usertype.type == adminType:
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
         else:
-            return render(request, 'monitoring/pool ownder/pool-stat.html', content)
+            return render(request, 'monitoring/pool owner/pool-stat.html', content)
     except:
         print('yopooooo')
         return render(request, 'monitoring/pool owner/result-not-found.html')

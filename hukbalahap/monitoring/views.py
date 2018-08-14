@@ -272,15 +272,9 @@ class sensorReading(threading.Thread):
             elif(pH_rowCount >= 10 and pH_batchCount == 10):
                 batchCount10pH()
                 pH_batchCount = 0
-                sleep(180)
-                del_insert_to_temp_pH()
-                pH_batchCount += 1
             elif(pH_rowCount < 10 and pH_batchCount == 10):
                 batchCount10pH()
                 pH_batchCount = 0
-                sleep(180)
-                insert_to_temp_pH()
-                pH_batchCount += 1
 
             #while turb counters
             if(turb_rowCount < 10 and turb_batchCount != 10):
@@ -292,15 +286,9 @@ class sensorReading(threading.Thread):
             elif(turb_rowCount >= 10 and turb_batchCount == 10):
                 batchCount10Turbidity()
                 turb_batchCount = 0
-                sleep(180)
-                del_insert_to_temp_turbidity()
-                turb_batchCount += 1
             elif(turb_rowCount < 10 and turb_batchCount == 10):
                 batchCount10Turbidity()
                 turb_batchCount = 0
-                sleep(180)
-                insert_to_temp_turbidity()
-                turb_batchCount += 1
 
             #while temp counters
             if(temp_rowCount < 10 and pH_batchCount != 10):
@@ -313,12 +301,20 @@ class sensorReading(threading.Thread):
                 batchCount10Temp()
                 temp_batchCount = 0
                 sleep(180)
+                del_insert_to_temp_pH()
+                pH_batchCount += 1
+                del_insert_to_temp_turbidity()
+                turb_batchCount += 1
                 del_insert_to_temp_temperature()
                 temp_batchCount += 1
             elif(temp_rowCount < 10 and temp_batchCount == 10):
                 batchCount10Temp()
                 temp_batchCount = 0
                 sleep(180)
+                insert_to_temp_pH()
+                pH_batchCount += 1
+                insert_to_temp_turbidity()
+                turb_batchCount += 1
                 insert_to_temp_temperature()
                 temp_batchCount += 1
 

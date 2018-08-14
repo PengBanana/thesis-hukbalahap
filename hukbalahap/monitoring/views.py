@@ -96,7 +96,8 @@ def insert_to_temp_pH():
     #reads pH value voltage and translates to actual pH value
     phVoltage = voltArray(arrayLength, mcp, phChannel)
     finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
-    phValue = round(((1.5 * finalPhVoltage)+1),2)
+    phValue = round((1.5 * finalPhVoltage),2)
+    phValue = phValue + 1.3
     Temp_Ph.objects.create(pool_id='1', temp_phlevel=phValue, temp_phdatetime=datetime.datetime.now())
     print("Temp_Ph Value Added: Enrique Razon Building, " + str(phValue) + ", " + str(datetime.datetime.now()))
 
@@ -104,6 +105,7 @@ def del_insert_to_temp_pH():
     phVoltage = voltArray(arrayLength, mcp, phChannel)
     finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
     phValue = round((1.5 * finalPhVoltage),2)
+    phValue = phValue + 1.3
     print("Deleted: " + str(Temp_Ph.objects.all()[0]))
     Temp_Ph.objects.all()[0].delete()
     Temp_Ph.objects.create(pool_id='1', temp_phlevel=phValue, temp_phdatetime=datetime.datetime.now())
@@ -867,8 +869,8 @@ def submitMaintenanceRequest(request):
         ms = MaintenanceSchedule(
             user=request.user,
             pool=poolitem,
-            estimatedStart=inStart,
-            estimatedEnd=inEnd,
+            scheduledStart=inEnd,
+            scheduledEnd=inStart,
             est_chlorine=0,
             est_muriatic=muriaticAcid,
             est_depowder=dePowder,
@@ -1241,8 +1243,9 @@ def viewMaintenance(request):
             endSchedules.append(endDate)
             colors.append(color)
             eventids.append(event.id)
+            debugger=users
         content={
-            'debugger': "",
+            'debugger': debugger,
             'titles': users,
             'starts': startSchedules,
             'ends': endSchedules,

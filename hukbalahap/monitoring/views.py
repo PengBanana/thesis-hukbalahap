@@ -161,14 +161,14 @@ def insert_to_temp_turbidity():
     #reads turbidity voltage
     turbVoltage = voltArray(arrayLength, mcp, turbidityChannel)
     finalTurbVoltage = averageVolt(turbVoltage, arrayLength)*5.0/1024
-    turbValue = round((getTurbidity(finalTurbVoltage)),2)
+    turbValue = round((getTurbidity(finalTurbVoltage)),5)
     Temp_Turbidity.objects.create(pool_id='1', temp_turbiditylevel=turbValue, temp_turbiditydatetime=datetime.datetime.now())
     print("Temp_Turbidity Value Added: Enrique Razon Building, " + str(turbValue) + ", " + str(datetime.datetime.now()))
 
 def del_insert_to_temp_turbidity():
     turbVoltage = voltArray(arrayLength, mcp, turbidityChannel)
     finalTurbVoltage = averageVolt(turbVoltage, arrayLength)*5.0/1024
-    turbValue = round((getTurbidity(finalTurbVoltage)),2)
+    turbValue = round((getTurbidity(finalTurbVoltage)),5)
     print("Deleted: " + str(Temp_Turbidity.objects.all()[0]))
     Temp_Turbidity.objects.all()[0].delete()
     Temp_Turbidity.objects.create(pool_id='1', temp_turbiditylevel=turbValue, temp_turbiditydatetime=datetime.datetime.now())
@@ -326,8 +326,6 @@ sensorRead = sensorReading()
 sensorRead.start()
 
 #Sensor Reading end###
-
-
 
 def login(request):
     msg = None
@@ -883,8 +881,9 @@ def submitMaintenanceRequest(request):
             act_bakingsoda=0
         )
         ms.save()
+        debugger=""
         content={
-            'debugger':"",
+            'debugger':debugger,
             'display':"Success",
             'notifications':notifications,
         }
@@ -1204,48 +1203,81 @@ def filterPoolStat(request):
 @login_required(login_url="/monitoring/login")
 def viewMaintenance(request):
     notifications = getNotification(request)
-    try:
-        maintenanceSchedule = MaintenanceSchedule.objects.all()
+    if 0==0:
+        maintenanceSchedule = MaintenanceSchedule.objects.all().order_by("scheduledStart")
         #"October 13, 2014 11:13:00"
         users=[]
         startSchedules=[]
         endSchedules=[]
         colors=[]
         eventids=[]
-        for event in maintenanceSchedule:
-            users.append(event.user)
-            if event.scheduledStart == None:
-                b=event.estimatedStart
+        debugger=[]
+        for eventObject in maintenanceSchedule:
+            if eventObject.scheduledStart == None:
+                b=eventObject.estimatedStart
             else:
-                b=event.scheduledStart
+                b=eventObject.scheduledStart
+            ihour=b.hour
+            dday=b.day
+            ihour+=8
+            if ihour>=24:
+                ihour-=24
+                dday+=1
+                try:
+                    b=b.replace(day=dday)
+                except:
+                    dday=1
+                    b=b.replace(day=dday)
+            if ihour>=24:
+                ihour-=24
+            b=b.replace(hour=ihour)
             dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
             #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
-            startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d %Y %H:%M:00')
-            if event.scheduledEnd == None:
-                b=event.estimatedEnd
+            startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y %H:%M:00')
+            #startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
+            if eventObject.scheduledEnd == None:
+                b=eventObject.estimatedEnd
             else:
-                b=event.scheduledEnd
-            dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
+                b=eventObject.scheduledEnd
+            ihour=b.hour
+            dday=b.day
+            ihour+=8
+            if ihour>=24:
+                ihour-=24
+                dday+=1
+                try:
+                    b=b.replace(day=dday)
+                except:
+                    dday=1
+                    b=b.replace(day=dday)
+            if ihour>=24:
+                ihour-=24
+            b=b.replace(hour=ihour)
+            bString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
             #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
-            endDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d %Y %H:%M:00')
+            endDate = datetime.datetime.strptime(bString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y %H:%M:00')
+            #endDate = datetime.datetime.strptime(bString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
             #Notified Scheduled Accomplished
-            if event.status == "Notified":
+            if eventObject.status == "Notified":
                 color="#f39c12"
-            elif event.status == "Scheduled":
+            elif eventObject.status == "Scheduled":
                 color="#0073b7"
-            elif event.status == "Accomplished":
+            elif eventObject.status == "Accomplished":
                 color="#00a65a"
-            elif event.status == "Late":
+            elif eventObject.status == "Late":
                 color="yellow"
-            elif event.status == "Unfinished":
+            elif eventObject.status == "Unfinished":
                 color="red"
+            else:
+                color="grey"
             #appends
-            users.append(event.user)
+            users.append(eventObject.user)
             startSchedules.append(startDate)
             endSchedules.append(endDate)
             colors.append(color)
-            eventids.append(event.id)
-            debugger=users
+            eventids.append(eventObject.id)
+            #debugger.append(str(eventObject.user)+" - "+str(eventObject.scheduledStart)+" - "+str(eventObject.scheduledEnd))
+        debugger=""
         content={
             'debugger': debugger,
             'titles': users,
@@ -1256,7 +1288,7 @@ def viewMaintenance(request):
             'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
-    except:
+    else:
         content = {
             "debugger":""
         }

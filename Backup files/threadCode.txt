@@ -1,5 +1,3 @@
-
-
 #start of import by migs and  francis###
 import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
 from time import sleep
@@ -84,6 +82,7 @@ def insert_to_temp_pH():
     phVoltage = voltArray(arrayLength, mcp, phChannel)
     finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
     phValue = round((1.5 * finalPhVoltage),2)
+    phValue = phValue + 1
     Temp_Ph.objects.create(pool_id='1', temp_phlevel=phValue, temp_phdatetime=datetime.datetime.now())
     print("Temp_Ph Value Added: Enrique Razon Building, " + str(phValue) + ", " + str(datetime.datetime.now()))
 
@@ -91,6 +90,7 @@ def del_insert_to_temp_pH():
     phVoltage = voltArray(arrayLength, mcp, phChannel)
     finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
     phValue = round((1.5 * finalPhVoltage),2)
+    phValue = phValue + 1
     print("Deleted: " + str(Temp_Ph.objects.all()[0]))
     Temp_Ph.objects.all()[0].delete()
     Temp_Ph.objects.create(pool_id='1', temp_phlevel=phValue, temp_phdatetime=datetime.datetime.now())
@@ -118,24 +118,24 @@ def batchCount10pH():
         pHStandardDev = math.sqrt(pHVariance)
         pHStandardDev= decimal.Decimal(pHStandardDev)+tempMean
         pHStandardDev = round(pHStandardDev, 1)
+        print("yah")
+        Final_Ph.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
+        print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))
         ##new notification
         if pHStandardDev < 7.2 or pHStandardDev > 7.8:
             poolx=Pool.objects.get(id=1)
-			messagex=poolx.pool_location+" needs attention"
+            messagex = poolx.pool_location+" needs attention"
             userx = User.objects.get(username="pooltech3")
-            #try:
-            getNotification=Notification_Table.objects.get(user=userx, number=1)
-            #except Notification_Table.DoesNotExist:
-            newNotification= Notification_Table(
-                user=userx,
-                message=messagex,
-                number = 1
-            )
-            newNotification.save()
-        print("yah")
+            try:
+                getNotification=Notification_Table.objects.all().filter(user=userx, number=1)
+            except Notification_Table.DoesNotExist:
+                newNotification= Notification_Table(
+                    user=userx,
+                    message=messagex,
+                    number = 1
+                )
+                newNotification.save()
         ##end of new notification
-        Final_U.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
-        print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))
 
 def count_temp_ph():
     rc = Temp_Ph.objects.count()
@@ -146,14 +146,14 @@ def insert_to_temp_turbidity():
     #reads turbidity voltage
     turbVoltage = voltArray(arrayLength, mcp, turbidityChannel)
     finalTurbVoltage = averageVolt(turbVoltage, arrayLength)*5.0/1024
-    turbValue = round((getTurbidity(finalTurbVoltage)),2)
+    turbValue = round((getTurbidity(finalTurbVoltage)),5)
     Temp_Turbidity.objects.create(pool_id='1', temp_turbiditylevel=turbValue, temp_turbiditydatetime=datetime.datetime.now())
     print("Temp_Turbidity Value Added: Enrique Razon Building, " + str(turbValue) + ", " + str(datetime.datetime.now()))
 
 def del_insert_to_temp_turbidity():
     turbVoltage = voltArray(arrayLength, mcp, turbidityChannel)
     finalTurbVoltage = averageVolt(turbVoltage, arrayLength)*5.0/1024
-    turbValue = round((getTurbidity(finalTurbVoltage)),2)
+    turbValue = round((getTurbidity(finalTurbVoltage)),5)
     print("Deleted: " + str(Temp_Turbidity.objects.all()[0]))
     Temp_Turbidity.objects.all()[0].delete()
     Temp_Turbidity.objects.create(pool_id='1', temp_turbiditylevel=turbValue, temp_turbiditydatetime=datetime.datetime.now())
@@ -172,6 +172,7 @@ def batchCount10Turbidity():
         for level in turbidityList:
             reading = level.temp_turbiditylevel
             reading -=tempMean
+            reading = reading * reading
             tempx.append(reading)
         newTempSum = 0
         for read in tempx:
@@ -215,6 +216,7 @@ def batchCount10Temp():
         for level in temperatureList:
             reading = level.temp_temperaturelevel
             reading -=tempMean
+            reading = reading*reading
             tempx.append(reading)
         newTempSum = 0
         for read in tempx:
@@ -232,9 +234,9 @@ def count_temp_temperature():
 class sensorReading(threading.Thread):
 
     def run(self):
-        pH_batchCount = 9
-        turb_batchCount = 9
-        temp_batchCount = 9
+        pH_batchCount = 6
+        turb_batchCount = 6
+        temp_batchCount = 6
         while True:
             #query code below
             pH_rowCount = count_temp_ph()
@@ -247,55 +249,61 @@ class sensorReading(threading.Thread):
             print("Preliminary Row Count for Temperature: " + str(temp_rowCount))
             print("Preliminary Batch Count for Temperature: " + str(temp_batchCount))
 
-            #while row and batch NOT 10
+            #while pH counters
             if(pH_rowCount < 10 and pH_batchCount != 10):
                 insert_to_temp_pH()
                 pH_batchCount += 1
+            elif(pH_rowCount >= 10 and pH_batchCount != 10):
+                del_insert_to_temp_pH()
+                pH_batchCount += 1
+            elif(pH_rowCount >= 10 and pH_batchCount == 10):
+                batchCount10pH()
+                pH_batchCount = 0
+            elif(pH_rowCount < 10 and pH_batchCount == 10):
+                batchCount10pH()
+                pH_batchCount = 0
+
+            #while turb counters
             if(turb_rowCount < 10 and turb_batchCount != 10):
                 insert_to_temp_turbidity()
                 turb_batchCount += 1
+            elif(turb_rowCount >= 10 and turb_batchCount != 10):
+                del_insert_to_temp_turbidity()
+                turb_batchCount += 1
+            elif(turb_rowCount >= 10 and turb_batchCount == 10):
+                batchCount10Turbidity()
+                turb_batchCount = 0
+            elif(turb_rowCount < 10 and turb_batchCount == 10):
+                batchCount10Turbidity()
+                turb_batchCount = 0
+
+            #while temp counters
             if(temp_rowCount < 10 and pH_batchCount != 10):
                 insert_to_temp_temperature()
                 temp_batchCount += 1
-
-            #if rowcount IS 10 and batch NOT 10
-            if(pH_rowCount >= 10 and pH_batchCount != 10):
-                del_insert_to_temp_pH()
-                pH_batchCount += 1
-            if(turb_rowCount >= 10 and turb_batchCount != 10):
-                del_insert_to_temp_turbidity()
-                turb_batchCount += 1
-            if(temp_rowCount >= 10 and temp_batchCount != 10):
+            elif(temp_rowCount >= 10 and temp_batchCount != 10):
                 del_insert_to_temp_temperature()
                 temp_batchCount += 1
-
-            #if row and batch is 10
-            if(pH_rowCount >= 10 and pH_batchCount == 10):
+            elif(temp_rowCount >= 10 and temp_batchCount == 10):
+                batchCount10Temp()
+                temp_batchCount = 0
+                sleep(180)
                 del_insert_to_temp_pH()
-                batchCount10pH()
-                pH_batchCount = 1
-            if(turb_rowCount >= 10 and turb_batchCount == 10):
+                pH_batchCount += 1
                 del_insert_to_temp_turbidity()
-                batchCount10Turbidity()
-                turb_batchCount = 1
-            if(temp_rowCount >= 10 and temp_batchCount == 10):
+                turb_batchCount += 1
                 del_insert_to_temp_temperature()
+                temp_batchCount += 1
+            elif(temp_rowCount < 10 and temp_batchCount == 10):
                 batchCount10Temp()
-                temp_batchCount = 1
-
-            #if rowcount NOT 10 and batch IS 10
-            if(pH_rowCount < 10 and pH_batchCount == 10):
+                temp_batchCount = 0
+                sleep(180)
                 insert_to_temp_pH()
-                batchCount10pH()
-                pH_batchCount = 1
-            if(turb_rowCount < 10 and turb_batchCount == 10):
+                pH_batchCount += 1
                 insert_to_temp_turbidity()
-                batchCount10Turbidity()
-                turb_batchCount = 1
-            if(temp_rowCount < 10 and temp_batchCount == 10):
+                turb_batchCount += 1
                 insert_to_temp_temperature()
-                batchCount10Temp()
-                temp_batchCount = 1
+                temp_batchCount += 1
 
         sleep(180)
 

@@ -12,7 +12,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-"""
+
 #start of import by migs and  francis###
 import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
 from time import sleep
@@ -324,8 +324,9 @@ class sensorReading(threading.Thread):
 
 sensorRead = sensorReading()
 sensorRead.start()
-"""
+
 #Sensor Reading end###
+
 def login(request):
     msg = None
     if request.method == 'POST':
@@ -1518,7 +1519,88 @@ def submitMaintenanceChemicals(request):
         item.act_bakingsoda = decimal.Decimal(sodaAsh)
         item.status = "Accomplished"
         item.save()
+        maintenanceSchedule = MaintenanceSchedule.objects.all().order_by("scheduledStart")
+        #"October 13, 2014 11:13:00"
+        users=[]
+        startSchedules=[]
+        endSchedules=[]
+        colors=[]
+        eventids=[]
+        debugger=[]
+        for eventObject in maintenanceSchedule:
+            if eventObject.scheduledStart == None:
+                b=eventObject.estimatedStart
+            else:
+                b=eventObject.scheduledStart
+            ihour=b.hour
+            dday=b.day
+            ihour+=8
+            if ihour>=24:
+                ihour-=24
+                dday+=1
+                try:
+                    b=b.replace(day=dday)
+                except:
+                    dday=1
+                    b=b.replace(day=dday)
+            if ihour>=24:
+                ihour-=24
+            b=b.replace(hour=ihour)
+            dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
+            #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
+            startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y %H:%M:00')
+            #startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
+            if eventObject.scheduledEnd == None:
+                b=eventObject.estimatedEnd
+            else:
+                b=eventObject.scheduledEnd
+            ihour=b.hour
+            dday=b.day
+            ihour+=8
+            if ihour>=24:
+                ihour-=24
+                dday+=1
+                try:
+                    b=b.replace(day=dday)
+                except:
+                    dday=1
+                    b=b.replace(day=dday)
+            if ihour>=24:
+                ihour-=24
+            b=b.replace(hour=ihour)
+            bString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
+            #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
+            endDate = datetime.datetime.strptime(bString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y %H:%M:00')
+            #endDate = datetime.datetime.strptime(bString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
+            #Notified Scheduled Accomplished
+            if eventObject.status == "Notified":
+                color="#00cccc"
+            elif eventObject.status == "Scheduled":
+                color="#0073b7"
+            elif eventObject.status == "Accomplished":
+                color="#00a65a"
+            elif eventObject.status == "Late":
+                color="#f39c12"
+            elif eventObject.status == "Unfinished":
+                color="red"
+            else:
+                color="grey"
+            #appends
+            users.append(eventObject.user)
+            startSchedules.append(startDate)
+            endSchedules.append(endDate)
+            colors.append(color)
+            eventids.append(eventObject.id)
+            #debugger.append(str(eventObject.user)+" - "+str(eventObject.scheduledStart)+" - "+str(eventObject.scheduledEnd))
+        debugger=""
         content={
+            'debugger': debugger,
+            'titles': users,
+            'starts': startSchedules,
+            'ends': endSchedules,
+            'backgroundColors': colors,
+            'ids': eventids,
+            'notifications':notifications,
             'success':"Success",
             'notifications':notifications,
         }

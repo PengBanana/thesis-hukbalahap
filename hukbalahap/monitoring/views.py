@@ -370,7 +370,6 @@ def logout_view(request):
 
 @login_required(login_url="/monitoring/login")
 def index(request):
-    debugger=""
     notifications = getNotification(request)
     usertype = Type.objects.get(user=request.user)
     adminType= Usertype_Ref.objects.get(pk=1)
@@ -438,7 +437,6 @@ def index(request):
     #standard deviation of turbidity
     for poolitem in Pool.objects.all().order_by('pk'):
         turbidityList = Temp_Turbidity.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
-
         turbiditySum=0
         turbidityCount=0
         for item in turbidityList:
@@ -457,6 +455,7 @@ def index(request):
                 newTurbiditySum+= read
             turbidityVariance = newTurbiditySum/turbidityCount
             turbidityStandardDev = math.sqrt(turbidityVariance)
+            debugger=str(turbidityStandardDev)+" "+str(turbidityMean)
             turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
             turbidityStandardDev=round(turbidityStandardDev, 1)
             #Water Quality Turbidity
@@ -587,7 +586,10 @@ def index(request):
             if mainCount == pCount:
                 phIQ=phIndexItem
         waterQuality=(tempIQ+turbIQ+phIQ)/decimal.Decimal(.29)
-        waterQuality=100-waterQuality
+        if waterQuality > 0:
+            waterQuality=100-waterQuality
+        else:
+            waterQuality="No Index"
         waterQuality=round(waterQuality, 1)
         wqIndexes.append(waterQuality)
         if waterQuality >= 95:
@@ -600,7 +602,6 @@ def index(request):
              waterColors.append("red")
         else:
             waterColors.append("White")
-    debugger=""
     content= {
         'debug_check': debugger,
         'pool':poolref,

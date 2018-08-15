@@ -12,7 +12,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-"""
+
 #start of import by migs and  francis###
 import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
 from time import sleep
@@ -326,7 +326,6 @@ sensorRead = sensorReading()
 sensorRead.start()
 
 #Sensor Reading end###
-"""
 def login(request):
     msg = None
     if request.method == 'POST':
@@ -1570,8 +1569,25 @@ def computeChlorine(request):
 
 @login_required(login_url="/monitoring/login")
 def poolTechList(request):
-    #User.objects.all().filter   
-    return render(request, 'monitoring/pool owner/view-pool-technicians.html')
+    x=User.objects.all()
+    debugger=""
+    techType= Usertype_Ref.objects.get(pk=2)
+    names=[]
+    status=[]
+    for itemX in x:
+        itemType=Type.objects.get(user=itemX)
+        if itemType.type == techType:
+            fullname=str(itemX.first_name)+" "+itemX.last_name
+            names.append(fullname)
+            s=Status.objects.get(user=itemX)
+            s=str(s.status.status_ref)
+            status.append(s)
+    context = {
+        'debugger':debugger,
+        'names':names,
+        'status':status,
+    }
+    return render(request, 'monitoring/pool owner/view-pool-technicians.html', context)
 
 @login_required(login_url="/monitoring/login")
 def success(request):

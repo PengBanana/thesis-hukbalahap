@@ -326,7 +326,6 @@ sensorRead = sensorReading()
 sensorRead.start()
 
 #Sensor Reading end###
-"""
 def login(request):
     msg = None
     if request.method == 'POST':

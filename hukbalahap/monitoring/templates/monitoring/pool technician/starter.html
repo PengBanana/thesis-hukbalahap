@@ -93,7 +93,7 @@
                 <ul class="menu">
                     {% for item in notifications %}
                     <li><!-- start notification -->
-                    <a href="#">
+                    <a href="{% url 'monitoring:setMaintenance' %}">
                       <i class="fa fa-users text-aqua"></i> {{ item.message }}
                     </a>
                   </li>

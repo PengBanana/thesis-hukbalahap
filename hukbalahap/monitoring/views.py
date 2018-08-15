@@ -371,10 +371,10 @@ def logout_view(request):
 @login_required(login_url="/monitoring/login")
 def index(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     usertype = Type.objects.get(user=request.user)
     adminType= Usertype_Ref.objects.get(pk=1)
     #notification code
-    notifications = getNotification(request)
     poolref = Pool.objects.all().order_by('pk')
     #temperature levels
     tempDeviations = []
@@ -605,6 +605,7 @@ def index(request):
                 waterColors.append("White")
         except:
             waterColors.append("White")
+        debugger=""
     content= {
         'debug_check': debugger,
         'pool':poolref,
@@ -634,6 +635,7 @@ def poolDetails_view(request, poolitem_id):
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
         notifications = getNotification(request)
+        notifCount=notifications.count()
         poolref = Pool.objects.get(id=poolitem_id)
         ph = Final_Ph.objects.all().filter(pool=poolref)
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref)
@@ -660,6 +662,7 @@ def poolDetails_view(request, poolitem_id):
 @login_required(login_url="/monitoring/login")
 def addUser(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
     if usertype.type == adminType:
@@ -715,6 +718,7 @@ def setMaintenance(request):
 @login_required(login_url="/monitoring/login")
 def setMaintenanceCompute(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     if 0==0:
         poolPK = request.POST['poolPK']
         dRange = request.POST['dRange']
@@ -857,6 +861,7 @@ def setMaintenanceCompute(request):
 @login_required(login_url="/monitoring/login")
 def submitMaintenanceRequest(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     if 0==0:
         poolPK = request.POST['poolPK']
         dateStart = request.POST['dateStart']
@@ -901,6 +906,7 @@ def searchPT(request):
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
     notifications = getNotification(request)
+    notifCount=notifications.count()
     if usertype.type == adminType:
         item = request.POST['item']
 
@@ -927,6 +933,7 @@ def profile(request,item_id):
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
     notifications = getNotification(request)
+    notifCount=notifications.count()
     if usertype.type == adminType:
         user = User.objects.get(id=item_id)
         userSchedule = MaintenanceSchedule.objects.all().filter(user=user)
@@ -1024,6 +1031,7 @@ def profile(request,item_id):
 @login_required(login_url="/monitoring/login")
 def editDetails(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
     if usertype.type == adminType:
@@ -1156,6 +1164,7 @@ def editDetails(request):
 @login_required(login_url="/monitoring/login")
 def filterPoolStat(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     try:
         poolPk = request.POST['poolPK']
         startDate = request.POST['dateStart']
@@ -1207,6 +1216,7 @@ def filterPoolStat(request):
 @login_required(login_url="/monitoring/login")
 def viewMaintenance(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     if 0==0:
         maintenanceSchedule = MaintenanceSchedule.objects.all().order_by("scheduledStart")
         #"October 13, 2014 11:13:00"
@@ -1311,6 +1321,7 @@ def personnel(request):
 @login_required(login_url="/monitoring/login")
 def maintenanceDetails(request, schedule_id):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     try:
         actual=0
         item = MaintenanceSchedule.objects.get(id=schedule_id)
@@ -1464,6 +1475,7 @@ def maintenanceDetails(request, schedule_id):
 @login_required(login_url="/monitoring/login")
 def maintenanceDetailsChemicals(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     try:
         maintenanceId=request.POST['maintenanceid']
         item = MaintenanceSchedule.objects.get(id=maintenanceId)
@@ -1493,6 +1505,7 @@ def maintenanceDetailsChemicals(request):
 @login_required(login_url="/monitoring/login")
 def submitMaintenanceChemicals(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     try:
         maintenanceId=request.POST['maintenanceId']
         muriaticAcid=request.POST['muriaticAcid']
@@ -1518,6 +1531,7 @@ def submitMaintenanceChemicals(request):
 @login_required(login_url="/monitoring/login")
 def computeChlorine(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     try:
         poolref = Pool.objects.all()
         dc=request.POST['dchlorineLevel']
@@ -1587,6 +1601,7 @@ def chemicalConsumption(request):
 @login_required(login_url="/monitoring/login")
 def addPool(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
     if usertype.type == adminType:
@@ -1605,6 +1620,7 @@ def addPool(request):
                     'form':form,
                     'msg' : msg,
                     'notifications':notifications,
+                    'notifCount':notifCount,
                 }
                 return render(request, 'monitoring/pool owner/add-pool.html',content)
 
@@ -1614,6 +1630,7 @@ def addPool(request):
                     'form':form,
                     'msg' : msg,
                     'notifications':notifications,
+                    'notifCount':notifCount,
                 }
                 return render(request, 'monitoring/pool owner/add-pool.html',content)
 

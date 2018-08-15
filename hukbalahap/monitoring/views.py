@@ -1187,7 +1187,7 @@ def filterPoolStat(request):
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime__range=[xDate, yDate])
         temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__range=[xDate, yDate])
         content= {
-            'debug_check': xd,
+            'debug_check': "",
             'pool':poolref,
             'ph':ph,
             'turbidity':turbidity,

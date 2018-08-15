@@ -12,6 +12,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from datetime import timedelta
+
 
 #start of import by migs and  francis###
 import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
@@ -637,10 +639,14 @@ def poolDetails_view(request, poolitem_id):
         notifications = getNotification(request)
         notifCount=notifications.count()
         poolref = Pool.objects.get(id=poolitem_id)
-        ph = Final_Ph.objects.all().filter(pool=poolref)
-        turbidity = Final_Turbidity.objects.all().filter(pool=poolref)
-        temperature = Final_Temperature.objects.all().filter(pool=poolref)
+        today=datetime.date.today()
+        today= today - timedelta(0)
+        ph = Final_Ph.objects.all().filter(pool=poolref, final_phdatetime__gte=today)
+        turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime=today)
+        temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__year=today.year, final_temperaturedatetime__month=today.month, final_temperaturedatetime__day=today.day)
+        debugger=today
         content= {
+            'debugger':debugger,
             'pool':poolref,
             'ph':ph,
             'turbidity':turbidity,
@@ -654,7 +660,7 @@ def poolDetails_view(request, poolitem_id):
             return render(request, 'monitoring/pool owner/pool-stat.html', content)
     except:
         print('yopooooo')
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+        return render(request,'monitoring/BadRequest.html')
 
 
 
@@ -712,14 +718,14 @@ def setMaintenance(request):
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule.html', content)
     except:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+        return render(request,'monitoring/BadRequest.html')
 
 
 @login_required(login_url="/monitoring/login")
 def setMaintenanceCompute(request):
     notifications = getNotification(request)
     notifCount=notifications.count()
-    if 0==0:
+    try:
         poolPK = request.POST['poolPK']
         dRange = request.POST['dRange']
         tStart = request.POST['tStart']
@@ -854,15 +860,15 @@ def setMaintenanceCompute(request):
             'showButton':showButton,
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html', content)
-    else:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
 
 
 @login_required(login_url="/monitoring/login")
 def submitMaintenanceRequest(request):
     notifications = getNotification(request)
     notifCount=notifications.count()
-    if 0==0:
+    try:
         poolPK = request.POST['poolPK']
         dateStart = request.POST['dateStart']
         dateEnd = request.POST['dateEnd']
@@ -897,8 +903,8 @@ def submitMaintenanceRequest(request):
             'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule.html', content)
-    else:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
 
 
 @login_required(login_url="/monitoring/login")
@@ -1171,7 +1177,9 @@ def filterPoolStat(request):
         endDate = request.POST['dateEnd']
         poolref = Pool.objects.get(id=poolPk)
         xDate = datetime.datetime.strptime(startDate, '%B %d, %Y ').strftime('%Y-%m-%d')
-        yDate = datetime.datetime.strptime(endDate, ' %B %d, %Y').strftime('%Y-%m-%d')
+        yDate = datetime.datetime.strptime(endDate, ' %B %d, %Y')
+        yDate = yDate + timedelta(1)
+        yDate= yDate.strftime('%Y-%m-%d')
         xDate = str(xDate)+" 00:00"
         yDate = str(yDate)+" 00:00"
         display = xDate+" - "+yDate
@@ -1179,7 +1187,7 @@ def filterPoolStat(request):
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime__range=[xDate, yDate])
         temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__range=[xDate, yDate])
         content= {
-            'debug_check': display,
+            'debug_check': xd,
             'pool':poolref,
             'ph':ph,
             'turbidity':turbidity,
@@ -1202,7 +1210,7 @@ def filterPoolStat(request):
             turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime__range=[xDate, yDate])
             temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__range=[xDate, yDate])
             content= {
-                'debug_check': display,
+                'debug_check': "",
                 'pool':poolref,
                 'ph':ph,
                 'turbidity':turbidity,
@@ -1211,13 +1219,13 @@ def filterPoolStat(request):
             }
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
         except:
-            return render(request, 'monitoring/pool owner/result-not-found.html')
+            return render(request,'monitoring/BadRequest.html')
 
 @login_required(login_url="/monitoring/login")
 def viewMaintenance(request):
     notifications = getNotification(request)
     notifCount=notifications.count()
-    if 0==0:
+    try:
         maintenanceSchedule = MaintenanceSchedule.objects.all().order_by("scheduledStart")
         #"October 13, 2014 11:13:00"
         users=[]
@@ -1302,11 +1310,8 @@ def viewMaintenance(request):
             'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
-    else:
-        content = {
-            "debugger":""
-        }
-        return render(request, 'monitoring/pool owner/result-not-found.html', content)
+    except:
+        return render(request,'monitoring/BadRequest.html')
 
 @login_required(login_url="/monitoring/login")
 def notFound(request):
@@ -1466,10 +1471,7 @@ def maintenanceDetails(request, schedule_id):
         #insert notification here content.append/content.add(function())
         return render(request, 'monitoring/pool technician/maintenance-details.html', content)
     except:
-        content={
-            "backUrl":"monitoring:viewMaintenance"
-        }
-        return render(request, 'monitoring/pool owner/result-not-found.html', content)
+        return render(request,'monitoring/BadRequest.html')
 
 
 @login_required(login_url="/monitoring/login")
@@ -1500,7 +1502,7 @@ def maintenanceDetailsChemicals(request):
         }
         return render(request, 'monitoring/pool technician/maintenance-details-chemicals.html', content)
     except:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+        return render(request,'monitoring/BadRequest.html')
 
 @login_required(login_url="/monitoring/login")
 def submitMaintenanceChemicals(request):
@@ -1606,7 +1608,7 @@ def submitMaintenanceChemicals(request):
         }
         return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
     except:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+        return render(request,'monitoring/BadRequest.html')
 
 
 @login_required(login_url="/monitoring/login")
@@ -1647,7 +1649,7 @@ def computeChlorine(request):
             }
             return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
         except:
-            return render(request, 'monitoring/pool owner/result-not-found.html')
+            return render(request,'monitoring/BadRequest.html')
 
 @login_required(login_url="/monitoring/login")
 def poolTechList(request):

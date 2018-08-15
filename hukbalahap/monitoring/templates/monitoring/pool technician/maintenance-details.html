@@ -14,19 +14,19 @@
         <h1 class="box-title" style="font-size:25px;">{{ poolname }}</h1><br>
         <small style="font-size:18px;">{{ fromDate }} - {{ toDate }}</small><br>
         {% if status == 'Notified' %}
-          <label class="label label-warning" style="font-size:15px">
+          <label class="label bg-aqua" style="font-size:15px">
             Notified
           </label>
           {% elif status == 'Scheduled' %}
-          <label class="label label-warning" style="font-size:15px">
-            Notified
+          <label class="label label-primary" style="font-size:15px">
+            Scheduled
           </label>
          {% elif status == 'Accomplished' %}
          <label class="label label-success" style="font-size:15px">
            Accomplished
          </label>
         {% elif status == 'Late' %}
-        <label class="label label-danger" style="font-size:15px">
+        <label class="label label-warning" style="font-size:15px">
           Late
         </label>
           {% elif status == 'Unfinished' %}

@@ -14,6 +14,7 @@
 </script>
 {% endblock %}
 {% block content %}
+{{ debugger }}
 <section class="content">
   <div class="row">
     <div class="col-xs-12">
@@ -28,18 +29,29 @@
             <tr>
               <th>Name</th>
               <th>Status</th>
-              <th>Rating</th>
             </tr>
             </thead>
             <tbody>
+{% for xuser in names %}
             <tr>
-              <td>Christian Modino</td>
-              <td>status</td>
-              <td><label class="label label-warning">
-                  yeah
-                </label></td>
+              <td>{{ xuser }}</td>
+    {% for xstatus in status %}
+        {% if forloop.counter == forloop.parentloop.counter %}
+           <td> 
+            {% if xstatus == 'Active' %}
+          <label class="label label-success" style="font-size:15px">
+            Active
+          </label> 
+            {% else %}
+            <label class="label label-danger" style="font-size:15px">
+            Inactive
+            </label>  
+            {% endif %}
+         </td>
+        {% endif %}
+    {% endfor %}
             </tr>
-
+{% endfor %}
 
             </tbody>
           </table>

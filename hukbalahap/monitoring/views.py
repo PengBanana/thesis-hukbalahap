@@ -1570,8 +1570,25 @@ def computeChlorine(request):
 
 @login_required(login_url="/monitoring/login")
 def poolTechList(request):
-    #User.objects.all().filter   
-    return render(request, 'monitoring/pool owner/view-pool-technicians.html')
+    x=User.objects.all()
+    debugger=""
+    techType= Usertype_Ref.objects.get(pk=2)
+    names=[]
+    status=[]
+    for itemX in x:
+        itemType=Type.objects.get(user=itemX)
+        if itemType.type == techType:
+            fullname=str(itemX.first_name)+" "+itemX.last_name
+            names.append(fullname)
+            s=Status.objects.get(user=itemX)
+            s=str(s.status.status_ref)
+            status.append(s)
+    context = {
+        'debugger':debugger,
+        'names':names,
+        'status':status,
+    }
+    return render(request, 'monitoring/pool owner/view-pool-technicians.html', context)
 
 @login_required(login_url="/monitoring/login")
 def success(request):

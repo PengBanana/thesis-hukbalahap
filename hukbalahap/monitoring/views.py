@@ -605,7 +605,7 @@ def index(request):
                 waterColors.append("White")
         except:
             waterColors.append("White")
-        debugger=notifCount
+        debugger=""
     content= {
         'debug_check': debugger,
         'pool':poolref,

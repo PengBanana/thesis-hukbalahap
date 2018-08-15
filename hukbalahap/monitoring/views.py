@@ -12,7 +12,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-
+"""
 #start of import by migs and  francis###
 import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
 from time import sleep
@@ -324,7 +324,7 @@ class sensorReading(threading.Thread):
 
 sensorRead = sensorReading()
 sensorRead.start()
-
+"""
 #Sensor Reading end###
 def login(request):
     msg = None

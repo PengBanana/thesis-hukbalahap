@@ -1520,10 +1520,10 @@ def submitMaintenanceChemicals(request):
         item.status = "Accomplished"
         item.save()
         content={
-            'display':"Schedule Complete",
+            'success':"Success",
             'notifications':notifications,
         }
-        return render(request, 'monitoring/success/success.html', content)
+        return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
     except:
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
@@ -1570,6 +1570,7 @@ def computeChlorine(request):
 
 @login_required(login_url="/monitoring/login")
 def poolTechList(request):
+    #User.objects.all().filter   
     return render(request, 'monitoring/pool owner/view-pool-technicians.html')
 
 @login_required(login_url="/monitoring/login")

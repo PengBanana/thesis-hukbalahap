@@ -30,6 +30,13 @@
 {% endblock %}
 {% block content %}
 {{ debugger }}
+{% if display == 'Success' %}
+    <div class="alert alert-success alert-dismissible fade in">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <p>The Maintenance Scheduled has been accomplished.</p>
+    </div>
+
+{% endif %}
 <div class="box box-primary">
   <div class="box-body no-padding">
     <!-- THE CALENDAR -->

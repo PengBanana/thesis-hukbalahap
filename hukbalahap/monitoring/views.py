@@ -588,19 +588,22 @@ def index(request):
         waterQuality=(tempIQ+turbIQ+phIQ)/decimal.Decimal(.29)
         if waterQuality > 0:
             waterQuality=100-waterQuality
+            waterQuality=round(waterQuality, 1)
+            wqIndexes.append(waterQuality)
         else:
             waterQuality="No Index"
-        waterQuality=round(waterQuality, 1)
-        wqIndexes.append(waterQuality)
-        if waterQuality >= 95:
-            waterColors.append("green")
-        elif (waterQuality >= 85):
-             waterColors.append("green")
-        elif (waterQuality >= 80):
-             waterColors.append("yellow")
-        elif(waterQuality < 80):
-             waterColors.append("red")
-        else:
+        try:
+            if waterQuality >= 95:
+                waterColors.append("green")
+            elif (waterQuality >= 85):
+                 waterColors.append("green")
+            elif (waterQuality >= 80):
+                 waterColors.append("yellow")
+            elif(waterQuality < 80):
+                 waterColors.append("red")
+            else:
+                waterColors.append("White")
+        except:
             waterColors.append("White")
     content= {
         'debug_check': debugger,

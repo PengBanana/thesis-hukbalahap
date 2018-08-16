@@ -588,12 +588,17 @@ def index(request):
             if mainCount == pCount:
                 phIQ=phIndexItem
         waterQuality=(tempIQ+turbIQ+phIQ)/decimal.Decimal(.29)
+        #waterQuality=float(waterQuality)
+        waterQuality=round(waterQuality, 0)
         if waterQuality > 0:
             waterQuality=100-waterQuality
-            waterQuality=round(waterQuality, 1)
-            wqIndexes.append(waterQuality)
+            if waterQuality < 0:
+                wqIndexes.append(str(0))
+            else:
+                wqIndexes.append(waterQuality)
         else:
             waterQuality="No Index"
+            wqIndexes.append(waterQuality)
         try:
             if waterQuality >= 95:
                 waterColors.append("green")

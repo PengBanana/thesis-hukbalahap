@@ -1443,3 +1443,15 @@ def Quality(observedVal, idealVal, badVal, weightVal):
     indexNum=indexNum
     indexNum=round(indexNum, 0)
     return indexNum
+
+def addPoolChemicalProduct(productName, productPrice, usageCount):
+    productName = productName
+    productPrice = productPrice
+    usageCount=usageCount
+    return productName
+
+def updatePoolChemicalProductPrice(productId, newPrice, effectiveDate):
+    productId = productId
+    newPrice = newPrice
+    effectiveDate = effectiveDate
+    return productId

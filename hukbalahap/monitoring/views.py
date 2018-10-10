@@ -21,6 +21,7 @@ def login(request):
         username = request.POST['username']
         password = request.POST['password']
         userx = authenticate(username=username, password=password)
+
         if userx is not None:
             userStat =Status.objects.get(id=userx.pk)
             notDeactivated =  Status_Ref.objects.get(pk=1)
@@ -75,39 +76,17 @@ def index(request):
             tempSum+=item.temp_temperaturelevel
             tempCount+=1
         if(tempCount>0):
-            tempMean = tempSum/tempCount
-            tempx = []
-            for level in temperatureList:
-                reading = level.temp_temperaturelevel
-                reading -=tempMean
-                reading = reading*reading
-                tempx.append(reading)
-            newTempSum = 0
-            for read in tempx:
-                newTempSum+= read
-            tempVariance = newTempSum/tempCount
-            tempStandardDev = math.sqrt(tempVariance)
-            tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
-            tempStandardDev=round(tempStandardDev, 2)
+            tempStandardDev=computeStandardDeviation(tempSum, tempCount, temperatureList)
             #Water Quality Temperature
-            observedVal=tempStandardDev
-            idealVal=25
-            weightVal=.10
-            if observedVal>=25:
+            if tempStandardDev>=25:
                 badVal=38.5
             else:
                 badVal=6.3
-            temperatureIndex=Quality(observedVal, idealVal, badVal, weightVal)
+            temperatureIndex=Quality(tempStandardDev, 25, badVal, .10)
             temperatureIndexes.append(temperatureIndex)
             #color assignment
-            if tempStandardDev >= 25 and tempStandardDev <= 28:
-                tempColors.append("green")
-            elif (tempStandardDev >= 23 and tempStandardDev < 25) or (tempStandardDev > 28 and tempStandardDev <= 30):
-                tempColors.append("yellow")
-            elif(tempStandardDev < 23 or tempStandardDev > 30):
-                tempColors.append("red")
-            else:
-                tempColors.append("White")
+            color=getQualityColorTemperature(tempStandardDev)
+            tempColors.append(color)
             degreeSign=u'\N{DEGREE SIGN}'
             tempStandardDev=str(tempStandardDev)+degreeSign+'C'
             tempDeviations.append(tempStandardDev)
@@ -129,37 +108,13 @@ def index(request):
             turbiditySum+=item.temp_turbiditylevel
             turbidityCount+=1
         if(turbidityCount>0):
-            turbidityMean = turbiditySum/turbidityCount
-            turbidityx = []
-            for level in turbidityList:
-                reading = level.temp_turbiditylevel
-                reading -=turbidityMean
-                reading = reading*reading
-                turbidityx.append(reading)
-            newTurbiditySum = 0
-            for read in turbidityx:
-                newTurbiditySum+= read
-            turbidityVariance = newTurbiditySum/turbidityCount
-            turbidityStandardDev = math.sqrt(turbidityVariance)
-            debugger=str(turbidityStandardDev)+" "+str(turbidityMean)
-            turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
-            turbidityStandardDev=round(turbidityStandardDev, 1)
+            turbidityStandardDev=computeStandardDeviation(turbiditySum, turbidityCount, turbidityList)
             #Water Quality Turbidity
-            observedVal=turbidityStandardDev
-            idealVal=0
-            weightVal=.08
-            badVal=26
-            turbidityIndex=Quality(observedVal, idealVal, badVal, weightVal)
+            turbidityIndex=Quality(turbidityStandardDev, 0, 26, .08)
             turbidityIndexes.append(turbidityIndex)
             #color assignment
-            if turbidityStandardDev < 1:
-                turbidityColors.append("green")
-            elif (turbidityStandardDev >= 1 and turbidityStandardDev < 2):
-                turbidityColors.append("yellow")
-            elif(turbidityStandardDev >= 2):
-                turbidityColors.append("red")
-            else:
-                turbidityColors.append("White")
+            color=getQualityColorTurbidity(turbidityStandardDev)
+            turbidityColors.append(color)
             turbidityStandardDev=str(turbidityStandardDev)+" ntu"
             turbidityDeviations.append(turbidityStandardDev)
         else:
@@ -179,39 +134,17 @@ def index(request):
             phSum+=item.temp_phlevel
             phCount+=1
         if(phCount>0):
-            phMean = phSum/phCount
-            phx = []
-            for level in phList:
-                reading = level.temp_phlevel
-                reading -=phMean
-                reading = reading * reading
-                phx.append(reading)
-            newPhSum = 0
-            for read in phx:
-                newPhSum+= read
-            phVariance = newPhSum/phCount
-            phStandardDev = math.sqrt(phVariance)
-            phStandardDev=decimal.Decimal(phStandardDev)+phMean
-            phStandardDev=round(phStandardDev, 1)
+            phStandardDev=computeStandardDeviation(phSum, phCount, phList)
             #Water Quality pH
-            observedVal=phStandardDev
-            idealVal=7.4
-            weightVal=.11
             if phStandardDev>=7.4:
                 badVal=8.2
             else:
                 badVal=6.8
-            phIndex=Quality(observedVal, idealVal, badVal, weightVal)
+            phIndex=Quality(phStandardDev, 7.4, badVal, .11)
             phIndexes.append(phIndex)
             #color assignment
-            if phStandardDev >= 7.3 and phStandardDev <=7.7:
-                phColors.append("green")
-            elif((phStandardDev < 7.3 and phStandardDev >= 7.2) or (phStandardDev > 7.7 and phStandardDev < 7.9)):
-                 phColors.append("yellow")
-            elif(phStandardDev < 7.2 or phStandardDev > 7.8):
-                 phColors.append("red")
-            else:
-                phColors.append("White")
+            color=getQualityColorPH(phStandardDev)
+            phColors.append(color)
             phDeviations.append(phStandardDev)
         else:
             phIndexes.append(0)
@@ -222,80 +155,21 @@ def index(request):
         chlorineLevels=[]
         chlorineColors=[]
         for item in phDeviations:
-            debug=2615.97 - 1175.23*5.57+ 185.315*5.57*5.57 - 9.90222*5.57*5.57*5.57
             try:
                 #multiplier=8
-                chlorine = decimal.Decimal(2615.97)
-                multiplier = item
-                chlorine-= decimal.Decimal(1175.23)*multiplier
-                multiplier*=item
-                chlorine+=decimal.Decimal(185.315)*multiplier
-                multiplier*=item
-                chlorine-=decimal.Decimal(9.90222)*multiplier
-                chlorine = round(chlorine, 1)
-                if chlorine>100:
-                    chlorine=100
-                elif chlorine<0:
-                    chlorine=0
+                chlorine=chlorineEffectivenessComputation(item)
                 #color assignment
-                if chlorine >= 85:
-                    chlorineColors.append("green")
-                elif (chlorine >= 65):
-                     chlorineColors.append("orange")
-                elif (chlorine >= 50):
-                     chlorineColors.append("yellow")
-                elif(chlorine < 50):
-                     chlorineColors.append("red")
-                else:
-                    chlorineColors.append("White")
+                color=getQualityColorChlorine(chlorine)
+                chlorineColors.append(color)
                 chlorine=str(chlorine)+'%'
                 chlorineLevels.append(chlorine)
             except:
                 chlorineColors.append("White")
-                chlorineLevels.append('Cannot Compute')
+                chlorineLevels.append('Cannot Compute') 
     waterColors = []
-    wqIndexes =[]
-    #Water Quality color assignment
-    mainCount=0
-    for tempIndexItem in temperatureIndexes:
-        waterQuality = 0
-        tCount=0
-        pCount=0
-        tempIQ=tempIndexItem
-        mainCount+=1
-        for turbIndexItem in turbidityIndexes:
-            tCount+=1
-            if mainCount == tCount:
-                turbIQ=turbIndexItem
-        for phIndexItem in phIndexes:
-            pCount+=1
-            if mainCount == pCount:
-                phIQ=phIndexItem
-        waterQuality=(tempIQ+turbIQ+phIQ)/decimal.Decimal(.29)
-        #waterQuality=float(waterQuality)
-        waterQuality=round(waterQuality, 0)
-        if waterQuality > 0:
-            waterQuality=100-waterQuality
-            if waterQuality < 0:
-                wqIndexes.append(str(0))
-            else:
-                wqIndexes.append(waterQuality)
-        else:
-            waterQuality="No Index"
-            wqIndexes.append(waterQuality)
-        try:
-            if waterQuality >= 95:
-                waterColors.append("green")
-            elif (waterQuality >= 85):
-                 waterColors.append("green")
-            elif (waterQuality >= 80):
-                 waterColors.append("yellow")
-            elif(waterQuality < 80):
-                 waterColors.append("red")
-            else:
-                waterColors.append("White")
-        except:
-            waterColors.append("White")
+    wqIndexes=computeWaterQuality(temperatureIndexes, turbidityIndexes, phIndexes)
+    for item in wqIndexes:
+        waterColors.append(getWaterQualityColor(item))
         debugger=""
     content= {
         'debug_check': debugger,
@@ -1443,14 +1317,203 @@ def Quality(observedVal, idealVal, badVal, weightVal):
     indexNum=round(indexNum, 0)
     return indexNum
 
-def addPoolChemicalProduct(productName, productPrice, usageCount):
-    productName = productName
-    productPrice = productPrice
-    usageCount=usageCount
-    return productName
+def getQualityColorPH(phlevel):
+    color = "white"
+    try:
+        if phlevel >= 7.3 and phlevel <=7.7:
+            color = "green"
+        elif((phlevel < 7.3 and phlevel >= 7.2) or (phlevel > 7.7 and phlevel < 7.9)):
+            color = "yellow"
+        elif(phlevel < 7.2 or phlevel > 7.8):
+            color = "red"
+        else:
+            print("================ PH color retrieved ======================")
+        return color
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxx FAILURE: PH color cannot be retrieved xxxxxxxxxxxxxxx")
+        return color
 
-def updatePoolChemicalProductPrice(productId, newPrice, effectiveDate):
-    productId = productId
-    newPrice = newPrice
-    effectiveDate = effectiveDate
-    return productId
+def getQualityColorChlorine(chlorine):
+    color="white"
+    try:
+        if chlorine >= 85:
+            color="green"
+        elif (chlorine >= 65):
+             color="orange"
+        elif (chlorine >= 50):
+             color="yellow"
+        elif(chlorine < 50):
+             color="red"
+        else:
+            print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Chlorine color was not retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
+        print("============================ Chlorine color retrieved ========================")
+        return color
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Chlorine color was not retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
+        return color
+
+def getQualityColorTemperature(temperature):
+    color="white"
+    try:
+        if temperature >= 25 and temperature <= 28:
+            color = "green"
+        elif (temperature >= 23 and temperature < 25) or (temperature > 28 and temperature <= 30):
+            color = "yellow"
+        elif(temperature < 23 or temperature > 30):
+            color = "red"
+        else:
+            print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Temperature color was not retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
+        print("============================ Temperature color retrieved ========================")
+        return color
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Temperature color was not retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
+        return color
+    
+def getQualityColorTurbidity(turbidity):
+    try:
+        if turbidity < 1:
+            color = "green"
+        elif (turbidity >= 1 and turbidity < 2):
+            color = "yellow"
+        elif(turbidity >= 2):
+            color = "red"
+        else:
+            print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Turbidity color was not retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
+        print("============================ Turbidity color retrieved ========================")
+        return color
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Temperature color was not retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
+        return color
+
+def computeStandardDeviation(cSum, cCount, cList):
+    try:
+        turbidityx=[]
+        cMean = cSum/cCount
+        cx = []
+        for level in cList:
+            try:
+                reading = level.temp_turbiditylevel
+            except:
+                try:
+                    reading = level.temp_temperaturelevel
+                except:
+                    try:
+                        reading = level.temp_phlevel
+                    except:
+                        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: standard deviation cannot be computed xxxxxxxxxxxxxxxxxxxxxxxxx")
+            reading -=cMean
+            reading = reading*reading
+            turbidityx.append(reading)
+        newcSum = 0
+        for read in turbidityx:
+            newcSum+= read
+        cVariance = newcSum/cCount
+        cStandardDev = math.sqrt(cVariance)
+        cStandardDev=decimal.Decimal(cStandardDev)+cMean
+        cStandardDev=round(cStandardDev, 1)
+        print("============================ Returning Standard Deviation ========================")
+        return cStandardDev
+    except:
+        cStandardDev=None
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: standard deviation cannot be computed xxxxxxxxxxxxxxxxxxxxxxxxx")
+        return cStandardDev
+    
+def addChemicalItem(name, price, usageLimit):
+    try:
+        #TODO: add item
+        itemName = name
+        itemPrice = price
+        itemEffectiveDate = datetime.date.today()
+        itemUsageCount=usageLimit
+        #####add the chemical item to database
+        return "=================item added to database====================="
+    except:
+        return "xxxxxxxxxxxxxxxx FAILURE: item was not added (def addChemicalItem) xxxxxxxxxxxxxxxxxxxx"
+
+def useItem(item, usageCount):
+    try:
+        #todo:chemicalUsageLog
+        #####get referenced item
+        today=datetime.date.today()
+        #####add To Logs Table
+        return "========================= itemw used =======================" + today
+    except:
+        return "xxxxxxxxxxxxxxxxx FAILURE: item was not used (def useItem) xxxxxxxxxxxxxxx"
+
+def updatePoolChemicalItemtPrice(productid, newPrice, effectiveDate):
+    try:
+        itemProductId = productId
+        itemNewPrice = newPrice
+        itemEffectiveDate = effectiveDate
+        return "==================== item price updated ============================"
+    except:
+        return "xxxxxxxxxxxxxxxxxxxxxx FAILURE: item price not updated (def updatePoolChemicalItemtPrice) xxxxxxxxxxxxxxxxx"
+    
+def chlorineEffectivenessComputation(item):
+    chlorine = decimal.Decimal(2615.97)
+    multiplier = item
+    chlorine-= decimal.Decimal(1175.23)*multiplier
+    multiplier*=item
+    chlorine+=decimal.Decimal(185.315)*multiplier
+    multiplier*=item
+    chlorine-=decimal.Decimal(9.90222)*multiplier
+    chlorine = round(chlorine, 1)
+    return chlorine
+
+def computeWaterQuality(temperatureIndexes, turbidityIndexes, phIndexes):
+    try:
+        wqIndexes =[]
+        mainCount=0
+        for tempIndexItem in temperatureIndexes:
+            waterQuality = 0
+            tCount=0
+            pCount=0
+            tempIQ=tempIndexItem
+            mainCount+=1
+            for turbIndexItem in turbidityIndexes:
+                tCount+=1
+                if mainCount == tCount:
+                    turbIQ=turbIndexItem
+            for phIndexItem in phIndexes:
+                pCount+=1
+                if mainCount == pCount:
+                    phIQ=phIndexItem
+            waterQuality=(tempIQ+turbIQ+phIQ)/decimal.Decimal(.29)
+            #waterQuality=float(waterQuality)
+            waterQuality=round(waterQuality, 0)
+            if waterQuality > 0:
+                waterQuality=100-waterQuality
+                if waterQuality < 0:
+                    wqIndexes.append(str(0))
+                else:
+                    wqIndexes.append(waterQuality)
+            else:
+                waterQuality="No Index"
+                print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Cannot Retrieve waterQuality assigning string No Index by default xxxxxxxxxxxxxxxxxxxxxxxxx")
+                wqIndexes.append(waterQuality)
+        print("============================ Returning Water Quality  ========================")   
+        return wqIndexes
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Failure at computeWaterQuality() xxxxxxxxxxxxxxxxxxxxxxxxx")
+        return None
+
+def getWaterQualityColor(waterQuality):
+    waterColor = "White"
+    try:
+        if waterQuality >= 95:
+            waterColor = "green"
+        elif (waterQuality >= 85):
+            waterColor = "green"
+        elif (waterQuality >= 80):
+            waterColor = "yellow"
+        elif(waterQuality < 80):
+            waterColor = "red"
+        else:
+            waterColor = "White"
+            print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Cannot Retrieve Water Color assigning color white by default xxxxxxxxxxxxxxxxxxxxxxxxx")
+        print("============================ Returning Water Quality Color  ========================")   
+        return waterColor
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Cannot Retrieve Water Color assigning color white by default xxxxxxxxxxxxxxxxxxxxxxxxx")
+        return waterColor
+    

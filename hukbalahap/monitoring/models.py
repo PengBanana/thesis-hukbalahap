@@ -37,7 +37,6 @@ class Usertype_Ref(models.Model):
 class Type(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	type = models.ForeignKey(Usertype_Ref, default = 2, on_delete=models.CASCADE)
-	pool = models.ForeignKey(Pool, on_delete=models.CASCADE)
 
 	def __str__(self):
 		return str(self.user)
@@ -164,29 +163,3 @@ class Notification_Table(models.Model):
 
 	def __str__(self):
 		return str(self.user) +" - "+str(self.number)
-
-class Chemical_Item(models.Model):
-	chemicalName = models.TextField()
-	chemicalUsageLimit = models.IntegerField()
-	chemicalDescription = models.TextField()
-
-	def __str__(self):
-		return str(self.checmicalName)
-
-class Chemical_Price_Reference(models.Model):
-	chemical = models.ForeignKey(Chemical_Item, on_delete=models.DO_NOTHING)
-	effectiveDate = models.DateField()
-	price = models.DecimalField(max_digits=8, decimal_places=2, default="")
-
-	def __str__(self):
-		return str(self.chemical) +" - "+ str(self.effectiveDate) +" - "+ str(self.price)
-
-class Chemical_Usage_Log(models.Model):
-	chemical = models.ForeignKey(Chemical_Item, on_delete=models.DO_NOTHING)
-	pool = models.ForeignKey(Pool, null=True, on_delete=models.DO_NOTHING)
-	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-	usageDate = models.DateField()
-	quantity = models.IntegerField()
-
-	def __str__(self):
-		return str(self.chemical) +" - "+ str(self.usageDate)

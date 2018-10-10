@@ -21,7 +21,6 @@ def login(request):
         username = request.POST['username']
         password = request.POST['password']
         userx = authenticate(username=username, password=password)
-
         if userx is not None:
             userStat =Status.objects.get(id=userx.pk)
             notDeactivated =  Status_Ref.objects.get(pk=1)

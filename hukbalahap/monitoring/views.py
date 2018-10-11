@@ -14,6 +14,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from datetime import timedelta
 
+###rendering definitions
 def login(request):
     msg = None
     if request.method == 'POST':
@@ -1303,18 +1304,23 @@ def addPool(request):
             return render(request, 'monitoring/pool owner/add-pool.html',locals())
     else:
         return render(request, 'monitoring/pool owner/result-not-found.html')
-
+    
+    
+###reusable methods
 def Quality(observedVal, idealVal, badVal, weightVal):
-    observedVal = decimal.Decimal(observedVal)
-    idealVal = decimal.Decimal(idealVal)
-    badVal = decimal.Decimal(badVal)
-    weightVal = decimal.Decimal(weightVal)
-    indexNum=0
-    qualityIndex=(observedVal-idealVal)/(badVal-idealVal)
-    qualityIndex=qualityIndex*100
-    indexNum=qualityIndex*weightVal
-    indexNum=indexNum
-    indexNum=round(indexNum, 0)
+    try:
+        observedVal = decimal.Decimal(observedVal)
+        idealVal = decimal.Decimal(idealVal)
+        badVal = decimal.Decimal(badVal)
+        weightVal = decimal.Decimal(weightVal)
+        indexNum=0
+        qualityIndex=(observedVal-idealVal)/(badVal-idealVal)
+        qualityIndex=qualityIndex*100
+        indexNum=qualityIndex*weightVal
+        indexNum=indexNum
+        indexNum=round(indexNum, 0)
+    except:
+        indexNum=None
     return indexNum
 
 def getQualityColorPH(phlevel):
@@ -1435,6 +1441,7 @@ def useItem(item, usageCount):
         #todo:chemicalUsageLog
         #####get referenced item
         today=datetime.date.today()
+        ##### get pool used at
         #####add To Logs Table
         return "========================= itemw used =======================" + today
     except:

@@ -910,11 +910,6 @@ def maintenanceDetails(request, schedule_id):
             actual=1
             showButton=0
         else:
-            #OLD
-            #muriaticAcid=item.est_muriatic
-            #sodaAsh=item.est_bakingsoda
-            #dePowder=item.est_depowder
-            #chlorine=item.est_chlorine
             #NEW
             poolitem = Pool.objects.get(pk=poolPK)
             phList = Temp_Ph.objects.all().filter(pool=poolitem)
@@ -924,38 +919,16 @@ def maintenanceDetails(request, schedule_id):
             for phItem in phList:
                 phSum+=phItem.temp_phlevel
                 phCount+=1
+            computeStandardDeviation(phSum, phCount, phList)
             if(phCount>0):
-                phMean = phSum/phCount
-                phx = []
-                for level in phList:
-                    reading = level.temp_phlevel
-                    reading -=phMean
-                    reading = reading * reading
-                    phx.append(reading)
-                newPhSum = 0
-                for read in phx:
-                    newPhSum+= read
-                phVariance = newPhSum/phCount
-                phStandardDev = math.sqrt(phVariance)
-                phStandardDev=decimal.Decimal(phStandardDev)+phMean
+                phStandardDev=computeStandardDeviation(phSum, phCount, phList)
             phLevel =  phStandardDev
             #get gallons
             cubicpool = poolitem.pool_width * poolitem.pool_depth * poolitem.pool_length
             poolGallons = cubicpool * decimal.Decimal(7.5)
             squarefeet= poolitem.pool_length * poolitem.pool_width
             #DE powder computation
-            dePowder = squarefeet*decimal.Decimal(.1)
-            dePowder = dePowder*decimal.Decimal(.8)
-            dePowder = round(dePowder, 1)
-            if dePowder > 0:
-                dePowderOutput = str(dePowder)+" oz / "
-                dePowder =  dePowder * decimal.Decimal(0.0625)
-                dePowder = round(dePowder, 2)
-                dePowderOutput = dePowderOutput+str(dePowder)+" lbs"
-                dePowder=dePowderOutput
-            else:
-                dePowderOutput = "No Need"
-                dePowder=dePowderOutput
+            dePowder=computeDEPowder(squarefeet)
             #multiplier
             gallons = poolGallons
             multiplier = 0
@@ -1393,7 +1366,7 @@ def getQualityColorTurbidity(turbidity):
 
 def computeStandardDeviation(cSum, cCount, cList):
     try:
-        turbidityx=[]
+        cNewList=[]
         cMean = cSum/cCount
         cx = []
         for level in cList:
@@ -1409,7 +1382,7 @@ def computeStandardDeviation(cSum, cCount, cList):
                         print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: standard deviation cannot be computed xxxxxxxxxxxxxxxxxxxxxxxxx")
             reading -=cMean
             reading = reading*reading
-            turbidityx.append(reading)
+            cNewList.append(reading)
         newcSum = 0
         for read in turbidityx:
             newcSum+= read
@@ -1523,4 +1496,18 @@ def getWaterQualityColor(waterQuality):
     except:
         print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Cannot Retrieve Water Color assigning color white by default xxxxxxxxxxxxxxxxxxxxxxxxx")
         return waterColor
-    
+
+def computeDEPowder(squarefeet):
+    dePowder = squarefeet*decimal.Decimal(.1)
+    dePowder = dePowder*decimal.Decimal(.8)
+    dePowder = round(dePowder, 1)
+    if dePowder > 0:
+        dePowderOutput = str(dePowder)+" oz / "
+        dePowder =  dePowder * decimal.Decimal(0.0625)
+        dePowder = round(dePowder, 2)
+        dePowderOutput = dePowderOutput+str(dePowder)+" lbs"
+        dePowder=dePowderOutput
+    else:
+        dePowderOutput = "No Need"
+        dePowder=dePowderOutput
+    return dePowder

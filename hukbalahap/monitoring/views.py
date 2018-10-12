@@ -341,73 +341,32 @@ def setMaintenanceCompute(request):
         poolGallons = cubicpool * decimal.Decimal(7.5)
         squarefeet= poolitem.pool_length * poolitem.pool_width
         #DE powder computation
-        dePowder = squarefeet*decimal.Decimal(.1)
-        dePowder = dePowder*decimal.Decimal(.8)
-        dePowder = round(dePowder, 1)
-        dePowderVal = dePowder
-        if dePowder > 0:
-            dePowderOutput = str(dePowder)+" oz / "
-            dePowder =  dePowder * decimal.Decimal(0.0625)
-            dePowder = round(dePowder, 2)
-            dePowderVal=dePowder
-            dePowderOutput = dePowderOutput+str(dePowder)+" lbs"
-        else:
-            dePowderOutput = "No Need"
-            dePowderVal=0
+        computeDEPowder(squarefeet)
         #multiplier
         gallons = poolGallons
         multiplier = 0
         sodaAsh=0
         muriaticAcid=0
         chlorine=0
-
         while gallons >= 5000:
             multiplier+=1
             gallons-=5000
-
         #soda ash computation
         showButton=1
         if phLevel < 7.4:
             muriaticAcidOutput="No Need"
             muriaticAcidVal=0
-            if phLevel < 6.7:
-                sodaAsh = multiplier * 8
-            elif phLevel <= 7:
-                sodaAsh = multiplier * 6
-            elif phLevel <= 7.2:
-                sodaAsh = multiplier * 4
-            elif phLevel <= 7.4:
-                sodaAsh = multiplier * 3
-            sodaAsh = round(sodaAsh, 1)
+            sodaAsh=computeSodaAsh(phLevel)
             sodaAshVal = sodaAsh
-            if(sodaAsh>0):
-                sodaAshOutput = str(sodaAsh)+" oz / "
-                sodaAsh = sodaAsh*decimal.Decimal(0.0625)
-                sodaAsh = round(sodaAsh, 2)
-                sodaAshOutput = str(sodaAshOutput)+" lbs"
-            else:
-                sodaAshOutput="No Need"
+            sodaAshOutput=fixSodaAshOutputDisplay(sodaAsh)
+            if(sodaAshOutput=="No need"):
                 sodaAshVal=0
         elif phLevel > 7.4:#muriatic acid computation
             sodaAshOutput="No Need"
             sodaAshVal=0
-            if phLevel > 8.4:
-                muriaticAcid = multiplier * 16
-            elif phLevel >= 8:
-                muriaticAcid = multiplier * 12
-            elif phLevel >= 7.8:
-                muriaticAcid = multiplier * 8
-            elif phLevel > 7.5:
-                muriaticAcid = multiplier * 6
-            muriaticAcid = round(muriaticAcid, 1)
-            muriaticAcidVal = muriaticAcid
-            if muriaticAcid > 0:
-                muriaticAcidOutput = str(muriaticAcid)+" oz / "
-                muriaticAcid = muriaticAcid * decimal.Decimal(0.03125)
-                muriaticAcid = round(muriaticAcid, 2)
-                muriaticAcidOutput = muriaticAcidOutput + str(muriaticAcid)+" qts"
-            else:
-                muriaticAcidOutput = "No need"
+            muriaticAcid=computeMuriaticAcid(phLevel)
+            muriaticAcidVal = fixMuriaticAcidDisplay(muriaticAcid)
+            if(muriaticAcidVal=="No need"):
                 muriaticAcidVal=0
         else:
             print('water is balanced')
@@ -965,45 +924,19 @@ def maintenanceDetails(request, schedule_id):
             showButton=1
             if phLevel < 7.4:
                 muriaticAcidOutput="No Need"
-                if phLevel < 6.7:
-                    sodaAsh = multiplier * 8
-                elif phLevel <= 7:
-                    sodaAsh = multiplier * 6
-                elif phLevel <= 7.2:
-                    sodaAsh = multiplier * 4
-                elif phLevel <= 7.4:
-                    sodaAsh = multiplier * 3
-                sodaAsh = round(sodaAsh, 1)
-                if(sodaAsh>0):
-                    sodaAshOutput = str(sodaAsh)+" oz / "
-                    sodaAsh = sodaAsh*decimal.Decimal(0.0625)
-                    sodaAsh = round(sodaAsh, 2)
-                    sodaAshOutput = str(sodaAshOutput)+" lbs"
-                    sodAsh=sodaAshOutput
-                else:
-                    sodaAshOutput="No Need"
-                    sodAsh=sodaAshOutput
+                muriaticAcidVal=0
+                sodaAsh=computeSodaAsh(phLevel)
+                sodaAshVal = sodaAsh
+                sodaAshOutput=fixSodaAshOutputDisplay(sodaAsh)
+                if(sodaAshOutput=="No need"):
+                    sodaAshVal=0
             elif phLevel > 7.4:#muriatic acid computation
                 sodaAshOutput="No Need"
-                sodAsh=sodaAshOutput
-                if phLevel > 8.4:
-                    muriaticAcid = multiplier * 16
-                elif phLevel >= 8:
-                    muriaticAcid = multiplier * 12
-                elif phLevel >= 7.8:
-                    muriaticAcid = multiplier * 8
-                elif phLevel > 7.5:
-                    muriaticAcid = multiplier * 6
-                muriaticAcid = round(muriaticAcid, 1)
-                if muriaticAcid > 0:
-                    muriaticAcidOutput = str(muriaticAcid)+" oz / "
-                    muriaticAcid = muriaticAcid * decimal.Decimal(0.03125)
-                    muriaticAcid = round(muriaticAcid, 2)
-                    muriaticAcidOutput = muriaticAcidOutput + str(muriaticAcid)+" qts"
-                    muriaticAcid=muriaticAcidOutput
-                else:
-                    muriaticAcidOutput = "No need"
-                    muriaticAcid=muriaticAcidOutput
+                sodaAshVal=0
+                muriaticAcid=computeMuriaticAcid(phLevel)
+                muriaticAcidVal = fixMuriaticAcidDisplay(muriaticAcid)
+                if(muriaticAcidVal=="No need"):
+                    muriaticAcidVal=0
             #END OF NEW
             if item.status == "Unfinished":
                 showButton=0
@@ -1540,3 +1473,46 @@ def computeDEPowder(squarefeet):
         dePowder=None
     print("============================ Returning "+str(dePowder)+" DE Powder use========================") 
     return dePowder
+
+def computeSodaAsh(phLevel):
+    if phLevel < 6.7:
+        sodaAsh = multiplier * 8
+    elif phLevel <= 7:
+        sodaAsh = multiplier * 6
+    elif phLevel <= 7.2:
+        sodaAsh = multiplier * 4
+    elif phLevel <= 7.4:
+        sodaAsh = multiplier * 3
+    sodaAsh = round(sodaAsh, 1)
+    return sodaAsh
+
+def computeMuriaticAcid(phLevel):
+    if phLevel > 8.4:
+        muriaticAcid = multiplier * 16
+    elif phLevel >= 8:
+        muriaticAcid = multiplier * 12
+    elif phLevel >= 7.8:
+        muriaticAcid = multiplier * 8
+    elif phLevel > 7.5:
+        muriaticAcid = multiplier * 6
+    muriaticAcid = round(muriaticAcid, 1)
+    return muriaticAcid
+
+def fixSodaAshOutputDisplay(sodaAsh):
+    if(sodaAsh>0):
+        sodaAshOutput = str(sodaAsh)+" oz / "
+        sodaAsh = sodaAsh*decimal.Decimal(0.0625)
+        sodaAsh = round(sodaAsh, 2)
+        sodaAshOutput = str(sodaAshOutput)+" lbs"
+    else:
+        sodaAshOutput="No Need"
+    return sodaAshOutput
+
+def fixMuriaticAcidDisplay(muriaticAcid):
+    if muriaticAcid > 0:
+        muriaticAcidOutput = str(muriaticAcid)+" oz / "
+        muriaticAcid = muriaticAcid * decimal.Decimal(0.03125)
+        muriaticAcid = round(muriaticAcid, 2)
+        muriaticAcidOutput = muriaticAcidOutput + str(muriaticAcid)+" qts"
+    else:
+        muriaticAcidOutput = "No need"

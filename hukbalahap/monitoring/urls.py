@@ -47,5 +47,7 @@ urlpatterns = [
     url(r'^personnelEfficiency/$', views.personnelEfficiency, name='personnelEfficiency'),
     url(r'^chemicalConsumption/$', views.chemicalConsumption, name='chemicalConsumption'),
     url(r'^addPool/$', views.addPool, name='addPool'),
+    url(r'^setPoolConnection/$', views.setPoolConnection, name='setPoolConnection'),
+    url(r'^disconnectPool/$', views.disconnectPool, name='disconnectPool'),
 
 ]

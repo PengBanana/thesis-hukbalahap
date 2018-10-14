@@ -50,6 +50,22 @@ def create_user_type(sender, instance, created, **kwargs):
 def save_user_type(sender, instance, **kwargs):
     instance.type.save()
 
+#uPool
+class uPool(models.Model):
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	pool = models.ForeignKey(Pool, on_delete=models.CASCADE, default = 1)
+
+	def __str__(self):
+		return str(self.user)
+
+@receiver(post_save, sender=User)
+def create_user_upool(sender, instance, created, **kwargs):
+    if created:
+       uPool.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_upool(sender, instance, **kwargs):
+    instance.upool.save()
 
 #Status
 class Status_Ref(models.Model):

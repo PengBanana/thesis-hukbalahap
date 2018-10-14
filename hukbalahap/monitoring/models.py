@@ -7,7 +7,8 @@ from django.dispatch import receiver
 
 # Non-Dependent Classes
 class Pool(models.Model):
-	pool_location = models.CharField(max_length=250)
+	pool_location = models.CharField(max_length=250, default="")
+	pool_name = models.CharField(max_length=250, default="")
 	pool_length = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	pool_width = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	pool_depth = models.DecimalField(max_digits=8, decimal_places=2, default="")

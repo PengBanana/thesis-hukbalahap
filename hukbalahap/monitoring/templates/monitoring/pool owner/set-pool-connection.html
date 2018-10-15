@@ -1,0 +1,63 @@
+{% extends "monitoring/pool owner/starter-owner.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+
+    {% if msg == 'error' %}
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-ban"></i> Failed!</h4>
+        Fail to register new pool.
+      </div>
+     {% elif msg == 'success' %}
+      <div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-check"></i>Success!</h4>
+          A new pool has been successfully added!
+      </div>
+
+    {% endif %}
+
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h1 class="box-title" style="font-size:25px;">Set Pool Connection </h1><br>
+      </div>
+      <!-- /.box-header -->
+      <!-- form start -->
+
+      <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-xs-3"></div>
+          <div class="col-xs-6">
+
+
+
+
+
+
+
+
+
+
+          </div>
+          <div class="col-xs-3"></div>
+        </div>
+        <div class="box-footer">
+          <div class="row">
+            <div class="col-xs-9">
+            <button type="submit"  class="btn btn-primary pull-right">Confirm</button>
+          </div>
+          </div>
+        </div>
+
+      </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}

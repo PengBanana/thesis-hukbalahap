@@ -28,7 +28,7 @@ def update_user_profile(sender, instance, created, **kwargs):
     instance.profile.save()
 
 
-
+#usertype
 class Usertype_Ref(models.Model):
 	usertype = models.CharField(max_length=45)
 
@@ -52,6 +52,12 @@ def save_user_type(sender, instance, **kwargs):
     instance.type.save()
 
 #uPool
+class Pool_Ref(models.Model):
+	pool = models.OneToOneField(Pool, on_delete=models.CASCADE)
+
+	def __str__(self):
+		return str(self.pool)
+
 class uPool(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	pool = models.ForeignKey(Pool, on_delete=models.CASCADE, null=True)

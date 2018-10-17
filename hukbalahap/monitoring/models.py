@@ -7,7 +7,8 @@ from django.dispatch import receiver
 
 # Non-Dependent Classes
 class Pool(models.Model):
-	pool_location = models.CharField(max_length=250)
+	pool_location = models.CharField(max_length=250, default="")
+	pool_name = models.CharField(max_length=250, default="")
 	pool_length = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	pool_width = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	pool_depth = models.DecimalField(max_digits=8, decimal_places=2, default="")
@@ -27,7 +28,7 @@ def update_user_profile(sender, instance, created, **kwargs):
     instance.profile.save()
 
 
-
+#usertype
 class Usertype_Ref(models.Model):
 	usertype = models.CharField(max_length=45)
 
@@ -50,6 +51,28 @@ def create_user_type(sender, instance, created, **kwargs):
 def save_user_type(sender, instance, **kwargs):
     instance.type.save()
 
+#uPool
+class Pool_Ref(models.Model):
+	pool = models.OneToOneField(Pool, on_delete=models.CASCADE)
+
+	def __str__(self):
+		return str(self.pool)
+
+class uPool(models.Model):
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	pool = models.ForeignKey(Pool_Ref, on_delete=models.CASCADE, null=True, blank=True, default=None)
+
+	def __str__(self):
+		return str(self.user)
+
+@receiver(post_save, sender=User)
+def create_user_upool(sender, instance, created, **kwargs):
+    if created:
+       uPool.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_upool(sender, instance, **kwargs):
+    instance.upool.save()
 
 #Status
 class Status_Ref(models.Model):

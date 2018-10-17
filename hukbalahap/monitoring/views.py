@@ -14,6 +14,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from datetime import timedelta
 
+###rendering definitions
 def login(request):
     msg = None
     if request.method == 'POST':
@@ -57,267 +58,152 @@ def logout_view(request):
 
 @login_required(login_url="/monitoring/login")
 def index(request):
+    #notification code
     notifications = getNotification(request)
     notifCount=notifications.count()
-    usertype = Type.objects.get(user=request.user)
-    adminType= Usertype_Ref.objects.get(pk=1)
-    #notification code
-    poolref = Pool.objects.all().order_by('pk')
-    #temperature levels
-    tempDeviations = []
-    tempColors = []
-    temperatureIndexes = []
-    WaterQualityIndexes = []
-    for poolitem in Pool.objects.all().order_by('pk'):
-        temperatureList = Temp_Temperature.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
-        tempSum=0
-        tempCount=0
-        for item in temperatureList:
-            tempSum+=item.temp_temperaturelevel
-            tempCount+=1
-        if(tempCount>0):
-            tempMean = tempSum/tempCount
-            tempx = []
-            for level in temperatureList:
-                reading = level.temp_temperaturelevel
-                reading -=tempMean
-                reading = reading*reading
-                tempx.append(reading)
-            newTempSum = 0
-            for read in tempx:
-                newTempSum+= read
-            tempVariance = newTempSum/tempCount
-            tempStandardDev = math.sqrt(tempVariance)
-            tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
-            tempStandardDev=round(tempStandardDev, 2)
-            #Water Quality Temperature
-            observedVal=tempStandardDev
-            idealVal=25
-            weightVal=.10
-            if observedVal>=25:
-                badVal=38.5
+    try:
+        usertype = Type.objects.get(user=request.user)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        poolref = Pool.objects.all().order_by('pk')
+        WaterQualityIndexes = []
+        #temperature levels
+        tempDeviations = []
+        tempColors = []
+        temperatureIndexes = []
+        for poolitem in Pool.objects.all().order_by('pk'):
+            temperatureList = Temp_Temperature.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
+            tempSum=0
+            tempCount=0
+            for item in temperatureList:
+                tempSum+=item.temp_temperaturelevel
+                tempCount+=1
+            if(tempCount>0):
+                tempStandardDev=computeStandardDeviation(tempSum, tempCount, temperatureList)
+                #Water Quality Temperature
+                if tempStandardDev>=25:
+                    badVal=38.5
+                else:
+                    badVal=6.3
+                temperatureIndex=Quality(tempStandardDev, 25, badVal, .10)
+                temperatureIndexes.append(temperatureIndex)
+                #color assignment
+                color=getQualityColorTemperature(tempStandardDev)
+                tempColors.append(color)
+                degreeSign=u'\N{DEGREE SIGN}'
+                tempStandardDev=str(tempStandardDev)+degreeSign+'C'
+                tempDeviations.append(tempStandardDev)
             else:
-                badVal=6.3
-            temperatureIndex=Quality(observedVal, idealVal, badVal, weightVal)
-            temperatureIndexes.append(temperatureIndex)
-            #color assignment
-            if tempStandardDev >= 25 and tempStandardDev <= 28:
-                tempColors.append("green")
-            elif (tempStandardDev >= 23 and tempStandardDev < 25) or (tempStandardDev > 28 and tempStandardDev <= 30):
-                tempColors.append("yellow")
-            elif(tempStandardDev < 23 or tempStandardDev > 30):
-                tempColors.append("red")
-            else:
+                temperatureIndexes.append(0)
                 tempColors.append("White")
-            degreeSign=u'\N{DEGREE SIGN}'
-            tempStandardDev=str(tempStandardDev)+degreeSign+'C'
-            tempDeviations.append(tempStandardDev)
-        else:
-            temperatureIndexes.append(0)
-            tempColors.append("White")
-            tempDeviations.append('No Readings')
+                tempDeviations.append('No Readings')
 
-    #turbidity levels
-    turbidityDeviations = []
-    turbidityColors = []
-    turbidityIndexes = []
-    #standard deviation of turbidity
-    for poolitem in Pool.objects.all().order_by('pk'):
-        turbidityList = Temp_Turbidity.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
-        turbiditySum=0
-        turbidityCount=0
-        for item in turbidityList:
-            turbiditySum+=item.temp_turbiditylevel
-            turbidityCount+=1
-        if(turbidityCount>0):
-            turbidityMean = turbiditySum/turbidityCount
-            turbidityx = []
-            for level in turbidityList:
-                reading = level.temp_turbiditylevel
-                reading -=turbidityMean
-                reading = reading*reading
-                turbidityx.append(reading)
-            newTurbiditySum = 0
-            for read in turbidityx:
-                newTurbiditySum+= read
-            turbidityVariance = newTurbiditySum/turbidityCount
-            turbidityStandardDev = math.sqrt(turbidityVariance)
-            debugger=str(turbidityStandardDev)+" "+str(turbidityMean)
-            turbidityStandardDev=decimal.Decimal(turbidityStandardDev)+turbidityMean
-            turbidityStandardDev=round(turbidityStandardDev, 1)
-            #Water Quality Turbidity
-            observedVal=turbidityStandardDev
-            idealVal=0
-            weightVal=.08
-            badVal=26
-            turbidityIndex=Quality(observedVal, idealVal, badVal, weightVal)
-            turbidityIndexes.append(turbidityIndex)
-            #color assignment
-            if turbidityStandardDev < 1:
-                turbidityColors.append("green")
-            elif (turbidityStandardDev >= 1 and turbidityStandardDev < 2):
-                turbidityColors.append("yellow")
-            elif(turbidityStandardDev >= 2):
-                turbidityColors.append("red")
+        #turbidity levels
+        turbidityDeviations = []
+        turbidityColors = []
+        turbidityIndexes = []
+        #standard deviation of turbidity
+        for poolitem in Pool.objects.all().order_by('pk'):
+            turbidityList = Temp_Turbidity.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
+            turbiditySum=0
+            turbidityCount=0
+            for item in turbidityList:
+                turbiditySum+=item.temp_turbiditylevel
+                turbidityCount+=1
+            if(turbidityCount>0):
+                turbidityStandardDev=computeStandardDeviation(turbiditySum, turbidityCount, turbidityList)
+                #Water Quality Turbidity
+                turbidityIndex=Quality(turbidityStandardDev, 0, 26, .08)
+                turbidityIndexes.append(turbidityIndex)
+                #color assignment
+                color=getQualityColorTurbidity(turbidityStandardDev)
+                turbidityColors.append(color)
+                turbidityStandardDev=str(turbidityStandardDev)+" ntu"
+                turbidityDeviations.append(turbidityStandardDev)
             else:
+                turbidityIndexes.append(0)
                 turbidityColors.append("White")
-            turbidityStandardDev=str(turbidityStandardDev)+" ntu"
-            turbidityDeviations.append(turbidityStandardDev)
-        else:
-            turbidityIndexes.append(0)
-            turbidityColors.append("White")
-            turbidityDeviations.append('No Readings')
+                turbidityDeviations.append('No Readings')
 
-    #ph level
-    phDeviations = []
-    phColors = []
-    phIndexes=[]
-    for poolitem in Pool.objects.all().order_by('pk'):
-        phList = Temp_Ph.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
-        phSum=0
-        phCount=0
-        for item in phList:
-            phSum+=item.temp_phlevel
-            phCount+=1
-        if(phCount>0):
-            phMean = phSum/phCount
-            phx = []
-            for level in phList:
-                reading = level.temp_phlevel
-                reading -=phMean
-                reading = reading * reading
-                phx.append(reading)
-            newPhSum = 0
-            for read in phx:
-                newPhSum+= read
-            phVariance = newPhSum/phCount
-            phStandardDev = math.sqrt(phVariance)
-            phStandardDev=decimal.Decimal(phStandardDev)+phMean
-            phStandardDev=round(phStandardDev, 1)
-            #Water Quality pH
-            observedVal=phStandardDev
-            idealVal=7.4
-            weightVal=.11
-            if phStandardDev>=7.4:
-                badVal=8.2
+        #ph level
+        phDeviations = []
+        phColors = []
+        phIndexes=[]
+        for poolitem in Pool.objects.all().order_by('pk'):
+            phList = Temp_Ph.objects.all().filter(pool=poolref.get(pk=poolitem.pk))
+            phSum=0
+            phCount=0
+            for item in phList:
+                phSum+=item.temp_phlevel
+                phCount+=1
+            if(phCount>0):
+                phStandardDev=computeStandardDeviation(phSum, phCount, phList)
+                #Water Quality pH
+                if phStandardDev>=7.4:
+                    badVal=8.2
+                else:
+                    badVal=6.8
+                phIndex=Quality(phStandardDev, 7.4, badVal, .11)
+                phIndexes.append(phIndex)
+                #color assignment
+                color=getQualityColorPH(phStandardDev)
+                phColors.append(color)
+                phDeviations.append(phStandardDev)
             else:
-                badVal=6.8
-            phIndex=Quality(observedVal, idealVal, badVal, weightVal)
-            phIndexes.append(phIndex)
-            #color assignment
-            if phStandardDev >= 7.3 and phStandardDev <=7.7:
-                phColors.append("green")
-            elif((phStandardDev < 7.3 and phStandardDev >= 7.2) or (phStandardDev > 7.7 and phStandardDev < 7.9)):
-                 phColors.append("yellow")
-            elif(phStandardDev < 7.2 or phStandardDev > 7.8):
-                 phColors.append("red")
-            else:
+                phIndexes.append(0)
+                phDeviations.append('No Readings')
                 phColors.append("White")
-            phDeviations.append(phStandardDev)
-        else:
-            phIndexes.append(0)
-            phDeviations.append('No Readings')
-            phColors.append("White")
-
-        #2615.97 - 1175.23 x + 185.315 x^2 - 9.90222 x^3
-        chlorineLevels=[]
-        chlorineColors=[]
+            #2615.97 - 1175.23 x + 185.315 x^2 - 9.90222 x^3
+            chlorineLevels=[]
+            chlorineColors=[]
         for item in phDeviations:
-            debug=2615.97 - 1175.23*5.57+ 185.315*5.57*5.57 - 9.90222*5.57*5.57*5.57
             try:
                 #multiplier=8
-                chlorine = decimal.Decimal(2615.97)
-                multiplier = item
-                chlorine-= decimal.Decimal(1175.23)*multiplier
-                multiplier*=item
-                chlorine+=decimal.Decimal(185.315)*multiplier
-                multiplier*=item
-                chlorine-=decimal.Decimal(9.90222)*multiplier
-                chlorine = round(chlorine, 1)
-                if chlorine>100:
-                    chlorine=100
-                elif chlorine<0:
-                    chlorine=0
+                chlorine=chlorineEffectivenessComputation(item)
                 #color assignment
-                if chlorine >= 85:
-                    chlorineColors.append("green")
-                elif (chlorine >= 65):
-                     chlorineColors.append("orange")
-                elif (chlorine >= 50):
-                     chlorineColors.append("yellow")
-                elif(chlorine < 50):
-                     chlorineColors.append("red")
-                else:
-                    chlorineColors.append("White")
-                chlorine=str(chlorine)+'%'
+                try:
+                    if(chlorine>=0):
+                        color=getQualityColorChlorine(chlorine)
+                    else:
+                        color=getQualityColorChlorine(chlorine)
+                except:
+                    color="white"
+                try:
+                    if(chlorine>0):
+                        chlorine=str(chlorine)+'%'
+                except:
+                    chlorine=chlorine
+                chlorineColors.append(color)
                 chlorineLevels.append(chlorine)
             except:
                 chlorineColors.append("White")
-                chlorineLevels.append('Cannot Compute')
-    waterColors = []
-    wqIndexes =[]
-    #Water Quality color assignment
-    mainCount=0
-    for tempIndexItem in temperatureIndexes:
-        waterQuality = 0
-        tCount=0
-        pCount=0
-        tempIQ=tempIndexItem
-        mainCount+=1
-        for turbIndexItem in turbidityIndexes:
-            tCount+=1
-            if mainCount == tCount:
-                turbIQ=turbIndexItem
-        for phIndexItem in phIndexes:
-            pCount+=1
-            if mainCount == pCount:
-                phIQ=phIndexItem
-        waterQuality=(tempIQ+turbIQ+phIQ)/decimal.Decimal(.29)
-        #waterQuality=float(waterQuality)
-        waterQuality=round(waterQuality, 0)
-        if waterQuality > 0:
-            waterQuality=100-waterQuality
-            if waterQuality < 0:
-                wqIndexes.append(str(0))
-            else:
-                wqIndexes.append(waterQuality)
+                chlorineLevels.append('Cannot Compute') 
+        waterColors = []
+        wqIndexes=computeWaterQuality(temperatureIndexes, turbidityIndexes, phIndexes)
+        for item in wqIndexes:
+            waterColors.append(getWaterQualityColor(item))
+            debugger=""
+        content= {
+            'debug_check': debugger,
+            'pool':poolref,
+            'temperature':tempDeviations,
+            'turbidity':turbidityDeviations,
+            'ph':phDeviations,
+            'chlorine':chlorineLevels,
+            'notifications':notifications,
+            'color':"green",
+            'phColors':phColors,
+            'chlorineColors':chlorineColors,
+            'turbidityColors':turbidityColors,
+            'tempColors':tempColors,
+            'waterColors':waterColors,
+            'wqIndexes':wqIndexes,
+        }
+        if not usertype.type == adminType:
+            return render(request, 'monitoring/pool technician/home.html', content)
         else:
-            waterQuality="No Index"
-            wqIndexes.append(waterQuality)
-        try:
-            if waterQuality >= 95:
-                waterColors.append("green")
-            elif (waterQuality >= 85):
-                 waterColors.append("green")
-            elif (waterQuality >= 80):
-                 waterColors.append("yellow")
-            elif(waterQuality < 80):
-                 waterColors.append("red")
-            else:
-                waterColors.append("White")
-        except:
-            waterColors.append("White")
-        debugger=""
-    content= {
-        'debug_check': debugger,
-        'pool':poolref,
-        'temperature':tempDeviations,
-        'turbidity':turbidityDeviations,
-        'ph':phDeviations,
-        'chlorine':chlorineLevels,
-        'notifications':notifications,
-        'color':"green",
-        'phColors':phColors,
-        'chlorineColors':chlorineColors,
-        'turbidityColors':turbidityColors,
-        'tempColors':tempColors,
-        'waterColors':waterColors,
-        'wqIndexes':wqIndexes,
-    }
-    if not usertype.type == adminType:
-        return render(request, 'monitoring/pool technician/home.html', content)
-    else:
-        return render(request, 'monitoring/pool owner/home-owner.html', content)
+            return render(request, 'monitoring/pool owner/home-owner.html', content)
+    except:
+        return render(request,'monitoring/BadRequest.html')
 
 
 
@@ -357,44 +243,47 @@ def poolDetails_view(request, poolitem_id):
 
 @login_required(login_url="/monitoring/login")
 def addUser(request):
-    notifications = getNotification(request)
-    notifCount=notifications.count()
-    usertype = Type.objects.get(pk=request.user.pk)
-    adminType= Usertype_Ref.objects.get(pk=1)
-    if usertype.type == adminType:
-        if request.method == 'POST':
-            msg = None
-            print('request POST')
-            form = SignUpForm(request.POST)
-            if form.is_valid():
-                print('forms valid')
-                form.save()
-                print('form1 saved')
-                print(form.cleaned_data.get('username'))
-                print('newtype saved')
-                msg='success'
-                form = SignUpForm()
-                content={
-                    'form':form,
-                    'msg' : msg,
-                    'notifications':notifications,
-                }
-                return render(request, 'monitoring/pool owner/add-user.html',content)
+    try:
+        notifications = getNotification(request)
+        notifCount=notifications.count()
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        if usertype.type == adminType:
+            if request.method == 'POST':
+                msg = None
+                print('request POST')
+                form = SignUpForm(request.POST)
+                if form.is_valid():
+                    print('forms valid')
+                    form.save()
+                    print('form1 saved')
+                    print(form.cleaned_data.get('username'))
+                    print('newtype saved')
+                    msg='success'
+                    form = SignUpForm()
+                    content={
+                        'form':form,
+                        'msg' : msg,
+                        'notifications':notifications,
+                    }
+                    return render(request, 'monitoring/pool owner/add-user.html',content)
+
+                else:
+                    msg='error'
+                    content={
+                        'form':form,
+                        'msg' : msg,
+                        'notifications':notifications,
+                    }
+                    return render(request, 'monitoring/pool owner/add-user.html',content)
 
             else:
-                msg='error'
-                content={
-                    'form':form,
-                    'msg' : msg,
-                    'notifications':notifications,
-                }
-                return render(request, 'monitoring/pool owner/add-user.html',content)
-
+                form = SignUpForm()
+                return render(request, 'monitoring/pool owner/add-user.html',locals())
         else:
-            form = SignUpForm()
-            return render(request, 'monitoring/pool owner/add-user.html',locals())
-    else:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+            return render(request,'monitoring/BadRequest.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
 
 
 @login_required(login_url="/monitoring/login")
@@ -452,73 +341,32 @@ def setMaintenanceCompute(request):
         poolGallons = cubicpool * decimal.Decimal(7.5)
         squarefeet= poolitem.pool_length * poolitem.pool_width
         #DE powder computation
-        dePowder = squarefeet*decimal.Decimal(.1)
-        dePowder = dePowder*decimal.Decimal(.8)
-        dePowder = round(dePowder, 1)
-        dePowderVal = dePowder
-        if dePowder > 0:
-            dePowderOutput = str(dePowder)+" oz / "
-            dePowder =  dePowder * decimal.Decimal(0.0625)
-            dePowder = round(dePowder, 2)
-            dePowderVal=dePowder
-            dePowderOutput = dePowderOutput+str(dePowder)+" lbs"
-        else:
-            dePowderOutput = "No Need"
-            dePowderVal=0
+        computeDEPowder(squarefeet)
         #multiplier
         gallons = poolGallons
         multiplier = 0
         sodaAsh=0
         muriaticAcid=0
         chlorine=0
-
         while gallons >= 5000:
             multiplier+=1
             gallons-=5000
-
         #soda ash computation
         showButton=1
         if phLevel < 7.4:
             muriaticAcidOutput="No Need"
             muriaticAcidVal=0
-            if phLevel < 6.7:
-                sodaAsh = multiplier * 8
-            elif phLevel <= 7:
-                sodaAsh = multiplier * 6
-            elif phLevel <= 7.2:
-                sodaAsh = multiplier * 4
-            elif phLevel <= 7.4:
-                sodaAsh = multiplier * 3
-            sodaAsh = round(sodaAsh, 1)
+            sodaAsh=computeSodaAsh(phLevel)
             sodaAshVal = sodaAsh
-            if(sodaAsh>0):
-                sodaAshOutput = str(sodaAsh)+" oz / "
-                sodaAsh = sodaAsh*decimal.Decimal(0.0625)
-                sodaAsh = round(sodaAsh, 2)
-                sodaAshOutput = str(sodaAshOutput)+" lbs"
-            else:
-                sodaAshOutput="No Need"
+            sodaAshOutput=fixSodaAshOutputDisplay(sodaAsh)
+            if(sodaAshOutput=="No need"):
                 sodaAshVal=0
         elif phLevel > 7.4:#muriatic acid computation
             sodaAshOutput="No Need"
             sodaAshVal=0
-            if phLevel > 8.4:
-                muriaticAcid = multiplier * 16
-            elif phLevel >= 8:
-                muriaticAcid = multiplier * 12
-            elif phLevel >= 7.8:
-                muriaticAcid = multiplier * 8
-            elif phLevel > 7.5:
-                muriaticAcid = multiplier * 6
-            muriaticAcid = round(muriaticAcid, 1)
-            muriaticAcidVal = muriaticAcid
-            if muriaticAcid > 0:
-                muriaticAcidOutput = str(muriaticAcid)+" oz / "
-                muriaticAcid = muriaticAcid * decimal.Decimal(0.03125)
-                muriaticAcid = round(muriaticAcid, 2)
-                muriaticAcidOutput = muriaticAcidOutput + str(muriaticAcid)+" qts"
-            else:
-                muriaticAcidOutput = "No need"
+            muriaticAcid=computeMuriaticAcid(phLevel)
+            muriaticAcidVal = fixMuriaticAcidDisplay(muriaticAcid)
+            if(muriaticAcidVal=="No need"):
                 muriaticAcidVal=0
         else:
             print('water is balanced')
@@ -556,9 +404,9 @@ def setMaintenanceCompute(request):
 
 @login_required(login_url="/monitoring/login")
 def submitMaintenanceRequest(request):
-    notifications = getNotification(request)
-    notifCount=notifications.count()
     try:
+        notifications = getNotification(request)
+        notifCount=notifications.count()
         poolPK = request.POST['poolPK']
         dateStart = request.POST['dateStart']
         dateEnd = request.POST['dateEnd']
@@ -599,263 +447,269 @@ def submitMaintenanceRequest(request):
 
 @login_required(login_url="/monitoring/login")
 def searchPT(request):
-    usertype = Type.objects.get(pk=request.user.pk)
-    adminType= Usertype_Ref.objects.get(pk=1)
-    notifications = getNotification(request)
-    notifCount=notifications.count()
-    if usertype.type == adminType:
-        item = request.POST['item']
+    try:
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        notifications = getNotification(request)
+        notifCount=notifications.count()
+        if usertype.type == adminType:
+            item = request.POST['item']
 
-        allUsers = User.objects.all()
-        filtered = allUsers.filter (Q(first_name__icontains=item) | Q(last_name__icontains=item)  | Q(username__icontains=item))
-        debugger = filtered
-        if not filtered:
-            print('no searches')
-            return render(request, 'monitoring/pool owner/result-not-found.html')
+            allUsers = User.objects.all()
+            filtered = allUsers.filter (Q(first_name__icontains=item) | Q(last_name__icontains=item)  | Q(username__icontains=item))
+            debugger = filtered
+            if not filtered:
+                print('no searches')
+                return render(request, 'monitoring/pool owner/result-not-found.html')
+            else:
+                content={
+                    'searchedItem': item,
+                    'items':filtered,
+                    'notifications':notifications,
+                }
+            return render(request, 'monitoring/pool owner/search-technician.html', content,)
         else:
-            content={
-                'searchedItem': item,
-                'items':filtered,
-                'notifications':notifications,
-            }
-        return render(request, 'monitoring/pool owner/search-technician.html', content,)
-    else:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
-
-
+            return render(request, 'monitoring/pool owner/result-not-found.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
 
 @login_required(login_url="/monitoring/login")
 def profile(request,item_id):
-    usertype = Type.objects.get(pk=request.user.pk)
-    adminType= Usertype_Ref.objects.get(pk=1)
-    notifications = getNotification(request)
-    notifCount=notifications.count()
-    if usertype.type == adminType:
-        user = User.objects.get(id=item_id)
-        userSchedule = MaintenanceSchedule.objects.all().filter(user=user)
-        msg = None
-        content = None
-        status = user.status.status
-        active= Status_Ref.objects.get(pk=1)
-        btnFlag = None
-        #lagay condition kapag hindi active account = pwede ireactivate
-        if status == active:
-            btnFlag = 'Active'
-            if (request.method == 'POST' ) & ('password' in request.POST):
-                form2 = ChangePasswordForm(user, request.POST)
-                form1 =EditDetailsForm(request.POST)
-                if form2.is_valid():
-                    u = form2.save()
-                    alert = 'success'
-                    update_session_auth_hash(request, u)
+    try:
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        notifications = getNotification(request)
+        notifCount=notifications.count()
+        if usertype.type == adminType:
+            user = User.objects.get(id=item_id)
+            userSchedule = MaintenanceSchedule.objects.all().filter(user=user)
+            msg = None
+            content = None
+            status = user.status.status
+            active= Status_Ref.objects.get(pk=1)
+            btnFlag = None
+            #lagay condition kapag hindi active account = pwede ireactivate
+            if status == active:
+                btnFlag = 'Active'
+                if (request.method == 'POST' ) & ('password' in request.POST):
+                    form2 = ChangePasswordForm(user, request.POST)
+                    form1 =EditDetailsForm(request.POST)
+                    if form2.is_valid():
+                        u = form2.save()
+                        alert = 'success'
+                        update_session_auth_hash(request, u)
+                        content = {
+                            'item_id': user,
+                            'form2': form2,
+                            'form1': form1,
+                            'msg':alert,
+                            'status':status,
+                            'btnFlag':btnFlag,
+                            'notifications':notifications,
+                        }
+
+                elif (request.method == 'POST' ) & ('editDetails' in request.POST):
+                    form1 =EditDetailsForm(request.POST)
+                    form2 = ChangePasswordForm(user, request.POST)
+                    if form1.is_valid():
+                        print('uuuuuup')
+                        fname = request.POST.get('first_name')
+                        lname = request.POST.get('last_name')
+                        user.first_name=fname
+                        user.last_name=lname
+                        user.save()
+                        alert = 'success'
+                        content = {
+                            'item_id': user,
+                            'form1': form1,
+                            'form2': form2,
+                            'msg':alert,
+                            'status':status,
+                            'btnFlag':btnFlag,
+                            'notifications':notifications,
+                        }
+                elif (request.method == 'POST' ) & ('deactivate' in request.POST):
+                    Status.objects.filter(pk=user.pk).update(status=2)
+                    return render(request, 'monitoring/pool owner/home-owner.html', content)
+
+
+                else:
+                    form1 = EditDetailsForm()
+                    form2 = ChangePasswordForm(request.user)
                     content = {
+                        "userSchedule":userSchedule,
                         'item_id': user,
-                        'form2': form2,
                         'form1': form1,
-                        'msg':alert,
+                        'form2': form2,
                         'status':status,
                         'btnFlag':btnFlag,
                         'notifications':notifications,
                     }
+                return render(request, 'monitoring/pool owner/technician-profile.html', content)
+            else:
+                if (request.method == 'POST' ) & ('activate' in request.POST):
+                    print('nyeaaaaaammmm')
+                    Status.objects.filter(pk=user.pk).update(status=1)
+                    btnFlag = 'Inactive'
+                    content = {
+                        'item_id': user,
+                        'status':status,
+                        'btnFlag':btnFlag,
+                        'notifications':notifications,
+                        }
+                    return render(request, 'monitoring/pool owner/home-owner.html', content)
+                else:
+                    btnFlag = 'Inactive'
+                    content = {
+                        "userSchedule":userSchedule,
+                        'item_id': user,
+                        'status':status,
+                        'btnFlag':btnFlag,
+                        'notifications':notifications,
+                        }
 
+            return render(request, 'monitoring/pool owner/technician-profile.html', content)
+        else:
+            return render(request,'monitoring/BadRequest.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
+
+
+@login_required(login_url="/monitoring/login")
+def editDetails(request):
+    try:
+        notifications = getNotification(request)
+        notifCount=notifications.count()
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        if usertype.type == adminType:
+            current_user = request.user
+            curr_fname = request.user.first_name
+            curr_lname = request.user.last_name
+            alert = None
+            content = None
+            user = User.objects.get(id=current_user.id)
+            if (request.method == 'POST' ) & ('password' in request.POST):
+                form2 = ChangePasswordForm(current_user, request.POST)
+                if form2.is_valid():
+                    userForm = form2.save()
+                    alert = 'Password Successfully Changed.'
+                    update_session_auth_hash()
+                    content = {
+                        'form2': form2,
+                        'alertmsg':alert,
+                        'curr_fname' : curr_fname,
+                        'curr_lname' : curr_lname,
+                        'username' : current_user.username,
+                        'notifications':notifications,
+                    }
+                    return render(request, 'monitoring/pool technician/edit-details.html',content)
             elif (request.method == 'POST' ) & ('editDetails' in request.POST):
                 form1 =EditDetailsForm(request.POST)
-                form2 = ChangePasswordForm(user, request.POST)
                 if form1.is_valid():
-                    print('uuuuuup')
                     fname = request.POST.get('first_name')
                     lname = request.POST.get('last_name')
                     user.first_name=fname
                     user.last_name=lname
                     user.save()
-                    alert = 'success'
+                    alert = 'Details Successfully Changed.'
                     content = {
-                        'item_id': user,
+                        'form1': form1,
+                        'alertmsg':alert,
+                        'curr_fname' : fname,
+                        'curr_lname' : lname,
+                        'username' : current_user.username,
+                        'notifications':notifications,
+                    }
+                    return render(request, 'monitoring/pool technician/edit-details.html',content)
+            elif (request.method == 'POST' ) & ('deactivate' in request.POST):
+                print('suhhh')
+                print(current_user)
+                userStat =Status.objects.get(id=current_user.pk)
+                print(userStat.status)
+                Status.objects.filter(pk=request.user.id).update(status=2)
+                logout(request)
+                return render(request,'registration/logout.html')
+            else:
+                form1 = EditDetailsForm()
+                form2 = ChangePasswordForm(current_user)
+                content = {
+                    'form1': form1,
+                    'form2': form2,
+                    'curr_fname' : curr_fname,
+                    'curr_lname' : curr_lname,
+                    'username' : current_user.username,
+                    'notifications':notifications,
+                }
+
+
+            return render(request, 'monitoring/pool technician/edit-details.html',content)
+        elif not usertype.type == adminType:
+            current_user = request.user
+            curr_fname = request.user.first_name
+            curr_lname = request.user.last_name
+            alert = None
+            content = None
+            user = User.objects.get(id=current_user.id)
+            if (request.method == 'POST' ) & ('password' in request.POST):
+                form1 =EditDetailsForm(request.POST)
+                form2 = ChangePasswordForm(current_user, request.POST)
+                if form2.is_valid():
+                    userForm = form2.save()
+                    alert = 'Password Successfully Changed.'
+                    update_session_auth_hash(request, userForm)
+                    content = {
+                        'form2': form2,
+                        'form1': form1,
+                        'alertmsg':alert,
+                        'curr_fname' : curr_fname,
+                        'curr_lname' : curr_lname,
+                        'username' : current_user.username,
+                        'notifications':notifications,
+                    }
+            elif (request.method == 'POST' ) & ('editDetails' in request.POST):
+                form1 =EditDetailsForm(request.POST)
+                form2 = ChangePasswordForm(current_user, request.POST)
+                if form1.is_valid():
+                    fname = request.POST.get('first_name')
+                    lname = request.POST.get('last_name')
+                    user.first_name=fname
+                    user.last_name=lname
+                    user.save()
+                    alert = 'Details Successfully Changed.'
+                    content = {
                         'form1': form1,
                         'form2': form2,
-                        'msg':alert,
-                        'status':status,
-                        'btnFlag':btnFlag,
+                        'alertmsg':alert,
+                        'curr_fname' : fname,
+                        'curr_lname' : lname,
+                        'username' : current_user.username,
                         'notifications':notifications,
                     }
             elif (request.method == 'POST' ) & ('deactivate' in request.POST):
-                Status.objects.filter(pk=user.pk).update(status=2)
-                return render(request, 'monitoring/pool owner/home-owner.html', content)
-
-
+                print('suhhh')
+                print(current_user)
+                userStat =Status.objects.get(id=current_user.pk)
+                print(userStat.status)
+                Status.objects.filter(pk=request.user.id).update(status=2)
+                logout(request)
+                return render(request,'registration/logout.html')
             else:
                 form1 = EditDetailsForm()
-                form2 = ChangePasswordForm(request.user)
+                form2 = ChangePasswordForm(current_user)
                 content = {
-                    "userSchedule":userSchedule,
-                    'item_id': user,
                     'form1': form1,
                     'form2': form2,
-                    'status':status,
-                    'btnFlag':btnFlag,
-                    'notifications':notifications,
-                }
-            return render(request, 'monitoring/pool owner/technician-profile.html', content)
-        else:
-            if (request.method == 'POST' ) & ('activate' in request.POST):
-                print('nyeaaaaaammmm')
-                Status.objects.filter(pk=user.pk).update(status=1)
-                btnFlag = 'Inactive'
-                content = {
-                    'item_id': user,
-                    'status':status,
-                    'btnFlag':btnFlag,
-                    'notifications':notifications,
-                    }
-                return render(request, 'monitoring/pool owner/home-owner.html', content)
-            else:
-                btnFlag = 'Inactive'
-                content = {
-                    "userSchedule":userSchedule,
-                    'item_id': user,
-                    'status':status,
-                    'btnFlag':btnFlag,
-                    'notifications':notifications,
-                    }
-
-        return render(request, 'monitoring/pool owner/technician-profile.html', content)
-    else:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
-
-
-
-@login_required(login_url="/monitoring/login")
-def editDetails(request):
-    notifications = getNotification(request)
-    notifCount=notifications.count()
-    usertype = Type.objects.get(pk=request.user.pk)
-    adminType= Usertype_Ref.objects.get(pk=1)
-    if usertype.type == adminType:
-        current_user = request.user
-        curr_fname = request.user.first_name
-        curr_lname = request.user.last_name
-        alert = None
-        content = None
-        user = User.objects.get(id=current_user.id)
-        if (request.method == 'POST' ) & ('password' in request.POST):
-            form2 = ChangePasswordForm(current_user, request.POST)
-            if form2.is_valid():
-                userForm = form2.save()
-                alert = 'Password Successfully Changed.'
-                update_session_auth_hash()
-                content = {
-                    'form2': form2,
-                    'alertmsg':alert,
                     'curr_fname' : curr_fname,
                     'curr_lname' : curr_lname,
                     'username' : current_user.username,
                     'notifications':notifications,
                 }
-                return render(request, 'monitoring/pool technician/edit-details.html',content)
-        elif (request.method == 'POST' ) & ('editDetails' in request.POST):
-            form1 =EditDetailsForm(request.POST)
-            if form1.is_valid():
-                fname = request.POST.get('first_name')
-                lname = request.POST.get('last_name')
-                user.first_name=fname
-                user.last_name=lname
-                user.save()
-                alert = 'Details Successfully Changed.'
-                content = {
-                    'form1': form1,
-                    'alertmsg':alert,
-                    'curr_fname' : fname,
-                    'curr_lname' : lname,
-                    'username' : current_user.username,
-                    'notifications':notifications,
-                }
-                return render(request, 'monitoring/pool technician/edit-details.html',content)
-        elif (request.method == 'POST' ) & ('deactivate' in request.POST):
-            print('suhhh')
-            print(current_user)
-            userStat =Status.objects.get(id=current_user.pk)
-            print(userStat.status)
-            Status.objects.filter(pk=request.user.id).update(status=2)
-            logout(request)
-            return render(request,'registration/logout.html')
+            return render(request, 'monitoring/pool technician/edit-details.html',content)
         else:
-            form1 = EditDetailsForm()
-            form2 = ChangePasswordForm(current_user)
-            content = {
-                'form1': form1,
-                'form2': form2,
-                'curr_fname' : curr_fname,
-                'curr_lname' : curr_lname,
-                'username' : current_user.username,
-                'notifications':notifications,
-            }
-
-
-        return render(request, 'monitoring/pool technician/edit-details.html',content)
-    elif not usertype.type == adminType:
-        current_user = request.user
-        curr_fname = request.user.first_name
-        curr_lname = request.user.last_name
-        alert = None
-        content = None
-        user = User.objects.get(id=current_user.id)
-        if (request.method == 'POST' ) & ('password' in request.POST):
-            form1 =EditDetailsForm(request.POST)
-            form2 = ChangePasswordForm(current_user, request.POST)
-            if form2.is_valid():
-                userForm = form2.save()
-                alert = 'Password Successfully Changed.'
-                update_session_auth_hash(request, userForm)
-                content = {
-                    'form2': form2,
-                    'form1': form1,
-                    'alertmsg':alert,
-                    'curr_fname' : curr_fname,
-                    'curr_lname' : curr_lname,
-                    'username' : current_user.username,
-                    'notifications':notifications,
-                }
-        elif (request.method == 'POST' ) & ('editDetails' in request.POST):
-            form1 =EditDetailsForm(request.POST)
-            form2 = ChangePasswordForm(current_user, request.POST)
-            if form1.is_valid():
-                fname = request.POST.get('first_name')
-                lname = request.POST.get('last_name')
-                user.first_name=fname
-                user.last_name=lname
-                user.save()
-                alert = 'Details Successfully Changed.'
-                content = {
-                    'form1': form1,
-                    'form2': form2,
-                    'alertmsg':alert,
-                    'curr_fname' : fname,
-                    'curr_lname' : lname,
-                    'username' : current_user.username,
-                    'notifications':notifications,
-                }
-        elif (request.method == 'POST' ) & ('deactivate' in request.POST):
-            print('suhhh')
-            print(current_user)
-            userStat =Status.objects.get(id=current_user.pk)
-            print(userStat.status)
-            Status.objects.filter(pk=request.user.id).update(status=2)
-            logout(request)
-            return render(request,'registration/logout.html')
-        else:
-            form1 = EditDetailsForm()
-            form2 = ChangePasswordForm(current_user)
-            content = {
-                'form1': form1,
-                'form2': form2,
-                'curr_fname' : curr_fname,
-                'curr_lname' : curr_lname,
-                'username' : current_user.username,
-                'notifications':notifications,
-            }
-        return render(request, 'monitoring/pool technician/edit-details.html',content)
-    else:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+            return render(request, 'monitoring/pool owner/result-not-found.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
 
 @login_required(login_url="/monitoring/login")
 def filterPoolStat(request):
@@ -1036,11 +890,6 @@ def maintenanceDetails(request, schedule_id):
             actual=1
             showButton=0
         else:
-            #OLD
-            #muriaticAcid=item.est_muriatic
-            #sodaAsh=item.est_bakingsoda
-            #dePowder=item.est_depowder
-            #chlorine=item.est_chlorine
             #NEW
             poolitem = Pool.objects.get(pk=poolPK)
             phList = Temp_Ph.objects.all().filter(pool=poolitem)
@@ -1050,38 +899,16 @@ def maintenanceDetails(request, schedule_id):
             for phItem in phList:
                 phSum+=phItem.temp_phlevel
                 phCount+=1
+            computeStandardDeviation(phSum, phCount, phList)
             if(phCount>0):
-                phMean = phSum/phCount
-                phx = []
-                for level in phList:
-                    reading = level.temp_phlevel
-                    reading -=phMean
-                    reading = reading * reading
-                    phx.append(reading)
-                newPhSum = 0
-                for read in phx:
-                    newPhSum+= read
-                phVariance = newPhSum/phCount
-                phStandardDev = math.sqrt(phVariance)
-                phStandardDev=decimal.Decimal(phStandardDev)+phMean
+                phStandardDev=computeStandardDeviation(phSum, phCount, phList)
             phLevel =  phStandardDev
             #get gallons
             cubicpool = poolitem.pool_width * poolitem.pool_depth * poolitem.pool_length
             poolGallons = cubicpool * decimal.Decimal(7.5)
             squarefeet= poolitem.pool_length * poolitem.pool_width
             #DE powder computation
-            dePowder = squarefeet*decimal.Decimal(.1)
-            dePowder = dePowder*decimal.Decimal(.8)
-            dePowder = round(dePowder, 1)
-            if dePowder > 0:
-                dePowderOutput = str(dePowder)+" oz / "
-                dePowder =  dePowder * decimal.Decimal(0.0625)
-                dePowder = round(dePowder, 2)
-                dePowderOutput = dePowderOutput+str(dePowder)+" lbs"
-                dePowder=dePowderOutput
-            else:
-                dePowderOutput = "No Need"
-                dePowder=dePowderOutput
+            dePowder=computeDEPowder(squarefeet)
             #multiplier
             gallons = poolGallons
             multiplier = 0
@@ -1097,45 +924,19 @@ def maintenanceDetails(request, schedule_id):
             showButton=1
             if phLevel < 7.4:
                 muriaticAcidOutput="No Need"
-                if phLevel < 6.7:
-                    sodaAsh = multiplier * 8
-                elif phLevel <= 7:
-                    sodaAsh = multiplier * 6
-                elif phLevel <= 7.2:
-                    sodaAsh = multiplier * 4
-                elif phLevel <= 7.4:
-                    sodaAsh = multiplier * 3
-                sodaAsh = round(sodaAsh, 1)
-                if(sodaAsh>0):
-                    sodaAshOutput = str(sodaAsh)+" oz / "
-                    sodaAsh = sodaAsh*decimal.Decimal(0.0625)
-                    sodaAsh = round(sodaAsh, 2)
-                    sodaAshOutput = str(sodaAshOutput)+" lbs"
-                    sodAsh=sodaAshOutput
-                else:
-                    sodaAshOutput="No Need"
-                    sodAsh=sodaAshOutput
+                muriaticAcidVal=0
+                sodaAsh=computeSodaAsh(phLevel)
+                sodaAshVal = sodaAsh
+                sodaAshOutput=fixSodaAshOutputDisplay(sodaAsh)
+                if(sodaAshOutput=="No need"):
+                    sodaAshVal=0
             elif phLevel > 7.4:#muriatic acid computation
                 sodaAshOutput="No Need"
-                sodAsh=sodaAshOutput
-                if phLevel > 8.4:
-                    muriaticAcid = multiplier * 16
-                elif phLevel >= 8:
-                    muriaticAcid = multiplier * 12
-                elif phLevel >= 7.8:
-                    muriaticAcid = multiplier * 8
-                elif phLevel > 7.5:
-                    muriaticAcid = multiplier * 6
-                muriaticAcid = round(muriaticAcid, 1)
-                if muriaticAcid > 0:
-                    muriaticAcidOutput = str(muriaticAcid)+" oz / "
-                    muriaticAcid = muriaticAcid * decimal.Decimal(0.03125)
-                    muriaticAcid = round(muriaticAcid, 2)
-                    muriaticAcidOutput = muriaticAcidOutput + str(muriaticAcid)+" qts"
-                    muriaticAcid=muriaticAcidOutput
-                else:
-                    muriaticAcidOutput = "No need"
-                    muriaticAcid=muriaticAcidOutput
+                sodaAshVal=0
+                muriaticAcid=computeMuriaticAcid(phLevel)
+                muriaticAcidVal = fixMuriaticAcidDisplay(muriaticAcid)
+                if(muriaticAcidVal=="No need"):
+                    muriaticAcidVal=0
             #END OF NEW
             if item.status == "Unfinished":
                 showButton=0
@@ -1367,11 +1168,6 @@ def poolTechList(request):
 def success(request):
     return render(request, 'monitoring/success/success.html')
 
-@login_required(login_url="/monitoring/login")
-def getNotification(request):
-    notifications = Notification_Table.objects.all().filter(user=request.user)
-    return notifications
-
 def getNotification(request):
     notifications = Notification_Table.objects.all().filter(user=request.user)
     return notifications
@@ -1393,44 +1189,290 @@ def chemicalConsumption(request):
 def addPool(request):
     notifications = getNotification(request)
     notifCount=notifications.count()
-    usertype = Type.objects.get(pk=request.user.pk)
-    adminType= Usertype_Ref.objects.get(pk=1)
-    if usertype.type == adminType:
-        if request.method == 'POST':
-            msg = None
-            print('request POST')
-            form = RegisterPool(request.POST)
-            if form.is_valid():
-                print('forms valid YEYYYYYYYYYYYY')
-                form.save()
-                print('form1 saved')
+    try:
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        if usertype.type == adminType:
+            if request.method == 'POST':
+                msg = None
+                print('request POST')
+                form = RegisterPool(request.POST)
+                if form.is_valid():
+                    print('forms valid YEYYYYYYYYYYYY')
+                    form.save()
+                    print('form1 saved')
 
-                msg='success'
-                form = RegisterPool()
-                content={
-                    'form':form,
-                    'msg' : msg,
-                    'notifications':notifications,
-                    'notifCount':notifCount,
-                }
-                return render(request, 'monitoring/pool owner/add-pool.html',content)
+                    msg='success'
+                    form = RegisterPool()
+                    content={
+                        'form':form,
+                        'msg' : msg,
+                        'notifications':notifications,
+                        'notifCount':notifCount,
+                    }
+                    return render(request, 'monitoring/pool owner/add-pool.html',content)
+
+                else:
+                    msg='error'
+                    content={
+                        'form':form,
+                        'msg' : msg,
+                        'notifications':notifications,
+                        'notifCount':notifCount,
+                    }
+                    return render(request, 'monitoring/pool owner/add-pool.html',content)
 
             else:
-                msg='error'
-                content={
-                    'form':form,
-                    'msg' : msg,
-                    'notifications':notifications,
-                    'notifCount':notifCount,
-                }
-                return render(request, 'monitoring/pool owner/add-pool.html',content)
-
+                form = RegisterPool()
+                return render(request, 'monitoring/pool owner/add-pool.html',locals())
         else:
-            form = RegisterPool()
-            return render(request, 'monitoring/pool owner/add-pool.html',locals())
-    else:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
+            return render(request,'monitoring/BadRequest.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
+    
+    
+###reusable methods
+def Quality(observedVal, idealVal, badVal, weightVal):
+    try:
+        observedVal = decimal.Decimal(observedVal)
+        idealVal = decimal.Decimal(idealVal)
+        badVal = decimal.Decimal(badVal)
+        weightVal = decimal.Decimal(weightVal)
+        indexNum=0
+        qualityIndex=(observedVal-idealVal)/(badVal-idealVal)
+        qualityIndex=qualityIndex*100
+        indexNum=qualityIndex*weightVal
+        indexNum=indexNum
+        indexNum=round(indexNum, 0)
+    except:
+        indexNum=None
+        print("xxxxxxxxxxxxxxxxxxxxx FAILURE: QualityIndex could not be computed xxxxxxxxxxxxxxx")
+    print("============================ Returning:"+str(indexNum)+" as quality index========================")
+    return indexNum
 
+def getQualityColorPH(phlevel):
+    color = "white"
+    try:
+        if phlevel >= 7.3 and phlevel <=7.7:
+            color = "green"
+        elif((phlevel < 7.3 and phlevel >= 7.2) or (phlevel > 7.7 and phlevel < 7.9)):
+            color = "yellow"
+        elif(phlevel < 7.2 or phlevel > 7.8):
+            color = "red"
+        else:
+            print("============================ setting PH Color to default: white========================")
+        return color
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxx FAILURE: PH color cannot be retrieved xxxxxxxxxxxxxxx")
+    print("============================ Returning:"+color+" as PH Color========================")
+    return color
+
+def getQualityColorChlorine(chlorine):
+    color="white"
+    try:
+        if chlorine >= 85:
+            color="green"
+        elif (chlorine >= 65):
+             color="orange"
+        elif (chlorine >= 50):
+             color="yellow"
+        elif(chlorine < 50):
+             color="red"
+        else:
+            print("============================ setting Chlorine Effectiveness Color to default: white========================")
+    except:
+            print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Chlorine color was not retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
+    print("============================ Returning:"+color+" as Chlorine Effectiveness Color========================")
+    return color
+
+def getQualityColorTemperature(temperature):
+    color="white"
+    try:
+        if temperature >= 25 and temperature <= 28:
+            color = "green"
+        elif (temperature >= 23 and temperature < 25) or (temperature > 28 and temperature <= 30):
+            color = "yellow"
+        elif(temperature < 23 or temperature > 30):
+            color = "red"
+        else:
+            print("============================ setting Temperature Color to default: white========================")
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Temperature color was not retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
+    print("============================ Returning:"+color+" as Water Quality Color========================")
+    return color
+    
+def getQualityColorTurbidity(turbidity):
+    color="white"
+    try:
+        if turbidity < 1:
+            color = "green"
+        elif (turbidity >= 1 and turbidity < 2):
+            color = "yellow"
+        elif(turbidity >= 2):
+            color = "red"
+        else:
+            print("============================ setting Turbidity Color to default: white========================")
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Turbidity color was not retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
+    print("============================ Returning:"+color+" as Turbidity Color========================")
+    return color
+
+def computeStandardDeviation(cSum, cCount, cList):
+    try:
+        cNewList=[]
+        cMean = cSum/cCount
+        cx = []
+        for level in cList:
+            try:
+                reading = level.temp_turbiditylevel
+            except:
+                try:
+                    reading = level.temp_temperaturelevel
+                except:
+                    try:
+                        reading = level.temp_phlevel
+                    except:
+                        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: standard deviation cannot be computed due to list xxxxxxxxxxxxxxxxxxxxxxxxx")
+            reading -=cMean
+            reading = reading*reading
+            cNewList.append(reading)
+        newcSum = 0
+        for read in cNewList:
+            newcSum+= read
+        cVariance = newcSum/cCount
+        cStandardDev = math.sqrt(cVariance)
+        cStandardDev=decimal.Decimal(cStandardDev)+cMean
+        cStandardDev=round(cStandardDev, 1)
+    except:
+        cStandardDev=None
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: standard deviation cannot be computed start of method computeStandardDeviation("+str(cSum)+" "+str(cCount)+"and List)xxxxxxxxxxxxxxxxxxxxxxxxx")
+    print("============================ Returning "+str(cStandardDev)+" as the Standard Deviation ========================")
+    return cStandardDev
+    
+def addChemicalItem(name, price, usageLimit):
+    try:
+        #TODO: add item
+        itemName = name
+        itemPrice = price
+        itemEffectiveDate = datetime.date.today()
+        itemUsageCount=usageLimit
+        #####add the chemical item to database
+        return "=================item added to database====================="
+    except:
+        return "xxxxxxxxxxxxxxxx FAILURE: item was not added (def addChemicalItem) xxxxxxxxxxxxxxxxxxxx"
+
+def useItem(item, usageCount):
+    try:
+        #todo:chemicalUsageLog
+        #####get referenced item
+        today=datetime.date.today()
+        ##### get pool used at
+        #####add To Logs Table
+        print("========================= item used =======================" + str(today))
+    except:
+        print("xxxxxxxxxxxxxxxxx FAILURE: item was not used (def useItem) xxxxxxxxxxxxxxx")
+
+def updatePoolChemicalItemtPrice(productid, newPrice, effectiveDate):
+    try:
+        itemProductId = productId
+        itemNewPrice = newPrice
+        itemEffectiveDate = effectiveDate
+        print("==================== item price updated ============================")
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxx FAILURE: item price not updated (def updatePoolChemicalItemtPrice) xxxxxxxxxxxxxxxxx")
+    
+def chlorineEffectivenessComputation(item):
+    try:
+        chlorine = decimal.Decimal(2615.97)
+        multiplier = item
+        chlorine-= decimal.Decimal(1175.23)*multiplier
+        multiplier*=item
+        chlorine+=decimal.Decimal(185.315)*multiplier
+        multiplier*=item
+        chlorine-=decimal.Decimal(9.90222)*multiplier
+        chlorine = round(chlorine, 1)
+    except:
+        if(item==None):
+            print("xxxxxxxxxxxxxxxxxxxxxx FAILURE: chlorine Effectiveness cannot be computed xxxxxxxxxxxxxxxxx")
+        chlorine="Cannot be Computed"
+    print("============================ Returning "+str(chlorine)+" as chlorine Effectiveness========================")
+    return chlorine
+
+def computeWaterQuality(temperatureIndexes, turbidityIndexes, phIndexes):
+    try:
+        wqIndexes =[]
+        mainCount=0
+        for tempIndexItem in temperatureIndexes:
+            waterQuality = 0
+            tCount=0
+            pCount=0
+            tempIQ=tempIndexItem
+            mainCount+=1
+            for turbIndexItem in turbidityIndexes:
+                tCount+=1
+                if mainCount == tCount:
+                    turbIQ=turbIndexItem
+            for phIndexItem in phIndexes:
+                pCount+=1
+                if mainCount == pCount:
+                    phIQ=phIndexItem
+            waterQuality=(tempIQ+turbIQ+phIQ)/decimal.Decimal(.29)
+            #waterQuality=float(waterQuality)
+            waterQuality=round(waterQuality, 0)
+            if waterQuality > 0:
+                waterQuality=100-waterQuality
+                if waterQuality < 0:
+                    wqIndexes.append(str(0))
+                else:
+                    wqIndexes.append(waterQuality)
+            else:
+                waterQuality="No Index"
+                wqIndexes.append(waterQuality)
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Failure at computeWaterQuality() xxxxxxxxxxxxxxxxxxxxxxxxx")
+        wqIndexes=None
+    print("============================ Returning "+str(wqIndexes)+" as Water Quality========================")  
+    return wqIndexes
+
+def getWaterQualityColor(waterQuality):
+    waterColor = "White"
+    try:
+        if waterQuality >= 95:
+            waterColor = "green"
+        elif (waterQuality >= 85):
+            waterColor = "green"
+        elif (waterQuality >= 80):
+            waterColor = "yellow"
+        elif(waterQuality < 80):
+            waterColor = "red"
+        else:
+            print("============================ setting Water Quality Color to default: white========================")
+        return waterColor
+    except:
+        if(waterQuality==None):
+            print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Water Quality Color cannot be retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
+    print("============================ Returning "+waterColor+" as Water Quality Color========================") 
+    return waterColor
+
+def computeDEPowder(squarefeet):
+    try:
+        dePowder = squarefeet*decimal.Decimal(.1)
+        dePowder = dePowder*decimal.Decimal(.8)
+        dePowder = round(dePowder, 1)
+        if dePowder > 0:
+            dePowderOutput = str(dePowder)+" oz / "
+            dePowder =  dePowder * decimal.Decimal(0.0625)
+            dePowder = round(dePowder, 2)
+            dePowderOutput = dePowderOutput+str(dePowder)+" lbs"
+            dePowder=dePowderOutput
+        else:
+            dePowderOutput = "No Need"
+            dePowder=dePowderOutput
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Cannot compute DE Powder xxxxxxxxxxxxxxxxxxxxxxxxx")
+        dePowder=None
+    print("============================ Returning "+str(dePowder)+" DE Powder use========================") 
+    return dePowder
 
 @login_required(login_url="/monitoring/login")
 def setPoolConnection(request):
@@ -1533,12 +1575,48 @@ def Quality(observedVal, idealVal, badVal, weightVal):
     indexNum=round(indexNum, 0)
     return indexNum
 
-def addPoolChemicalProduct(productName, productPrice, usageCount):
-    productName = productName
-    productPrice = productPrice
-    usageCount=usageCount
-    return productName
+def computeSodaAsh(phLevel):
+    if phLevel < 6.7:
+        sodaAsh = multiplier * 8
+    elif phLevel <= 7:
+        sodaAsh = multiplier * 6
+    elif phLevel <= 7.2:
+        sodaAsh = multiplier * 4
+    elif phLevel <= 7.4:
+        sodaAsh = multiplier * 3
+    sodaAsh = round(sodaAsh, 1)
+    return sodaAsh
 
+def computeMuriaticAcid(phLevel):
+    if phLevel > 8.4:
+        muriaticAcid = multiplier * 16
+    elif phLevel >= 8:
+        muriaticAcid = multiplier * 12
+    elif phLevel >= 7.8:
+        muriaticAcid = multiplier * 8
+    elif phLevel > 7.5:
+        muriaticAcid = multiplier * 6
+    muriaticAcid = round(muriaticAcid, 1)
+    return muriaticAcid
+
+def fixSodaAshOutputDisplay(sodaAsh):
+    if(sodaAsh>0):
+        sodaAshOutput = str(sodaAsh)+" oz / "
+        sodaAsh = sodaAsh*decimal.Decimal(0.0625)
+        sodaAsh = round(sodaAsh, 2)
+        sodaAshOutput = str(sodaAshOutput)+" lbs"
+    else:
+        sodaAshOutput="No Need"
+    return sodaAshOutput
+
+def fixMuriaticAcidDisplay(muriaticAcid):
+    if muriaticAcid > 0:
+        muriaticAcidOutput = str(muriaticAcid)+" oz / "
+        muriaticAcid = muriaticAcid * decimal.Decimal(0.03125)
+        muriaticAcid = round(muriaticAcid, 2)
+        muriaticAcidOutput = muriaticAcidOutput + str(muriaticAcid)+" qts"
+    else:
+        muriaticAcidOutput = "No need"
 def updatePoolChemicalProductPrice(productId, newPrice, effectiveDate):
     productId = productId
     newPrice = newPrice

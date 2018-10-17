@@ -193,6 +193,8 @@
           </a>
           <ul class="treeview-menu"  style="background-color:#3c8dbc;">
             <li><a href="{% url 'monitoring:addPool' %}">Add New Pool</a></li>
+            <li><a href="{% url 'monitoring:setPoolConnection' %}">Set Pool Connection</a></li>
+            <li><a href="{% url 'monitoring:disconnectPool' %}">Disconnect Device</a></li>
               </ul>
         </li>
         <li class="treeview">
@@ -229,14 +231,7 @@
   <!-- /.content-wrapper -->
 
   <!-- Main Footer -->
-  <footer class="main-footer">
-    <!-- To the right -->
-    <div class="pull-right hidden-xs">
-      Anything you want
-    </div>
-    <!-- Default to the left -->
-    <strong>Copyright &copy; 2016 <a href="#">Company</a>.</strong> All rights reserved.
-  </footer>
+
 
   <!-- Control Sidebar -->
   <aside class="control-sidebar control-sidebar-dark">

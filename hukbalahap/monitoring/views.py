@@ -1474,6 +1474,107 @@ def computeDEPowder(squarefeet):
     print("============================ Returning "+str(dePowder)+" DE Powder use========================") 
     return dePowder
 
+@login_required(login_url="/monitoring/login")
+def setPoolConnection(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
+    usertype = Type.objects.get(pk=request.user.pk)
+    adminType= Usertype_Ref.objects.get(pk=1)
+    if usertype.type == adminType:
+        if request.method == 'POST':
+            msg = None
+            print('request POST')
+            form = RegisterPool(request.POST)
+            if form.is_valid():
+                print('forms valid YEYYYYYYYYYYYY')
+                form.save()
+                print('form1 saved')
+
+                msg='success'
+                form = RegisterPool()
+                content={
+                    'form':form,
+                    'msg' : msg,
+                    'notifications':notifications,
+                    'notifCount':notifCount,
+                }
+                return render(request, 'monitoring/pool owner/set-pool-connection.html',content)
+
+            else:
+                msg='error'
+                content={
+                    'form':form,
+                    'msg' : msg,
+                    'notifications':notifications,
+                    'notifCount':notifCount,
+                }
+                return render(request, 'monitoring/pool owner/set-pool-connection.html',content)
+
+        else:
+            form = RegisterPool()
+            return render(request, 'monitoring/pool owner/set-pool-connection.html',locals())
+    else:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
+
+
+
+
+@login_required(login_url="/monitoring/login")
+def disconnectPool(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
+    usertype = Type.objects.get(pk=request.user.pk)
+    adminType= Usertype_Ref.objects.get(pk=1)
+    if usertype.type == adminType:
+        if request.method == 'POST':
+            msg = None
+            print('request POST')
+            form = RegisterPool(request.POST)
+            if form.is_valid():
+                print('forms valid YEYYYYYYYYYYYY')
+                form.save()
+                print('form1 saved')
+
+                msg='success'
+                form = RegisterPool()
+                content={
+                    'form':form,
+                    'msg' : msg,
+                    'notifications':notifications,
+                    'notifCount':notifCount,
+                }
+                return render(request, 'monitoring/pool owner/disconnect-pool.html',content)
+
+            else:
+                msg='error'
+                content={
+                    'form':form,
+                    'msg' : msg,
+                    'notifications':notifications,
+                    'notifCount':notifCount,
+                }
+                return render(request, 'monitoring/pool owner/disconnect-pool.html',content)
+
+        else:
+            form = RegisterPool()
+            return render(request, 'monitoring/pool owner/disconnect-pool.html',locals())
+    else:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
+
+
+def Quality(observedVal, idealVal, badVal, weightVal):
+    observedVal = decimal.Decimal(observedVal)
+    idealVal = decimal.Decimal(idealVal)
+    badVal = decimal.Decimal(badVal)
+    weightVal = decimal.Decimal(weightVal)
+    indexNum=0
+    qualityIndex=(observedVal-idealVal)/(badVal-idealVal)
+    qualityIndex=qualityIndex*100
+    indexNum=qualityIndex*weightVal
+    indexNum=indexNum
+    indexNum=round(indexNum, 0)
+    return indexNum
+
 def computeSodaAsh(phLevel):
     if phLevel < 6.7:
         sodaAsh = multiplier * 8
@@ -1516,3 +1617,8 @@ def fixMuriaticAcidDisplay(muriaticAcid):
         muriaticAcidOutput = muriaticAcidOutput + str(muriaticAcid)+" qts"
     else:
         muriaticAcidOutput = "No need"
+def updatePoolChemicalProductPrice(productId, newPrice, effectiveDate):
+    productId = productId
+    newPrice = newPrice
+    effectiveDate = effectiveDate
+    return productId

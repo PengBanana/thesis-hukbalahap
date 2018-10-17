@@ -11,3 +11,5 @@ hukbalahap/monitoring/__pycache__/views.cpython-37.pyc
 hukbalahap/monitoring/migrations/__pycache__/__init__.cpython-36.pyc
 hukbalahap/db.sqlite3
 hukbalahap/db.sqlite3
+
+*.sqlite3

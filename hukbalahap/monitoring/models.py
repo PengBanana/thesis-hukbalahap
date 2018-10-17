@@ -7,7 +7,8 @@ from django.dispatch import receiver
 
 # Non-Dependent Classes
 class Pool(models.Model):
-	pool_location = models.CharField(max_length=250)
+	pool_location = models.CharField(max_length=250, default="")
+	pool_name = models.CharField(max_length=250, default="")
 	pool_length = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	pool_width = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	pool_depth = models.DecimalField(max_digits=8, decimal_places=2, default="")
@@ -27,7 +28,7 @@ def update_user_profile(sender, instance, created, **kwargs):
     instance.profile.save()
 
 
-
+#usertype
 class Usertype_Ref(models.Model):
 	usertype = models.CharField(max_length=45)
 
@@ -76,6 +77,13 @@ def save_user_status(sender, instance, **kwargs):
 
 
 # Dependent Classes
+class uPool(models.Model):
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	pool = models.ForeignKey(Pool, null=True, default=None, on_delete=models.CASCADE)
+
+	def __str__(self):
+		return str(self.user) + " | " + str(self.pool)
+
 class MaintenanceSchedule(models.Model):
 	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)

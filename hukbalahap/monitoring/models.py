@@ -60,7 +60,7 @@ class Pool_Ref(models.Model):
 
 class uPool(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	pool = models.ForeignKey(Pool, on_delete=models.CASCADE, null=True)
+	pool = models.ForeignKey(Pool_Ref, on_delete=models.CASCADE, null=True, blank=True, default=None)
 
 	def __str__(self):
 		return str(self.user)

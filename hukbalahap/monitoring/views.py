@@ -176,7 +176,7 @@ def index(request):
                 chlorineLevels.append(chlorine)
             except:
                 chlorineColors.append("White")
-                chlorineLevels.append('Cannot Compute') 
+                chlorineLevels.append('Cannot Compute')
         waterColors = []
         wqIndexes=computeWaterQuality(temperatureIndexes, turbidityIndexes, phIndexes)
         for item in wqIndexes:
@@ -1229,8 +1229,55 @@ def addPool(request):
             return render(request,'monitoring/BadRequest.html')
     except:
         return render(request,'monitoring/BadRequest.html')
-    
-    
+
+
+
+@login_required(login_url="/monitoring/login")
+def addItem(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
+    try:
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        if usertype.type != adminType:
+            if request.method == 'POST':
+                msg = None
+                print('request POST')
+                form = RegisterPool(request.POST)
+                if form.is_valid():
+                    print('forms valid YEYYYYYYYYYYYY')
+                    form.save()
+                    print('form1 saved')
+
+                    msg='success'
+                    form = RegisterPool()
+                    content={
+                        'form':form,
+                        'msg' : msg,
+                        'notifications':notifications,
+                        'notifCount':notifCount,
+                    }
+                    return render(request, 'monitoring/pool technician/add-item.html',content)
+
+                else:
+                    msg='error'
+                    content={
+                        'form':form,
+                        'msg' : msg,
+                        'notifications':notifications,
+                        'notifCount':notifCount,
+                    }
+                    return render(request, 'monitoring/pool technician/add-item.html',content)
+
+            else:
+                form = RegisterPool()
+                return render(request, 'monitoring/pool technician/add-item.html',locals())
+        else:
+            return render(request,'monitoring/BadRequest.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
+
+
 ###reusable methods
 def Quality(observedVal, idealVal, badVal, weightVal):
     try:
@@ -1300,7 +1347,7 @@ def getQualityColorTemperature(temperature):
         print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Temperature color was not retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
     print("============================ Returning:"+color+" as Water Quality Color========================")
     return color
-    
+
 def getQualityColorTurbidity(turbidity):
     color="white"
     try:
@@ -1348,7 +1395,7 @@ def computeStandardDeviation(cSum, cCount, cList):
         print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: standard deviation cannot be computed start of method computeStandardDeviation("+str(cSum)+" "+str(cCount)+"and List)xxxxxxxxxxxxxxxxxxxxxxxxx")
     print("============================ Returning "+str(cStandardDev)+" as the Standard Deviation ========================")
     return cStandardDev
-    
+
 def addChemicalItem(name, price, usageLimit):
     try:
         #TODO: add item
@@ -1380,7 +1427,7 @@ def updatePoolChemicalItemtPrice(productid, newPrice, effectiveDate):
         print("==================== item price updated ============================")
     except:
         print("xxxxxxxxxxxxxxxxxxxxxx FAILURE: item price not updated (def updatePoolChemicalItemtPrice) xxxxxxxxxxxxxxxxx")
-    
+
 def chlorineEffectivenessComputation(item):
     try:
         chlorine = decimal.Decimal(2615.97)
@@ -1431,7 +1478,7 @@ def computeWaterQuality(temperatureIndexes, turbidityIndexes, phIndexes):
     except:
         print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Failure at computeWaterQuality() xxxxxxxxxxxxxxxxxxxxxxxxx")
         wqIndexes=None
-    print("============================ Returning "+str(wqIndexes)+" as Water Quality========================")  
+    print("============================ Returning "+str(wqIndexes)+" as Water Quality========================")
     return wqIndexes
 
 def getWaterQualityColor(waterQuality):
@@ -1451,7 +1498,7 @@ def getWaterQualityColor(waterQuality):
     except:
         if(waterQuality==None):
             print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Water Quality Color cannot be retrieved xxxxxxxxxxxxxxxxxxxxxxxx")
-    print("============================ Returning "+waterColor+" as Water Quality Color========================") 
+    print("============================ Returning "+waterColor+" as Water Quality Color========================")
     return waterColor
 
 def computeDEPowder(squarefeet):
@@ -1471,7 +1518,7 @@ def computeDEPowder(squarefeet):
     except:
         print("xxxxxxxxxxxxxxxxxxxxxxxxx FAILURE: Cannot compute DE Powder xxxxxxxxxxxxxxxxxxxxxxxxx")
         dePowder=None
-    print("============================ Returning "+str(dePowder)+" DE Powder use========================") 
+    print("============================ Returning "+str(dePowder)+" DE Powder use========================")
     return dePowder
 
 @login_required(login_url="/monitoring/login")

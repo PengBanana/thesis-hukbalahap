@@ -1,4 +1,4 @@
-{% extends "monitoring/pool owner/starter-owner.html" %}
+{% extends "monitoring/pool technician/starter.html" %}
 {% block content %}
 <div class="row">
   <div class="col-md-12">
@@ -49,44 +49,6 @@
             {{form.pool_depth.label_tag}}
             {{form.pool_depth}}
             {{form.pool_depth.errors}}
-
-
-            <div class="bootstrap-timepicker">
-              <div class="form-group">
-                {{form.pool_availabletimestart.label_tag}}
-
-                <div class="input-group">
-                  {{form.pool_availabletimestart}}
-
-                  <div class="input-group-addon">
-                    <i class="fa fa-clock-o"></i>
-                  </div>
-                </div>
-                <!-- /.input group -->
-              </div>
-              <!-- /.form group -->
-            </div>
-            {{form.pool_availabletimestart.errors}}
-
-
-            <div class="bootstrap-timepicker">
-              <div class="form-group">
-                {{form.pool_availabletimeend.label_tag}}
-
-                <div class="input-group">
-                  {{form.pool_availabletimeend}}
-
-                  <div class="input-group-addon">
-                    <i class="fa fa-clock-o"></i>
-                  </div>
-                </div>
-                <!-- /.input group -->
-              </div>
-              <!-- /.form group -->
-            </div>
-            {{form.pool_availabletimeend.errors}}
-
-
 
 
 

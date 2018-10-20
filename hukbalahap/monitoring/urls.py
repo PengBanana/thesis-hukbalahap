@@ -49,5 +49,5 @@ urlpatterns = [
     url(r'^addPool/$', views.addPool, name='addPool'),
     url(r'^setPoolConnection/$', views.setPoolConnection, name='setPoolConnection'),
     url(r'^disconnectPool/$', views.disconnectPool, name='disconnectPool'),
-
+    url(r'^addItem/$', views.addItem, name='addItem'),
 ]

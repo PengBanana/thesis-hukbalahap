@@ -29,6 +29,7 @@ class SignUpForm(UserCreationForm):
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
 
 class RegisterPool(forms.ModelForm):
+    pool_name = forms.CharField(max_length = 250, required= True, label=('Pool Name'),widget = forms.TextInput( attrs = {'class': 'form-control','id': 'pool_name'}))
     pool_location = forms.CharField(max_length = 250, required= True, label=('Pool Location'),widget = forms.TextInput( attrs = {'class': 'form-control','id': 'pool_location'}))
     pool_length = forms.DecimalField(max_digits=8, decimal_places=2, required= True, label=('Pool Length'),widget = forms.TextInput( attrs = {'class': 'form-control','id': 'pool_length'}))
     pool_width = forms.DecimalField(max_digits=8, decimal_places=2, required= True, label=('Pool Width'),widget = forms.TextInput( attrs = {'class': 'form-control','id': 'pool_width'}))
@@ -38,7 +39,7 @@ class RegisterPool(forms.ModelForm):
 
     class Meta:
         model = Pool
-        fields = ('pool_location','pool_length','pool_width','pool_depth','pool_availabletimestart','pool_availabletimeend')
+        fields = ('pool_name','pool_location','pool_length','pool_width','pool_depth','pool_availabletimestart','pool_availabletimeend')
 
 class SignUpType(forms.ModelForm):
     type = forms.ModelChoiceField(queryset=Usertype_Ref.objects.all(), required=True,widget=forms.Select(attrs={'class': 'form-control','autocomplete':'off'}))

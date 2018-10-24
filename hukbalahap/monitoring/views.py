@@ -1241,36 +1241,11 @@ def addItem(request):
         adminType= Usertype_Ref.objects.get(pk=1)
         if usertype.type != adminType:
             if request.method == 'POST':
-                msg = None
-                print('request POST')
-                form = RegisterPool(request.POST)
-                if form.is_valid():
-                    print('forms valid YEYYYYYYYYYYYY')
-                    form.save()
-                    print('form1 saved')
+                return render(request, 'monitoring/pool technician/add-item.html',locals())
 
-                    msg='success'
-                    form = RegisterPool()
-                    content={
-                        'form':form,
-                        'msg' : msg,
-                        'notifications':notifications,
-                        'notifCount':notifCount,
-                    }
-                    return render(request, 'monitoring/pool technician/add-item.html',content)
-
-                else:
-                    msg='error'
-                    content={
-                        'form':form,
-                        'msg' : msg,
-                        'notifications':notifications,
-                        'notifCount':notifCount,
-                    }
-                    return render(request, 'monitoring/pool technician/add-item.html',content)
-
+                    #logic here 
             else:
-                form = RegisterPool()
+
                 return render(request, 'monitoring/pool technician/add-item.html',locals())
         else:
             return render(request,'monitoring/BadRequest.html')

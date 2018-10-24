@@ -1,68 +1,62 @@
 {% extends "monitoring/pool technician/starter.html" %}
+
 {% block content %}
+{{ debugger }}
 <div class="row">
   <div class="col-md-12">
-
-    {% if msg == 'error' %}
-      <div class="alert alert-danger alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <h4><i class="icon fa fa-ban"></i> Failed!</h4>
-        Fail to register new pool.
-      </div>
-     {% elif msg == 'success' %}
-      <div class="alert alert-success alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <h4><i class="icon fa fa-check"></i>Success!</h4>
-          A new pool has been successfully added!
-      </div>
+    {% if not display == none %}
+    <div class="alert alert-success alert-dismissible fade in">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <p>{{ display }}</p>
+    </div>
 
     {% endif %}
-
     <div class="box box-primary">
       <div class="box-header with-border">
-        <h1 class="box-title" style="font-size:25px;">Add New Pool</h1><br>
+        <h1 class="box-title" style="font-size:35px;">Add Chemical Item</h1><br>
       </div>
       <!-- /.box-header -->
       <!-- form start -->
 
-      <form method="POST">
+      <form method="POST" action={% url 'monitoring:computeChlorine' %}>
         {% csrf_token %}
         <div class="row">
           <div class="col-xs-3"></div>
           <div class="col-xs-6">
-            {{form.pool_name.label_tag}}
-            {{form.pool_name}}
-            {{form.pool_name.errors}}
-
-            {{form.pool_location.label_tag}}
-            {{form.pool_location}}
-            {{form.pool_location.errors}}
-
-            {{form.pool_length.label_tag}}
-            {{form.pool_length}}
-            {{form.pool_length.errors}}
-
-            {{form.pool_width.label_tag}}
-            {{form.pool_width}}
-            {{form.pool_width.errors}}
-
-            {{form.pool_depth.label_tag}}
-            {{form.pool_depth}}
-            {{form.pool_depth.errors}}
 
 
+            <div class="form-group" style="padding-top:15px;">
+              <label>Chemical Name</label>
+              <input class="form-control">
+            </div>
 
-          </div>
+
+            <div class="form-group" style="padding-top:15px;">
+              <label>Chemical Description</label>
+              <textarea class="form-control" rows="3"></textarea>
+            </div>
+
+
+            <div class="form-group" style="padding-top:15px;">
+              <label>Chemical Name</label>
+              <input class="form-control">
+            </div>
+
+
+
+
           <div class="col-xs-3"></div>
         </div>
-        <div class="box-footer">
-          <div class="row">
-            <div class="col-xs-9">
-            <button type="submit"  class="btn btn-primary pull-right">Confirm</button>
-          </div>
-          </div>
-        </div>
 
+
+      </div>
+      <div class="box-footer">
+        <div class="row">
+          <div class="col-xs-9">
+          <button type="submit"  class="btn btn-primary pull-right">Confirm</button>
+          <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#modal-home">Cancel</button>
+        </div>
+        </div>
       </div>
 
       </form>
@@ -71,5 +65,6 @@
 </div>
 
 
+{% include "monitoring/pool technician/includes/cancel-modal.html" %}
 
 {% endblock %}

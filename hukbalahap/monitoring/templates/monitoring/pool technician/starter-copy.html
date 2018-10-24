@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Huk | WQMS </title>
+  <title>HUK | WQMS</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   {% load staticfiles %}
@@ -38,9 +38,8 @@
   <link rel="stylesheet" href="{% static 'dist/css/skins/_all-skins.min.css'%}">
   <!-- Morris charts -->
   <link rel="stylesheet" href="{% static 'bower_components/morris.js/morris.css' %}">
-  <!-- fullCalendar -->
-  <link rel="stylesheet" href="{% static 'bower_components/fullcalendar/dist/fullcalendar.min.css' %}">
-  <link rel="stylesheet"  media="print" href="{% static 'bower_components/fullcalendar/dist/fullcalendar.print.min.css' %}">
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static 'bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
 
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -91,7 +90,7 @@
               <li>
                 <!-- Inner Menu: contains the notifications -->
                 <ul class="menu">
-                    {% for item in notifications %}
+                  {% for item in notifications %}
                     <li><!-- start notification -->
                     <a href="{% url 'monitoring:setMaintenance' %}">
                       <i class="fa fa-users text-aqua"></i> {{ item.message }}
@@ -124,7 +123,7 @@
                 </ul>
               </li>
               <li>
-                <a href="{% url 'monitoring:editDetails'  %}">
+                <a href="{% url 'monitoring:logout_view'  %}">
                   <i class="fa fa-pencil-square-o"></i> Edit Details
                 </a>
               </li>
@@ -142,50 +141,81 @@
   </header>
   <!-- Left side column. contains the logo and sidebar -->
   <aside class="main-sidebar">
-    <style>
-    .skin-blue .sidebar-menu .treeview-menu>li>a{color:#dcdfe3}
-    .skin-blue .sidebar-menu .treeview-menu > li.active > a,
-    .skin-blue .sidebar-menu .treeview-menu > li > a:hover {
-      color: #ffffff;
-    }
-    </style>
-
 
     <!-- sidebar: style can be found in sidebar.less -->
-    <section class="sidebar" >
+    <section class="sidebar">
+
+      <!-- Sidebar user panel (optional) -->
+
+
+      <!-- search form (Optional) -->
+      <form method="POST" action={% url 'monitoring:searchPT' %} class="sidebar-form">
+        {% csrf_token %}
+        <div class="input-group">
+          <input type="text" name="item" class="form-control" placeholder="Search..." required>
+          <span class="input-group-btn">
+              <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+              </button>
+            </span>
+        </div>
+      </form>
+      <!-- /.search form -->
+
+      <style>
+      .skin-blue .sidebar-menu .treeview-menu>li>a{color:#dcdfe3}
+      .skin-blue .sidebar-menu .treeview-menu > li.active > a,
+      .skin-blue .sidebar-menu .treeview-menu > li > a:hover {
+        color: #ffffff;
+      }
+      </style>
+
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">HEADER</li>
         <!-- Optionally, you can add icons to the links -->
         <li class="active"><a href="{% url 'monitoring:index' %}"><i class="fa fa-home"></i> <span>Home</span></a></li>
         <li class="treeview">
-          <a href="#"><i class="fa fa-calendar"></i> <span>Pool Schedule</span>
+          <a href="#"><i class="fa fa-user-circle"></i> <span>Users</span>
             <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
               </span>
           </a>
-          <ul class="treeview-menu" style="background-color:#3c8dbc;">
-            <li><a  href="{% url 'monitoring:viewMaintenance' %}">View All Maintenance Schedule</a></li>
-            <li><a  href="{% url 'monitoring:setMaintenance' %}">Set Maintenance Schedule</a></li>
-            <li><a  href="{% url 'monitoring:computeChlorine' %}">Compute for Desired Chlorine</a></li>
+          <ul class="treeview-menu"  style="background-color:#3c8dbc;">
+            <li><a href="{% url 'monitoring:addUser' %}">Add Pool Technician </a></li>
+            <li><a href="{% url 'monitoring:poolTechList' %}">View Pool Technicians </a></li>
           </ul>
         </li>
         <li class="treeview">
-          <a href="#"><i class="fa fa-flask"></i> <span>Manage Chemical Inventory</span>
+          <a href="{% url 'monitoring:poolTechList' %}"><i class="fa fa-bath"></i> <span>Pool</span>
             <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
               </span>
           </a>
-          <ul class="treeview-menu" style="background-color:#3c8dbc;">
-            <li><a  href="{% url 'monitoring:addItem' %}">Add Chemical to Inventory</a></li>
-            <li><a  href="{% url 'monitoring:viewMaintenance' %}">View Chemical Inventory</a></li>
-          </ul>
+          <ul class="treeview-menu"  style="background-color:#3c8dbc;">
+            <li><a href="{% url 'monitoring:addPool' %}">Add New Pool</a></li>
+            <li><a href="{% url 'monitoring:setPoolConnection' %}">Set Pool Connection</a></li>
+            <li><a href="{% url 'monitoring:disconnectPool' %}">Disconnect Device</a></li>
+              </ul>
+        </li>
+        <li class="treeview">
+          <a href="{% url 'monitoring:poolTechList' %}"><i class="fa fa-file-o"></i> <span>Reports</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+          </a>
+          <ul class="treeview-menu"  style="background-color:#3c8dbc;">
+            <li><a href="{% url 'monitoring:personnelEfficiency' %}">Generate Employee <br> Performance Report</a></li>
+            <li><a href="{% url 'monitoring:chemicalConsumption' %}">Generate Chemical<br> Consumption Report</a></li>
+              </ul>
         </li>
       </ul>
       <!-- /.sidebar-menu -->
     </section>
     <!-- /.sidebar -->
   </aside>
+
+
+
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -202,6 +232,63 @@
 
   <!-- Main Footer -->
 
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Create the tabs -->
+    <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
+      <li class="active"><a href="#control-sidebar-home-tab" data-toggle="tab"><i class="fa fa-home"></i></a></li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <!-- Home tab content -->
+      <div class="tab-pane active" id="control-sidebar-home-tab">
+        <h3 class="control-sidebar-heading">Recent Activity</h3>
+        <ul class="control-sidebar-menu">
+          <li>
+            <a href="javascript:;">
+              <i class="menu-icon fa fa-birthday-cake bg-red"></i>
+
+              <div class="menu-info">
+                <h4 class="control-sidebar-subheading">Langdon's Birthday</h4>
+
+                <p>Will be 23 on April 24th</p>
+              </div>
+            </a>
+          </li>
+        </ul>
+        <!-- /.control-sidebar-menu -->
+
+        <h3 class="control-sidebar-heading">Tasks Progress</h3>
+        <ul class="control-sidebar-menu">
+          <li>
+            <a href="javascript:;">
+              <h4 class="control-sidebar-subheading">
+                Custom Template Design
+                <span class="pull-right-container">
+                    <span class="label label-danger pull-right">70%</span>
+                  </span>
+              </h4>
+
+              <div class="progress progress-xxs">
+                <div class="progress-bar progress-bar-danger" style="width: 70%"></div>
+              </div>
+            </a>
+          </li>
+        </ul>
+        <!-- /.control-sidebar-menu -->
+
+      </div>
+      <!-- /.tab-pane -->
+      <!-- Stats tab content -->
+      <div class="tab-pane" id="control-sidebar-stats-tab">Stats Tab Content</div>
+      <!-- /.tab-pane -->
+      <!-- Settings tab content -->
+
+      <!-- /.tab-pane -->
+    </div>
+  </aside>
+  <!-- /.control-sidebar -->
   <!-- Add the sidebar's background. This div must be placed
   immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>
@@ -243,11 +330,11 @@
 <script src="{% static 'bower_components/raphael/raphael.min.js' %}"></script>
 
 <script src="{% static 'bower_components/morris.js/morris.min.js' %}"></script>
-<!-- fullCalendar -->
-<script src="{% static 'bower_components/moment/moment.js' %}"></script>
-<script src="{% static 'bower_components/fullcalendar/dist/fullcalendar.min.js' %}"></script>
 
-<!-- fullCalendar -->
+<!-- DataTables -->
+<script src="{% static 'bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+
 <script>
   $(function () {
     //Initialize Select2 Elements
@@ -263,7 +350,7 @@
     //Date range picker
     $('#reservation').daterangepicker()
     //Date range picker with time picker
-    $('#reservationtime').daterangepicker({ timePicker: true, timePickerIncrement: 30,  format: 'MM/DD/YYYY h:mm A' })
+    $('#reservationtime').daterangepicker({ timePicker: true, timePickerIncrement: 30, format: 'MM/DD/YYYY h:mm A' })
     //Date range picker with time picker
     $('#finishtime').daterangepicker({ timePicker: true, timePickerIncrement: 30, format: 'MM/DD/YYYY h:mm A' })
     //Date range as a button
@@ -287,7 +374,7 @@
 
     //Date picker
     $('#datepicker').datepicker({
-      autoclose: false
+      autoclose: true
     })
 
     //iCheck for checkbox and radio inputs
@@ -313,133 +400,19 @@
 
     //Timepicker
     $('.timepicker').timepicker({
+      use24hours: true,
+      timeFormat: 'HH:mm:ss',
+      showMeridian: false,
       showInputs: false
+
     })
-
-
-    /* initialize the external events
-     -----------------------------------------------------------------*/
-    function init_events(ele) {
-      ele.each(function () {
-
-        // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
-        // it doesn't need to have a start or end
-        var eventObject = {
-          title: $.trim($(this).text()) // use the element's text as the event title
-        }
-
-        // store the Event Object in the DOM element so we can get to it later
-        $(this).data('eventObject', eventObject)
-
-        // make the event draggable using jQuery UI
-        $(this).draggable({
-          zIndex        : 1070,
-          revert        : true, // will cause the event to go back to its
-          revertDuration: 0  //  original position after the drag
-        })
-
-      })
-    }
-
-    init_events($('#external-events div.external-event'))
-
-    /* initialize the calendar
-     -----------------------------------------------------------------*/
-    //Date for the calendar events (dummy data)
-    var date = new Date()
-    var d    = date.getDate(),
-        m    = date.getMonth(),
-        y    = date.getFullYear()
-    $('#calendar').fullCalendar({
-      header    : {
-        left  : 'prev,next today',
-        center: 'title',
-        right : 'month,agendaWeek,agendaDay'
-      },
-      buttonText: {
-        today: 'today',
-        month: 'month',
-        week : 'week',
-        day  : 'day'
-      },
-      //Random default events
-      events    : [
-        {% block jscripts %}
-        {% endblock %}
-      ],
-      editable  : true,
-      droppable : true, // this allows things to be dropped onto the calendar !!!
-      drop      : function (date, allDay) { // this function is called when something is dropped
-
-        // retrieve the dropped element's stored Event Object
-        var originalEventObject = $(this).data('eventObject')
-
-        // we need to copy it, so that multiple events don't have a reference to the same object
-        var copiedEventObject = $.extend({}, originalEventObject)
-
-        // assign it the date that was reported
-        copiedEventObject.start           = date
-        copiedEventObject.allDay          = allDay
-        copiedEventObject.backgroundColor = $(this).css('background-color')
-        copiedEventObject.borderColor     = $(this).css('border-color')
-
-        // render the event on the calendar
-        // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-        $('#calendar').fullCalendar('renderEvent', copiedEventObject, true)
-
-        // is the "remove after drop" checkbox checked?
-        if ($('#drop-remove').is(':checked')) {
-          // if so, remove the element from the "Draggable Events" list
-          $(this).remove()
-        }
-
-      }
-    })
-
-    /* ADDING EVENTS */
-    var currColor = '#3c8dbc' //Red by default
-    //Color chooser button
-    var colorChooser = $('#color-chooser-btn')
-    $('#color-chooser > li > a').click(function (e) {
-      e.preventDefault()
-      //Save color
-      currColor = $(this).css('color')
-      //Add color effect to button
-      $('#add-new-event').css({ 'background-color': currColor, 'border-color': currColor })
-    })
-    $('#add-new-event').click(function (e) {
-      e.preventDefault()
-      //Get value and make sure it is not null
-      var val = $('#new-event').val()
-      if (val.length == 0) {
-        return
-      }
-
-      //Create events
-      var event = $('<div />')
-      event.css({
-        'background-color': currColor,
-        'border-color'    : currColor,
-        'color'           : '#fff'
-      }).addClass('external-event')
-      event.html(val)
-      $('#external-events').prepend(event)
-
-      //Add draggable funtionality
-      init_events(event)
-
-      //Remove event from text input
-      $('#new-event').val('')
-    })
-
 
   })
+
 </script>
-
-
 {% block scripts %}
-
 {% endblock %}
+
 <!-- Optionally, you can add Slimscroll and FastClick plugins.
      Both of these plugins are recommended to enhance the
      user experience. -->

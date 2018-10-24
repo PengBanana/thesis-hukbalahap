@@ -1,15 +1,69 @@
 {% extends "monitoring/pool owner/starter-owner.html" %}
 {% block content %}
 <div class="row">
-  <div style="margin:15px;">
-  <h1>Pool Dashboard</h1>
+  <div class="col-md-10">
+    <div style="margin:15px;">
+    <h1>Pool Dashboard</h1>
+
+  </div>
+ </div>
+
 </div>
+<div class="row">
+  <div class="col-md-12">
+    <div class="box box-solid" >
+        <div class="box-header">
+          <h4>Legend</h4>
+       </div>
+         <div class="box-body">
+           <table class="table">
+                  <tr>
+                    <td width="1%"><svg width="18" height="18">
+                      <rect width="15" height="15"
+                      style="fill: green ;stroke-width:1;stroke:rgb(0,0,0)"  />
+                    Sorry, your browser does not support inline SVG.
+                  </svg></td>
+                    <td align="left">Normal</td>
+
+                      <td width="1%"><svg width="18" height="18">
+                        <rect width="15" height="15"
+                        style="fill: yellow ;stroke-width:1;stroke:rgb(0,0,0)"  />
+                      Sorry, your browser does not support inline SVG.
+                    </svg></td>
+                      <td align="left" width="250">Low</td>
+
+
+                      <td width="1%"><svg width="18" height="18">
+                        <rect width="15" height="15"
+                        style="fill: red ;stroke-width:1;stroke:rgb(0,0,0)"  />
+                      Sorry, your browser does not support inline SVG.
+                    </svg></td>
+                      <td align="left">Crtitically Low</td>
+
+                      <td width="1%"><svg width="18" height="18">
+                        <rect width="15" height="15"
+                        style="fill: white ;stroke-width:1;stroke:rgb(0,0,0)"  />
+                      Sorry, your browser does not support inline SVG.
+                    </svg></td>
+                      <td align="left">Not Connected</td>
+
+
+
+                  </tr>
+
+
+                </table>
+              </class>
+         </div>
+      </div>
+  </div>
+  </div>
 {% for poolitem in pool %}
    <div class="col-md-4">
      <div class="box box-success" type="submit">
        <div class="box-header with-border">
          <h3 class="box-title">
-             <a href="{% url 'monitoring:poolDetails' poolitem.id %}" style="font-size:25px;">{{ poolitem.pool_location }}</a>
+             <a href="{% url 'monitoring:poolDetails' poolitem.id %}" style="font-size:25px;">{{ poolitem.pool_name }}</a>
            </h3>
          <a href="pool"></a>
        </div>

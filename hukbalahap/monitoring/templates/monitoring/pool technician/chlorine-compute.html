@@ -13,7 +13,7 @@
     {% endif %}
     <div class="box box-primary">
       <div class="box-header with-border">
-        <h3 class="box-title">Compute for Chlorine</h3><br>
+        <h1 class="box-title" style="font-size:35px;">Compute for Chlorine</h1><br>
       </div>
       <!-- /.box-header -->
       <!-- form start -->
@@ -27,7 +27,7 @@
               <label>Select Pool</label>
               <select class="form-control" name="poolPK">
                 {% for poolitem in pools %}
-                <option value = {{ poolitem.id }} >{{ poolitem.pool_location }}</option>
+                <option value = {{ poolitem.id }} >{{ poolitem.pool_name }}</option>
                 {% endfor %}
               </select>
             </div>

@@ -8,7 +8,11 @@
       <div class="row" style="padding-top:50px">
           <div class="col-md-4">
             <label>Pool Name</label>
-            <select class="form-control" name="pool"></select>
+            <select class="form-control" name="poolPK">
+
+              <option value = ""</option>
+
+            </select>
           </div>
           <div class="col-md-2">
             <label>Swimmers</label>
@@ -67,10 +71,10 @@
 <div class="row">
 {% for poolitem in pool %}
       <div class="col-md-4">
-        <div class="box box-success" type="submit">
+        <div class="box box-primary" type="submit">
           <div class="box-header with-border">
             <h3 class="box-title">
-                <a href="{% url 'monitoring:poolDetails' poolitem.id %}" style="font-size:25px;">{{ poolitem.pool_location }}</a>
+                <a href="{% url 'monitoring:poolDetails' poolitem.id %}" style="font-size:25px;">{{ poolitem.pool_name }}</a>
               </h3>
             <a href="pool"></a>
           </div>

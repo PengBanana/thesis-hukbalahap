@@ -347,7 +347,7 @@ def setMaintenanceCompute(request):
             if phLevel < 7.4:
                 muriaticAcidOutput="No Need"
                 muriaticAcidVal=0
-                sodaAsh=computeSodaAsh(phLevel)
+                sodaAsh=computeSodaAsh(phLevel, multiplier)
                 sodaAshVal = sodaAsh
                 sodaAshOutput=fixSodaAshOutputDisplay(sodaAsh)
                 if(sodaAshOutput=="No need"):
@@ -355,7 +355,7 @@ def setMaintenanceCompute(request):
             elif phLevel > 7.4:#muriatic acid computation
                 sodaAshOutput="No Need"
                 sodaAshVal=0
-                muriaticAcid=computeMuriaticAcid(phLevel)
+                muriaticAcid=computeMuriaticAcid(phLevel, multiplier)
                 muriaticAcidVal = fixMuriaticAcidDisplay(muriaticAcid)
                 if(muriaticAcidVal=="No need"):
                     muriaticAcidVal=0
@@ -781,63 +781,23 @@ def viewMaintenance(request):
         eventids=[]
         debugger=[]
         for eventObject in maintenanceSchedule:
+            startDate=calendarGetStartDates(eventObject.scheduledStart)
             if eventObject.scheduledStart == None:
-                b=eventObject.estimatedStart
+                startDate=calendarGetDate(eventObject.estimatedStart)
             else:
-                b=eventObject.scheduledStart
-            ihour=b.hour
-            dday=b.day
-            ihour+=8
-            if ihour>=24:
-                ihour-=24
-                dday+=1
-                try:
-                    b=b.replace(day=dday)
-                except:
-                    dday=1
-                    b=b.replace(day=dday)
-            if ihour>=24:
-                ihour-=24
-            b=b.replace(hour=ihour)
-            dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
-            #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
-            startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y %H:%M:00')
-            #startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
+                startDate=calendarGetDate(eventObject.scheduledStart)
             if eventObject.scheduledEnd == None:
-                b=eventObject.estimatedEnd
+                endDate=calendarGetDate(eventObject.estimatedEnd)
             else:
-                b=eventObject.scheduledEnd
-            ihour=b.hour
-            dday=b.day
-            ihour+=8
-            if ihour>=24:
-                ihour-=24
-                dday+=1
-                try:
-                    b=b.replace(day=dday)
-                except:
-                    dday=1
-                    b=b.replace(day=dday)
-            if ihour>=24:
-                ihour-=24
-            b=b.replace(hour=ihour)
-            bString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
-            #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
-            endDate = datetime.datetime.strptime(bString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y %H:%M:00')
-            #endDate = datetime.datetime.strptime(bString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
+                endDate=calendarGetDate(eventObject.scheduledEnd)
             #Notified Scheduled Accomplished
-            if eventObject.status == "Notified":
-                color="#00cccc"
-            elif eventObject.status == "Scheduled":
-                color="#0073b7"
-            elif eventObject.status == "Accomplished":
-                color="#00a65a"
-            elif eventObject.status == "Late":
-                color="#f39c12"
-            elif eventObject.status == "Unfinished":
-                color="red"
-            else:
-                color="grey"
+            color = getCalendarColorByStatus(eventObject.status)
+            #appends
+            users.append(eventObject.user)
+            startSchedules.append(startDate)
+            endSchedules.append(endDate)
+            colors.append(color)
+            eventids.append(eventObject.id)
             #appends
             users.append(eventObject.user)
             startSchedules.append(startDate)
@@ -873,7 +833,7 @@ def personnel(request):
 def maintenanceDetails(request, schedule_id):
     notifications = getNotification(request)
     notifCount=notifications.count()
-    try:
+    if 0==0:
         actual=0
         item = MaintenanceSchedule.objects.get(id=schedule_id)
         pool = item.pool
@@ -927,7 +887,7 @@ def maintenanceDetails(request, schedule_id):
             if phLevel < 7.4:
                 muriaticAcidOutput="No Need"
                 muriaticAcidVal=0
-                sodaAsh=computeSodaAsh(phLevel)
+                sodaAsh=computeSodaAsh(phLevel, multiplier)
                 sodaAshVal = sodaAsh
                 sodaAshOutput=fixSodaAshOutputDisplay(sodaAsh)
                 if(sodaAshOutput=="No need"):
@@ -935,7 +895,7 @@ def maintenanceDetails(request, schedule_id):
             elif phLevel > 7.4:#muriatic acid computation
                 sodaAshOutput="No Need"
                 sodaAshVal=0
-                muriaticAcid=computeMuriaticAcid(phLevel)
+                muriaticAcid=computeMuriaticAcid(phLevel, multiplier)
                 muriaticAcidVal = fixMuriaticAcidDisplay(muriaticAcid)
                 if(muriaticAcidVal=="No need"):
                     muriaticAcidVal=0
@@ -963,7 +923,7 @@ def maintenanceDetails(request, schedule_id):
         }
         #insert notification here content.append/content.add(function())
         return render(request, 'monitoring/pool technician/maintenance-details.html', content)
-    except:
+    else:
         return render(request,'monitoring/BadRequest.html')
 
 
@@ -1023,63 +983,17 @@ def submitMaintenanceChemicals(request):
         eventids=[]
         debugger=[]
         for eventObject in maintenanceSchedule:
+            startDate=calendarGetStartDates(eventObject.scheduledStart)
             if eventObject.scheduledStart == None:
-                b=eventObject.estimatedStart
+                startDate=calendarGetDate(eventObject.estimatedStart)
             else:
-                b=eventObject.scheduledStart
-            ihour=b.hour
-            dday=b.day
-            ihour+=8
-            if ihour>=24:
-                ihour-=24
-                dday+=1
-                try:
-                    b=b.replace(day=dday)
-                except:
-                    dday=1
-                    b=b.replace(day=dday)
-            if ihour>=24:
-                ihour-=24
-            b=b.replace(hour=ihour)
-            dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
-            #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
-            startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y %H:%M:00')
-            #startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
+                startDate=calendarGetDate(eventObject.scheduledStart)
             if eventObject.scheduledEnd == None:
-                b=eventObject.estimatedEnd
+                endDate=calendarGetDate(eventObject.estimatedEnd)
             else:
-                b=eventObject.scheduledEnd
-            ihour=b.hour
-            dday=b.day
-            ihour+=8
-            if ihour>=24:
-                ihour-=24
-                dday+=1
-                try:
-                    b=b.replace(day=dday)
-                except:
-                    dday=1
-                    b=b.replace(day=dday)
-            if ihour>=24:
-                ihour-=24
-            b=b.replace(hour=ihour)
-            bString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
-            #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
-            endDate = datetime.datetime.strptime(bString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y %H:%M:00')
-            #endDate = datetime.datetime.strptime(bString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
+                endDate=calendarGetDate(eventObject.scheduledEnd)
             #Notified Scheduled Accomplished
-            if eventObject.status == "Notified":
-                color="#00cccc"
-            elif eventObject.status == "Scheduled":
-                color="#0073b7"
-            elif eventObject.status == "Accomplished":
-                color="#00a65a"
-            elif eventObject.status == "Late":
-                color="#f39c12"
-            elif eventObject.status == "Unfinished":
-                color="red"
-            else:
-                color="grey"
+            color = getCalendarColorByStatus(eventObject.status)
             #appends
             users.append(eventObject.user)
             startSchedules.append(startDate)
@@ -1254,8 +1168,94 @@ def addItem(request):
     except:
         return render(request,'monitoring/BadRequest.html')
 
+@login_required(login_url="/monitoring/login")
+def setPoolConnection(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
+    usertype = Type.objects.get(pk=request.user.pk)
+    adminType= Usertype_Ref.objects.get(pk=1)
+    if usertype.type == adminType:
+        if request.method == 'POST':
+            msg = None
+            print('request POST')
+            form = RegisterPool(request.POST)
+            if form.is_valid():
+                print('forms valid YEYYYYYYYYYYYY')
+                form.save()
+                print('form1 saved')
 
-###reusable methods
+                msg='success'
+                form = RegisterPool()
+                content={
+                    'form':form,
+                    'msg' : msg,
+                    'notifications':notifications,
+                    'notifCount':notifCount,
+                }
+                return render(request, 'monitoring/pool owner/set-pool-connection.html',content)
+
+            else:
+                msg='error'
+                content={
+                    'form':form,
+                    'msg' : msg,
+                    'notifications':notifications,
+                    'notifCount':notifCount,
+                }
+                return render(request, 'monitoring/pool owner/set-pool-connection.html',content)
+
+        else:
+            form = RegisterPool()
+            return render(request, 'monitoring/pool owner/set-pool-connection.html',locals())
+    else:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
+
+
+
+
+@login_required(login_url="/monitoring/login")
+def disconnectPool(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
+    usertype = Type.objects.get(pk=request.user.pk)
+    adminType= Usertype_Ref.objects.get(pk=1)
+    if usertype.type == adminType:
+        if request.method == 'POST':
+            msg = None
+            print('request POST')
+            form = RegisterPool(request.POST)
+            if form.is_valid():
+                print('forms valid YEYYYYYYYYYYYY')
+                form.save()
+                print('form1 saved')
+
+                msg='success'
+                form = RegisterPool()
+                content={
+                    'form':form,
+                    'msg' : msg,
+                    'notifications':notifications,
+                    'notifCount':notifCount,
+                }
+                return render(request, 'monitoring/pool owner/disconnect-pool.html',content)
+
+            else:
+                msg='error'
+                content={
+                    'form':form,
+                    'msg' : msg,
+                    'notifications':notifications,
+                    'notifCount':notifCount,
+                }
+                return render(request, 'monitoring/pool owner/disconnect-pool.html',content)
+
+        else:
+            form = RegisterPool()
+            return render(request, 'monitoring/pool owner/disconnect-pool.html',locals())
+    else:
+        return render(request, 'monitoring/pool owner/result-not-found.html')
+
+### reusable methods
 def Quality(observedVal, idealVal, badVal, weightVal):
     try:
         observedVal = decimal.Decimal(observedVal)
@@ -1498,108 +1498,8 @@ def computeDEPowder(squarefeet):
     print("============================ Returning "+str(dePowder)+" DE Powder use========================")
     return dePowder
 
-@login_required(login_url="/monitoring/login")
-def setPoolConnection(request):
-    notifications = getNotification(request)
-    notifCount=notifications.count()
-    usertype = Type.objects.get(pk=request.user.pk)
-    adminType= Usertype_Ref.objects.get(pk=1)
-    if usertype.type == adminType:
-        if request.method == 'POST':
-            msg = None
-            print('request POST')
-            form = RegisterPool(request.POST)
-            if form.is_valid():
-                print('forms valid YEYYYYYYYYYYYY')
-                form.save()
-                print('form1 saved')
-
-                msg='success'
-                form = RegisterPool()
-                content={
-                    'form':form,
-                    'msg' : msg,
-                    'notifications':notifications,
-                    'notifCount':notifCount,
-                }
-                return render(request, 'monitoring/pool owner/set-pool-connection.html',content)
-
-            else:
-                msg='error'
-                content={
-                    'form':form,
-                    'msg' : msg,
-                    'notifications':notifications,
-                    'notifCount':notifCount,
-                }
-                return render(request, 'monitoring/pool owner/set-pool-connection.html',content)
-
-        else:
-            form = RegisterPool()
-            return render(request, 'monitoring/pool owner/set-pool-connection.html',locals())
-    else:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
-
-
-
-
-@login_required(login_url="/monitoring/login")
-def disconnectPool(request):
-    notifications = getNotification(request)
-    notifCount=notifications.count()
-    usertype = Type.objects.get(pk=request.user.pk)
-    adminType= Usertype_Ref.objects.get(pk=1)
-    if usertype.type == adminType:
-        if request.method == 'POST':
-            msg = None
-            print('request POST')
-            form = RegisterPool(request.POST)
-            if form.is_valid():
-                print('forms valid YEYYYYYYYYYYYY')
-                form.save()
-                print('form1 saved')
-
-                msg='success'
-                form = RegisterPool()
-                content={
-                    'form':form,
-                    'msg' : msg,
-                    'notifications':notifications,
-                    'notifCount':notifCount,
-                }
-                return render(request, 'monitoring/pool owner/disconnect-pool.html',content)
-
-            else:
-                msg='error'
-                content={
-                    'form':form,
-                    'msg' : msg,
-                    'notifications':notifications,
-                    'notifCount':notifCount,
-                }
-                return render(request, 'monitoring/pool owner/disconnect-pool.html',content)
-
-        else:
-            form = RegisterPool()
-            return render(request, 'monitoring/pool owner/disconnect-pool.html',locals())
-    else:
-        return render(request, 'monitoring/pool owner/result-not-found.html')
-
-
-def Quality(observedVal, idealVal, badVal, weightVal):
-    observedVal = decimal.Decimal(observedVal)
-    idealVal = decimal.Decimal(idealVal)
-    badVal = decimal.Decimal(badVal)
-    weightVal = decimal.Decimal(weightVal)
-    indexNum=0
-    qualityIndex=(observedVal-idealVal)/(badVal-idealVal)
-    qualityIndex=qualityIndex*100
-    indexNum=qualityIndex*weightVal
-    indexNum=indexNum
-    indexNum=round(indexNum, 0)
-    return indexNum
-
-def computeSodaAsh(phLevel):
+def computeSodaAsh(phLevel, multiplier):
+    #FOR every 5000 gallons increment multiplier by 1
     if phLevel < 6.7:
         sodaAsh = multiplier * 8
     elif phLevel <= 7:
@@ -1611,7 +1511,7 @@ def computeSodaAsh(phLevel):
     sodaAsh = round(sodaAsh, 1)
     return sodaAsh
 
-def computeMuriaticAcid(phLevel):
+def computeMuriaticAcid(phLevel, multiplier):
     if phLevel > 8.4:
         muriaticAcid = multiplier * 16
     elif phLevel >= 8:
@@ -1641,8 +1541,46 @@ def fixMuriaticAcidDisplay(muriaticAcid):
         muriaticAcidOutput = muriaticAcidOutput + str(muriaticAcid)+" qts"
     else:
         muriaticAcidOutput = "No need"
+    return muriaticAcidOutput
+
 def updatePoolChemicalProductPrice(productId, newPrice, effectiveDate):
     productId = productId
     newPrice = newPrice
     effectiveDate = effectiveDate
     return productId
+
+def calendarGetDate(b):
+    ihour=b.hour
+    dday=b.day
+    ihour+=8
+    if ihour>=24:
+        ihour-=24
+        dday+=1
+        try:
+            b=b.replace(day=dday)
+        except:
+            dday=1
+            b=b.replace(day=dday)
+    if ihour>=24:
+        ihour-=24
+    b=b.replace(hour=ihour)
+    dString=str(b.month)+"/"+str(b.day)+"/"+str(b.year)+" "+str(b.hour)+":"+str(b.minute)+":00"
+    #'7/31/2018 1:30:00' - #"October 13, 2014 11:13:00"
+    returnDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y %H:%M:00')
+    #startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
+    return returnDate
+    
+def getCalendarColorByStatus(s):
+    if status == "Notified":
+        color="#00cccc"
+    elif status == "Scheduled":
+        color="#0073b7"
+    elif status == "Accomplished":
+        color="#00a65a"
+    elif status == "Late":
+        color="#f39c12"
+    elif status == "Unfinished":
+        color="red"
+    else:
+        color="grey"
+    return color

@@ -322,20 +322,10 @@ def setMaintenanceCompute(request):
             phSum+=item.temp_phlevel
             phCount+=1
         if(phCount>0):
-            phMean = phSum/phCount
-            phx = []
-            for level in phList:
-                reading = level.temp_phlevel
-                reading -=phMean
-                reading = reading * reading
-                phx.append(reading)
-            newPhSum = 0
-            for read in phx:
-                newPhSum+= read
-            phVariance = newPhSum/phCount
-            phStandardDev = math.sqrt(phVariance)
-            phStandardDev=decimal.Decimal(phStandardDev)+phMean
-        phLevel =  phStandardDev
+            phStandardDev = computeStandardDeviation(phSum, phCount, phList)
+        else:
+            phStandardDev = "No Value"
+        phLevel=phStandardDev
         #get gallons
         cubicpool = poolitem.pool_width * poolitem.pool_depth * poolitem.pool_length
         poolGallons = cubicpool * decimal.Decimal(7.5)
@@ -353,32 +343,44 @@ def setMaintenanceCompute(request):
             gallons-=5000
         #soda ash computation
         showButton=1
-        if phLevel < 7.4:
-            muriaticAcidOutput="No Need"
-            muriaticAcidVal=0
-            sodaAsh=computeSodaAsh(phLevel)
-            sodaAshVal = sodaAsh
-            sodaAshOutput=fixSodaAshOutputDisplay(sodaAsh)
-            if(sodaAshOutput=="No need"):
-                sodaAshVal=0
-        elif phLevel > 7.4:#muriatic acid computation
-            sodaAshOutput="No Need"
-            sodaAshVal=0
-            muriaticAcid=computeMuriaticAcid(phLevel)
-            muriaticAcidVal = fixMuriaticAcidDisplay(muriaticAcid)
-            if(muriaticAcidVal=="No need"):
+        try:
+            if phLevel < 7.4:
+                muriaticAcidOutput="No Need"
                 muriaticAcidVal=0
-        else:
-            print('water is balanced')
-            sodaAshOutput="No Need"
-            muriaticAcidOutput="No Need"
-            dePowderOutput="No Need"
-            muriaticAcidOutput="No Need"
+                sodaAsh=computeSodaAsh(phLevel)
+                sodaAshVal = sodaAsh
+                sodaAshOutput=fixSodaAshOutputDisplay(sodaAsh)
+                if(sodaAshOutput=="No need"):
+                    sodaAshVal=0
+            elif phLevel > 7.4:#muriatic acid computation
+                sodaAshOutput="No Need"
+                sodaAshVal=0
+                muriaticAcid=computeMuriaticAcid(phLevel)
+                muriaticAcidVal = fixMuriaticAcidDisplay(muriaticAcid)
+                if(muriaticAcidVal=="No need"):
+                    muriaticAcidVal=0
+            else:
+                print('water is balanced')
+                sodaAshOutput="No Need"
+                muriaticAcidOutput="No Need"
+                dePowderOutput="No Need"
+                muriaticAcidOutput="No Need"
+                sodaAshVal=0
+                muriaticAcidVal=0
+                dePowderVal=0
+                muriaticAcidVal=0
+                showButton=0
+        except:
+            print('No Value Retrieved')
+            sodaAshOutput="Cannot Compute"
+            muriaticAcidOutput="Cannot Compute"
+            dePowderOutput="Cannot Compute"
+            muriaticAcidOutput="Cannot Compute"
             sodaAshVal=0
             muriaticAcidVal=0
             dePowderVal=0
             muriaticAcidVal=0
-            showButton=0
+            showButton=1
         #no chlorine computation
         content = {
             'debugger':"",

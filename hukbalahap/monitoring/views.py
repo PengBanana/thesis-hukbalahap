@@ -771,7 +771,7 @@ def filterPoolStat(request):
 def viewMaintenance(request):
     notifications = getNotification(request)
     notifCount=notifications.count()
-    try:
+    if 0==0:
         maintenanceSchedule = MaintenanceSchedule.objects.all().order_by("scheduledStart")
         #"October 13, 2014 11:13:00"
         users=[]
@@ -781,7 +781,7 @@ def viewMaintenance(request):
         eventids=[]
         debugger=[]
         for eventObject in maintenanceSchedule:
-            startDate=calendarGetStartDates(eventObject.scheduledStart)
+            startDate=calendarGetDate(eventObject.scheduledStart)
             if eventObject.scheduledStart == None:
                 startDate=calendarGetDate(eventObject.estimatedStart)
             else:
@@ -816,7 +816,7 @@ def viewMaintenance(request):
             'notifications':notifications,
         }
         return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
-    except:
+    else:
         return render(request,'monitoring/BadRequest.html')
 
 @login_required(login_url="/monitoring/login")
@@ -983,7 +983,7 @@ def submitMaintenanceChemicals(request):
         eventids=[]
         debugger=[]
         for eventObject in maintenanceSchedule:
-            startDate=calendarGetStartDates(eventObject.scheduledStart)
+            startDate=calendarGetDate(eventObject.scheduledStart)
             if eventObject.scheduledStart == None:
                 startDate=calendarGetDate(eventObject.estimatedStart)
             else:
@@ -1570,7 +1570,7 @@ def calendarGetDate(b):
     #startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
     return returnDate
     
-def getCalendarColorByStatus(s):
+def getCalendarColorByStatus(status):
     if status == "Notified":
         color="#00cccc"
     elif status == "Scheduled":

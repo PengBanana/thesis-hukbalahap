@@ -304,7 +304,7 @@ def setMaintenance(request):
 def setMaintenanceCompute(request):
     notifications = getNotification(request)
     notifCount=notifications.count()
-    try:
+    if 0==0:
         poolPK = request.POST['poolPK']
         dRange = request.POST['dRange']
         tStart = request.POST['tStart']
@@ -331,7 +331,8 @@ def setMaintenanceCompute(request):
         poolGallons = cubicpool * decimal.Decimal(7.5)
         squarefeet= poolitem.pool_length * poolitem.pool_width
         #DE powder computation
-        computeDEPowder(squarefeet)
+        dePowderVal=computeDEPowderValOnly(squarefeet)
+        dePowderOutput=computeDEPowder(squarefeet)
         #multiplier
         gallons = poolGallons
         multiplier = 0
@@ -400,7 +401,7 @@ def setMaintenanceCompute(request):
             'showButton':showButton,
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule-compute.html', content)
-    except:
+    else:
         return render(request,'monitoring/BadRequest.html')
 
 
@@ -974,6 +975,8 @@ def submitMaintenanceChemicals(request):
         item.act_bakingsoda = decimal.Decimal(sodaAsh)
         item.status = "Accomplished"
         item.save()
+        #TODO: record Chemical usage
+        #useItem(chemicalName, usageCount, item.pool, item.user)
         maintenanceSchedule = MaintenanceSchedule.objects.all().order_by("scheduledStart")
         #"October 13, 2014 11:13:00"
         users=[]
@@ -1385,12 +1388,13 @@ def addChemicalItem(name, price, usageLimit):
     except:
         return "xxxxxxxxxxxxxxxx FAILURE: item was not added (def addChemicalItem) xxxxxxxxxxxxxxxxxxxx"
 
-def useItem(item, usageCount):
+def useItem(chemicalName, usageCount, poolRef, user):
     try:
         #todo:chemicalUsageLog
         #####get referenced item
         today=datetime.date.today()
         ##### get pool used at
+        #poolUsed=Pool.objects.filter(pool_name=poolRef.pool_name)
         #####add To Logs Table
         print("========================= item used =======================" + str(today))
     except:
@@ -1497,7 +1501,14 @@ def computeDEPowder(squarefeet):
         dePowder=None
     print("============================ Returning "+str(dePowder)+" DE Powder use========================")
     return dePowder
-
+def computeDEPowderValOnly(squarefeet):
+    try:
+        dePowder = squarefeet*decimal.Decimal(.1)
+        dePowder = dePowder*decimal.Decimal(.8)
+        dePowder = round(dePowder, 1)
+    except:
+        dePowder=0
+    return dePowder
 def computeSodaAsh(phLevel, multiplier):
     #FOR every 5000 gallons increment multiplier by 1
     if phLevel < 6.7:

@@ -157,19 +157,7 @@ def batchCount10Turbidity():
         tempSum+=item.temp_turbiditylevel
         tempCount+=1
     if(tempCount>0):
-        tempMean = tempSum/tempCount
-        tempx = []
-        for level in turbidityList:
-            reading = level.temp_turbiditylevel
-            reading -=tempMean
-            reading = reading * reading
-            tempx.append(reading)
-        newTempSum = 0
-        for read in tempx:
-            newTempSum+= read
-        turbidityVariance = newTempSum/tempCount
-        turbidityStandardDev = math.sqrt(turbidityVariance)
-        turbidityStandardDev = decimal.Decimal(turbidityStandardDev)+tempMean
+        turbidityStandardDev = computeStandardDeviation(tempSum, tempCount, turbidityList)
         Final_Turbidity.objects.create(pool_id='1', final_turbiditylevel=turbidityStandardDev, final_turbiditydatetime=datetime.datetime.now())
         print("Final_Turbidity Value Added: Enrique Razon Building, " + str(turbidityStandardDev) + ", " + str(datetime.datetime.now()))
 
@@ -201,19 +189,7 @@ def batchCount10Temp():
         tempSum+=item.temp_temperaturelevel
         tempCount+=1
     if(tempCount>0):
-        tempMean = tempSum/tempCount
-        tempx = []
-        for level in temperatureList:
-            reading = level.temp_temperaturelevel
-            reading -=tempMean
-            reading = reading*reading
-            tempx.append(reading)
-        newTempSum = 0
-        for read in tempx:
-            newTempSum+= read
-        tempVariance = newTempSum/tempCount
-        tempStandardDev = math.sqrt(tempVariance)
-        tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
+        tempStandardDev= computeStandardDeviation(tempSum, tempCount, temperatureList)
         Final_Temperature.objects.create(pool_id='1', final_temperaturelevel=tempStandardDev, final_temperaturedatetime=datetime.datetime.now())
         print("Final_Temperature Value Added: Enrique Razon Building, " + str(tempStandardDev) + ", " + str(datetime.datetime.now()))
 

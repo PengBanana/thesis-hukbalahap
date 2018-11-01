@@ -64,7 +64,7 @@ class Status(models.Model):
 	status = models.ForeignKey(Status_Ref, default = 1, on_delete=models.CASCADE)
 
 	def __str__(self):
-		return str(self.user)
+		return str(self.user) + " | " + str(self.status)
 
 @receiver(post_save, sender=User)
 def create_user_status(sender, instance, created, **kwargs):
@@ -78,7 +78,7 @@ def save_user_status(sender, instance, **kwargs):
 #MobileNumber
 class MobileNumber(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	mobileNumber = models.CharField(max_length=13)
+	mobileNumber = models.CharField(max_length=13, default="", null=True)
 
 	def __str__(self):
 		return str(self.user) + " | " + str(self.mobileNumber)

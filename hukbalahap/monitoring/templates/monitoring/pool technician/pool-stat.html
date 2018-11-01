@@ -51,6 +51,19 @@
         //console.log(dateValue.split('-')[0] )
         //console.log(dateValue.split('-')[1] )
     })
+
+
+
+      $(function () {
+        $('#example2').DataTable({
+          'paging'      : true,
+          'lengthChange': false,
+          'searching'   : true,
+          'ordering'    : true,
+          'info'        : true,
+          'autoWidth'   : false
+        })
+      })
 </script>
 {% endblock %}
 {% block content %}
@@ -64,6 +77,8 @@
     </ol>
   </div>
   <h1>{{pool.pool_name}}</h1>
+
+
 
   <table>
     <tr>
@@ -85,121 +100,176 @@
       </td>
     </tr>
   </table>
-<!--
-  <div class="row">
-    <div class ="col-xs-1">
-      <div class="form-group">
-        <div class="input-group">
-          <button type="button" class="date-btn btn btn-default pull-right" id="daterange-btn">
-            <span class="date-value">
-              <i class="fa fa-calendar"></i> Select Date Range
-            </span>
-            <i class="fa fa-caret-down"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-      <div class="col-xs-10"  style="padding-left:5%;">
-        <button type="button" class="applyBtn btn btn-success">apply
-          </button>
-      </div>
-  </div>
--->
   <div class="row">
     <div class="col-md-12">
-      <!-- LINE CHART -->
-      <div class="box box-info">
-        <div class="box-header with-border">
-          <h3 class="box-title">pH Level</h3>
+      <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#waterParameter" data-toggle="tab"><h4>Water Parameter Trends</h4></a></li>
+          <li><a href="#poolCalendar" data-toggle="tab"><h4>Pool Calendar Schedule</h4></a></li>
+          <li><a href="#chemicalContent" data-toggle="tab"><h4>Record Chemical Volumes added</h4></a></li>
+          <li><a href="#chemicalUsage" data-toggle="tab"><h4>Chemical Usage</h4></a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="active tab-pane" id="waterParameter">
 
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-            </button>
+
+            <!--water parameters statistics -->
+
+            <div class="box box-info">
+              <div class="box-header with-border">
+                <h3 class="box-title">pH Level</h3>
+
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="box-body chart-responsive">
+                <div class="chart" id="phChart" style="height: 150px;">
+
+                </div>
+              </div>
+              <!-- /.box-body -->
+            </div>
+
+
+
+
+            <div class="box box-info">
+              <div class="box-header with-border">
+                <h3 class="box-title">Temperature Level</h3>
+
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="box-body chart-responsive">
+                <div class="chart" id="tempChart" style="height: 150px;">
+
+                </div>
+              </div>
+              <!-- /.box-body -->
+            </div>
+
+            <!-- LINE CHART -->
+            <div class="box box-info">
+              <div class="box-header with-border">
+                <h3 class="box-title">Turbidity Level</h3>
+
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="box-body chart-responsive">
+                <div class="chart" id="turbidityChart" style="height: 150px;">
+
+                </div>
+              </div>
+              <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+
+
+
+            <!-- end of water parameters statistics-->
           </div>
-        </div>
-        <div class="box-body chart-responsive">
-          <div class="chart" id="phChart" style="height: 150px;">
+          <!-- /.tab-pane -->
+          <div class="tab-pane" id="poolCalendar">
+            <!-- The pool schedule -->
+
+            <section class="content">
+              <div class="row">
+                <div class="col-xs-12">
+                  <div class="box">
+                    <div class="box-header">
+                      <h3 class="box-title">Pool Technician List</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                      <table id="example2" class="table table-bordered table-hover">
+                        <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Time</th>
+                          <th>Pool Technician Assigned</th>
+                          <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        <tr>
+                          <td>October 31, 2018</td>
+                          <td>2:00PM - 4:00PM</td>
+                          <td>Alvin De Guzman</td>
+                          <td>  <label class="label label-success" style="font-size:15px"> On-Time</label>
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                          <td>October 29, 2018</td>
+                          <td>2:00PM - 4:00PM</td>
+                          <td>Alvin De Guzman</td>
+                          <td>  <label class="label label-warning" style="font-size:15px"> Delayed</label>
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+                          <td>October 11, 2018</td>
+                          <td>2:00PM - 4:00PM</td>
+                          <td>Alvin De Guzman</td>
+                          <td>  <label class="label label-danger" style="font-size:15px"> Overdue</label>
+                            </td>
+
+                        </tr>
+
+                        <tr> <!-- papalitan ko pa kulay kapag scheduledd-->
+                          <td>October 31, 2018</td>
+                          <td>2:00PM - 4:00PM</td>
+                          <td>Alvin De Guzman</td>
+                          <td>  <label class="label label-default" style="font-size:15px">Scheduled</label>
+                            </td>
+
+                        </tr>
+
+
+                        </tbody>
+                      </table>
+                    </div>
+                    <!-- /.box-body -->
+                  </div>
+                </div>
+                <!-- /.col -->
+              </div>
+              <!-- /.row -->
+            </section>
 
           </div>
+          <!-- /.tab-pane -->
+
+          <div class="tab-pane" id="chemicalContent">
+
+          </div>
+
+          <div class="tab-pane" id="chemicalUsage">
+
+          </div>
+          <!-- /.tab-pane -->
         </div>
-        <!-- /.box-body -->
+        <!-- /.tab-content -->
       </div>
-      <!-- /.box -->
-
+      <!-- /.nav-tabs-custom -->
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-md-12">
-      <!-- LINE CHART -->
-      <div class="box box-info">
-        <div class="box-header with-border">
-          <h3 class="box-title">Temperature Level</h3>
-
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-            </button>
-          </div>
-        </div>
-        <div class="box-body chart-responsive">
-          <div class="chart" id="tempChart" style="height: 150px;">
-
-          </div>
-        </div>
-        <!-- /.box-body -->
-      </div>
-      <!-- /.box -->
 
 
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-12">
-      <!-- LINE CHART -->
-      <div class="box box-info">
-        <div class="box-header with-border">
-          <h3 class="box-title">Turbidity Level</h3>
-
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-            </button>
-          </div>
-        </div>
-        <div class="box-body chart-responsive">
-          <div class="chart" id="turbidityChart" style="height: 150px;">
-
-          </div>
-        </div>
-        <!-- /.box-body -->
-      </div>
-      <!-- /.box -->
 
 
-    </div>
-  </div>
-
-<!--  <div class="row">
-    <div class="col-md-12">
-
-      <div class="box box-info">
-        <div class="box-header with-border">
-          <h3 class="box-title">Chlorine Effectiveness Level</h3>
-
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-            </button>
-          </div>
-        </div>
-        <div class="box-body chart-responsive">
-          <div class="chart" id="line-chart-chlorine" style="height: 150px;">
-
-          </div>
-        </div>
-        <!-- /.box-body
-      </div>
-      <!-- /.box
-    -->
 
 
     </div>

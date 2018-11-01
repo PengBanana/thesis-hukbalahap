@@ -78,19 +78,10 @@ def save_user_status(sender, instance, **kwargs):
 #MobileNumber
 class MobileNumber(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	mobileNumber = models.CharField(max_length=13, default="", null=True)
+	mobileNumber = models.CharField(max_length=13, default=None, null=True, blank=True)
 
 	def __str__(self):
 		return str(self.user) + " | " + str(self.mobileNumber)
-
-@receiver(post_save, sender=User)
-def create_user_mobilenumber(sender, instance, created, **kwargs):
-    if created:
-       MobileNumber.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_mobilenumber(sender, instance, **kwargs):
-    instance.mobilenumber.save()
 
 # Dependent Classes
 class uPool(models.Model):

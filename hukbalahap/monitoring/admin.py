@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Pool, Usertype_Ref, Type, Status_Ref, Status, MaintenanceSchedule, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Chlorine_Effectiveness, Notification_Table, uPool, Chemical_Item, Chemical_Usage_Log, Chemical_Price_Reference
+from .models import Pool, Usertype_Ref, Type, Status_Ref, Status, MaintenanceSchedule, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Chlorine_Effectiveness, Notification_Table, uPool, Chemical_Item, Chemical_Usage_Log, Chemical_Price_Reference, MobileNumber
 
 admin.site.register(Pool)
 admin.site.register(Usertype_Ref)
@@ -21,3 +21,4 @@ admin.site.register(uPool)
 admin.site.register(Chemical_Item)
 admin.site.register(Chemical_Usage_Log)
 admin.site.register(Chemical_Price_Reference)
+admin.site.register(MobileNumber)

@@ -1101,6 +1101,11 @@ def personnelEfficiency(request):
 
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):
+    yearNow=datetime.date.today().year
+    chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow).exclude(status="Late").filter(status="Accomplished")
+    for schedule in chemicalReport:
+        schedule.act
+    #TODO: chemical consumption report
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
 
 

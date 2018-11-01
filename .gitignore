@@ -13,3 +13,7 @@ hukbalahap/db.sqlite3
 hukbalahap/db.sqlite3
 
 *.sqlite3
+hukbalahap/db.sqlite3
+hukbalahap/monitoring/__pycache__/admin.cpython-37.pyc
+hukbalahap/monitoring/__pycache__/models.cpython-37.pyc
+hukbalahap/monitoring/__pycache__/views.cpython-37.pyc

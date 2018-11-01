@@ -1289,7 +1289,50 @@ def disconnectPool(request):
             return render(request, 'monitoring/pool owner/disconnect-pool.html',locals())
     else:
         return render(request, 'monitoring/pool owner/result-not-found.html')
-
+    
+def getReportMonthYear(request):
+    if 0==0:
+        yearNow=request.POST['yearOption']
+        monthNow=request.POST['monthOption']
+        monthAsIs=monthNow
+        monthNow=datetime.datetime.strptime(monthNow, '%B').strftime('%m')
+        #yearNow=datetime.datetime.strptime(yearNow, '%Y')
+        monthNow=str(monthNow)
+        yearNow=str(yearNow)
+        chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow, date__month=monthNow).exclude(status="Late").filter(status="Accomplished")
+        #TODO: chemical consumption report
+        chlorineTotal=0
+        muriaticTotal=0
+        dePowderTotal=0
+        bakingSodaTotal=0
+        itemCounter=0
+        for item in chemicalReport:
+            chlorineTotal+=item.act_chlorine
+            muriaticTotal+=item.act_muriatic
+            dePowderTotal+=item.act_depowder
+            bakingSodaTotal+=item.act_bakingsoda
+            itemCounter+=1
+        dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
+        reportMonth= str(monthAsIs)+" "+str(yearNow)
+        if itemCounter<1:
+            chlorineTotal="n/a"
+            muraticTotal="n/a"
+            dePowderTotal="n/a"
+            bakingSodaTotal="n/a"
+        #date display format August 5, 2018
+        context={
+            "ic":itemCounter,
+            "ct":chlorineTotal,
+            "mt":muriaticTotal,
+            "dt":dePowderTotal,
+            "bt":bakingSodaTotal,
+            "dg":dateGenerated,
+            "rm":reportMonth,
+            "chemicalItems":chemicalReport,
+        }
+        return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
+    else:
+        return render(request,'monitoring/BadRequest.html')
 ### reusable methods
 def Quality(observedVal, idealVal, badVal, weightVal):
     try:

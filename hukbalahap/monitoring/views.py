@@ -120,37 +120,11 @@ def batchCount10pH():
         tempSum+=item.temp_phlevel
         tempCount+=1
     if(tempCount>0):
-        tempMean = tempSum/tempCount
-        tempx = []
-        for level in pHList:
-            reading = level.temp_phlevel
-            reading -=tempMean
-            reading = reading * reading
-            tempx.append(reading)
-        newTempSum = 0
-        for read in tempx:
-            newTempSum+= read
-        pHVariance = newTempSum/tempCount
-        pHStandardDev = math.sqrt(pHVariance)
-        pHStandardDev= decimal.Decimal(pHStandardDev)+tempMean
-        pHStandardDev = round(pHStandardDev, 1)
-        print("yah")
+        pHStandardDev = computeStandardDeviation(tempSum, tempCount, pHList)
         Final_Ph.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
         print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))
         ##new notification
-        if pHStandardDev < 7.2 or pHStandardDev > 7.8:
-            poolx=Pool.objects.get(id=1)
-            messagex = poolx.pool_location+" needs attention"
-            userx = User.objects.get(username="pooltech3")
-            try:
-                getNotification=Notification_Table.objects.all().filter(user=userx, number=1)
-            except Notification_Table.DoesNotExist:
-                newNotification= Notification_Table(
-                    user=userx,
-                    message=messagex,
-                    number = 1
-                )
-                newNotification.save()
+        phAlarm(pHStandardDev)
         ##end of new notification
 
 def count_temp_ph():
@@ -1910,3 +1884,26 @@ def getCalendarColorByStatus(status):
     else:
         color="grey"
     return color
+
+def phAlarm(pHStandardDev):
+    if pHStandardDev < 7.2 or pHStandardDev > 7.8:
+        poolx=Pool.objects.get(id=1)
+        messagex = poolx.pool_location+" needs attention"
+        userx = User.objects.get(username="pooltech3")
+        timetoday=datetime.today().strftime('%Y-%m-%d')
+        try:
+            notifCount=Notification_Table.objects.count.filter(user=userx, number=1)
+            if notifCount>0:
+                print("============================ alarm already exist no need to add new alarm========================")
+                #TODO: initiate email or text
+            else:
+                newNotification= Notification_Table(
+                user=userx,
+                message=messagex,
+                number = 1
+                )
+                newNotification.save()
+                #TODO: notify email or text
+        except:
+            print("xxxxxxxxxxxxxxxxxxxxx FAILURE: phAlarmNotification cannot be processed xxxxxxxxxxxxxxx")
+    

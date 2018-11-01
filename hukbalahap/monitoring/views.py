@@ -1116,9 +1116,9 @@ def chemicalConsumption(request):
         bakingSodaTotal+=item.act_bakingsoda
     context={
         "ct":chlorineTotal,
-        "mt":muriaticTotal
-        "dt":dePowderTotal
-        "bt":bakingSodaTotal
+        "mt":muriaticTotal,
+        "dt":dePowderTotal,
+        "bt":bakingSodaTotal,
         "chemicalItems":chemicalReport
     }
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)

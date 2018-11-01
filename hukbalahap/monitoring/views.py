@@ -1102,12 +1102,26 @@ def personnelEfficiency(request):
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):
     yearNow=datetime.date.today().year
-    chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow).exclude(status="Late").filter(status="Accomplished")
-    for schedule in chemicalReport:
-        schedule.act
+    monthNow=datetime.date.month().month
+    chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow, date__month=monthNow).exclude(status="Late").filter(status="Accomplished")
     #TODO: chemical consumption report
-    return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
-
+    chlorineTotal=0
+    muraticTotal=0
+    dePowderTotal=0
+    bakingSodaTotal=0
+    for item in chemicalReport:
+        chlorineTotal+=item.act_chlorine
+        muraticTotal+=item.act_muriatic
+        dePowderTotal+=item.act_depowder
+        bakingSodaTotal+=item.act_bakingsoda
+    context={
+        "ct":chlorineTotal,
+        "mt":muriaticTotal
+        "dt":dePowderTotal
+        "bt":bakingSodaTotal
+        "chemicalItems":chemicalReport
+    }
+    return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
 
 @login_required(login_url="/monitoring/login")
 def addPool(request):

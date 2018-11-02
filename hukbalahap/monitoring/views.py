@@ -1305,7 +1305,9 @@ def getReportMonthYear(request):
         muriaticTotal=0
         dePowderTotal=0
         bakingSodaTotal=0
+        totalCost=02
         itemCounter=0
+        #retrieve price
         for item in chemicalReport:
             chlorineTotal+=item.act_chlorine
             muriaticTotal+=item.act_muriatic
@@ -1670,3 +1672,13 @@ def getCalendarColorByStatus(status):
     else:
         color="grey"
     return color
+
+def getItemPrice(chemical):
+    if(chemical == "Chlorine"):
+        print("chemical price for chlorine computed")
+    elif(chemical == "Muriatic Acid"):
+        print("chemical price for Muriatic Acid computed")
+    elif(chemical == "Baking Soda"):
+        print("chemical price for Baking Soda computed")
+    elif(chemical == "DE Powder"):
+        print("chemical price for DE Powder computed")

@@ -162,11 +162,11 @@ tfoot {  font-weight: bold;}
                 <table id="example2" class="table table-bordered ">
                   <thead>
                     <th>Date</th>
-                    <th>Chlorine</th>
-                    <th>DE Powder</th>
-                    <th>Ash Powder</th>
-                    <th>Muriatic</th>
-                    <th>Estimated<br>Amount Spent</th>
+                    <th>Chlorine(ml)</th>
+                    <th>DE Powder(lbs)</th>
+                    <th>Baking Soda(lbs)</th>
+                    <th>Muriatic Acid(ml)</th>
+                    <th>Estimated<br>Amount Spent(PHP)</th>
                   </thead>
                 {% if ic > 0 %}
                 {% for item in chemicalItems %}
@@ -200,6 +200,7 @@ tfoot {  font-weight: bold;}
                 </tr>
                 {% endif %}
                 </table>
+                  <h1>END OF REPORT</h1>
               </div>
               <!-- /.box-body -->
             </div>

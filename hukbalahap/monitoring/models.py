@@ -64,7 +64,7 @@ class Status(models.Model):
 	status = models.ForeignKey(Status_Ref, default = 1, on_delete=models.CASCADE)
 
 	def __str__(self):
-		return str(self.user)
+		return str(self.user) + " | " + str(self.status)
 
 @receiver(post_save, sender=User)
 def create_user_status(sender, instance, created, **kwargs):
@@ -78,19 +78,10 @@ def save_user_status(sender, instance, **kwargs):
 #MobileNumber
 class MobileNumber(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	mobileNumber = models.CharField(max_length=13)
+	mobileNumber = models.CharField(max_length=13, default=None, null=True, blank=True)
 
 	def __str__(self):
 		return str(self.user) + " | " + str(self.mobileNumber)
-
-@receiver(post_save, sender=User)
-def create_user_mobilenumber(sender, instance, created, **kwargs):
-    if created:
-       MobileNumber.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_mobilenumber(sender, instance, **kwargs):
-    instance.mobilenumber.save()
 
 # Dependent Classes
 class uPool(models.Model):
@@ -188,28 +179,11 @@ class Notification_Table(models.Model):
 	def __str__(self):
 		return str(self.user) +" - "+str(self.number)
 
-class Chemical_Item(models.Model):
-	chemicalName = models.TextField()
-	chemicalUsageLimit = models.IntegerField()
-	chemicalDescription = models.TextField()
-
-	def __str__(self):
-		return str(self.checmicalName)
-
 class Chemical_Price_Reference(models.Model):
-	chemical = models.ForeignKey(Chemical_Item, on_delete=models.DO_NOTHING)
-	effectiveDate = models.DateField()
+	chemical = models.TextField(default="")
+	quantity = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	price = models.DecimalField(max_digits=8, decimal_places=2, default="")
+	effectiveDate = models.DateField()
 
 	def __str__(self):
-		return str(self.chemical) +" - "+ str(self.effectiveDate) +" - "+ str(self.price)
-
-class Chemical_Usage_Log(models.Model):
-	chemical = models.ForeignKey(Chemical_Item, on_delete=models.DO_NOTHING)
-	pool = models.ForeignKey(Pool, null=True, on_delete=models.DO_NOTHING)
-	user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-	usageDate = models.DateField()
-	quantity = models.IntegerField()
-
-	def __str__(self):
-		return str(self.chemical) +" - "+ str(self.usageDate)
+		return str(self.chemical) +" - "+ str(self.effectiveDate) +" | "+ str(self.price)

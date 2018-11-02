@@ -1102,39 +1102,12 @@ def personnelEfficiency(request):
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):
     yearNow=datetime.date.today().year
-    monthNow=datetime.date.today().month
-    chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow, date__month=monthNow).exclude(status="Late").filter(status="Accomplished")
+    chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow).exclude(status="Late").filter(status="Accomplished")
+    for schedule in chemicalReport:
+        schedule.act
     #TODO: chemical consumption report
-    chlorineTotal=0
-    muriaticTotal=0
-    dePowderTotal=0
-    bakingSodaTotal=0
-    itemCounter=0
-    for item in chemicalReport:
-        chlorineTotal+=item.act_chlorine
-        muraticTotal+=item.act_muriatic
-        dePowderTotal+=item.act_depowder
-        bakingSodaTotal+=item.act_bakingsoda
-        itemCounter+=1
-    dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
-    reportMonth= datetime.datetime.now().strftime('%B %Y')
-    if itemCounter<1:
-        chlorineTotal="n/a"
-        muraticTotal="n/a"
-        dePowderTotal="n/a"
-        bakingSodaTotal="n/a"
-    #date display format August 5, 2018
-    context={
-        "ic":itemCounter,
-        "ct":chlorineTotal,
-        "mt":muriaticTotal,
-        "dt":dePowderTotal,
-        "bt":bakingSodaTotal,
-        "dg":dateGenerated,
-        "rm":reportMonth,
-        "chemicalItems":chemicalReport
-    }
-    return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
+    return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
+
 
 @login_required(login_url="/monitoring/login")
 def addPool(request):
@@ -1194,10 +1167,32 @@ def addItem(request):
             if request.method == 'POST':
                 return render(request, 'monitoring/pool technician/add-item.html',locals())
 
-                    #logic here 
+                    #logic here
             else:
 
                 return render(request, 'monitoring/pool technician/add-item.html',locals())
+        else:
+            return render(request,'monitoring/BadRequest.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
+
+
+
+@login_required(login_url="/monitoring/login")
+def changePrice(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
+    try:
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        if usertype.type != adminType:
+            if request.method == 'POST':
+                return render(request, 'monitoring/pool technician/change-price.html',locals())
+
+                    #logic here
+            else:
+
+                return render(request, 'monitoring/pool technician/change-price.html',locals())
         else:
             return render(request,'monitoring/BadRequest.html')
     except:
@@ -1289,50 +1284,7 @@ def disconnectPool(request):
             return render(request, 'monitoring/pool owner/disconnect-pool.html',locals())
     else:
         return render(request, 'monitoring/pool owner/result-not-found.html')
-    
-def getReportMonthYear(request):
-    if 0==0:
-        yearNow=request.POST['yearOption']
-        monthNow=request.POST['monthOption']
-        monthAsIs=monthNow
-        monthNow=datetime.datetime.strptime(monthNow, '%B').strftime('%m')
-        #yearNow=datetime.datetime.strptime(yearNow, '%Y')
-        monthNow=str(monthNow)
-        yearNow=str(yearNow)
-        chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow, date__month=monthNow).exclude(status="Late").filter(status="Accomplished")
-        #TODO: chemical consumption report
-        chlorineTotal=0
-        muriaticTotal=0
-        dePowderTotal=0
-        bakingSodaTotal=0
-        itemCounter=0
-        for item in chemicalReport:
-            chlorineTotal+=item.act_chlorine
-            muriaticTotal+=item.act_muriatic
-            dePowderTotal+=item.act_depowder
-            bakingSodaTotal+=item.act_bakingsoda
-            itemCounter+=1
-        dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
-        reportMonth= str(monthAsIs)+" "+str(yearNow)
-        if itemCounter<1:
-            chlorineTotal="n/a"
-            muraticTotal="n/a"
-            dePowderTotal="n/a"
-            bakingSodaTotal="n/a"
-        #date display format August 5, 2018
-        context={
-            "ic":itemCounter,
-            "ct":chlorineTotal,
-            "mt":muriaticTotal,
-            "dt":dePowderTotal,
-            "bt":bakingSodaTotal,
-            "dg":dateGenerated,
-            "rm":reportMonth,
-            "chemicalItems":chemicalReport,
-        }
-        return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
-    else:
-        return render(request,'monitoring/BadRequest.html')
+
 ### reusable methods
 def Quality(observedVal, idealVal, badVal, weightVal):
     try:
@@ -1655,7 +1607,7 @@ def calendarGetDate(b):
     returnDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y %H:%M:00')
     #startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
     return returnDate
-    
+
 def getCalendarColorByStatus(status):
     if status == "Notified":
         color="#00cccc"

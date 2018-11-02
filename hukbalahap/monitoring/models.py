@@ -181,19 +181,19 @@ class Notification_Table(models.Model):
 
 class Chemical_Item(models.Model):
 	chemicalName = models.TextField()
-	chemicalUsageLimit = models.IntegerField()
 	chemicalDescription = models.TextField()
 
 	def __str__(self):
-		return str(self.checmicalName)
+		return str(self.chemicalName)
 
 class Chemical_Price_Reference(models.Model):
 	chemical = models.ForeignKey(Chemical_Item, on_delete=models.DO_NOTHING)
-	effectiveDate = models.DateField()
+	quantity = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	price = models.DecimalField(max_digits=8, decimal_places=2, default="")
+	effectiveDate = models.DateField()
 
 	def __str__(self):
-		return str(self.chemical) +" - "+ str(self.effectiveDate) +" - "+ str(self.price)
+		return str(self.chemical) +" - "+ str(self.effectiveDate) +" | "+ str(self.price)
 
 class Chemical_Usage_Log(models.Model):
 	chemical = models.ForeignKey(Chemical_Item, on_delete=models.DO_NOTHING)

@@ -176,7 +176,11 @@ tfoot {  font-weight: bold;}
                     <td align="right">{{ item.act_depowder }}</td>
                     <td align="right">{{ item.act_bakingsoda }}</td>
                     <td align="right">{{ item.act_muriatic }}</td>
-                    <td align="right">Function Unavailable</td>
+                {% for cost in rcl%}
+                {% if forloop.counter == forloop.parentloop.counter %}
+                    <td align="right">{{ cost }}</td>
+                {% endif %}
+                {% endfor%}
                 </tr>
                 {% endfor %}
                 <tfoot>
@@ -186,7 +190,7 @@ tfoot {  font-weight: bold;}
                     <td align="right">{{ dt }}</td>
                     <td align="right">{{ bt }}</td>
                     <td align="right">{{ mt }}</td>
-                    <td align="right">Function Unavailable</td>
+                    <td align="right">{{ tc }}</td>
                 </tr>
                 </tfoot>
                 {% else %}

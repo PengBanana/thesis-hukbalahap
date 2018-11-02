@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404,redirect
-from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref, MaintenanceSchedule, Notification_Table
+from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref, MaintenanceSchedule, Notification_Table,Chemical_Price_Reference
 from .forms import SignUpForm, SignUpType, Pool,EditDetailsForm,ChangePasswordForm,RegisterPool
 from django.views.generic import TemplateView
 from django.db.models import Q
@@ -1110,6 +1110,51 @@ def chemicalConsumption(request):
     dePowderTotal=0
     bakingSodaTotal=0
     itemCounter=0
+    totalCost=0
+    itemCounter=0
+    ccl=[]
+    mcl=[]
+    dcl=[]
+    bscl=[]
+    rcl=[]
+    #retrieve price
+    for item in chemicalReport:
+        chlorineTotal+=item.act_chlorine
+        chlorineCost=computeCost("Chlorine", item.act_chlorine, item.datetimeAccomplished)
+        muriaticTotal+=item.act_muriatic
+        muriaticCost=computeCost("Muriatic Acid", item.act_muriatic, item.datetimeAccomplished)
+        dePowderTotal+=item.act_depowder
+        deCost=computeCost("DE Powder", item.act_depowder, item.datetimeAccomplished)
+        bakingSodaTotal+=item.act_bakingsoda
+        bakingsodaCost=computeCost("Baking Soda", item.act_bakingsoda, item.datetimeAccomplished)
+        itemCounter+=1
+        rowCost=chlorineCost+muriaticCost+deCost+bakingsodaCost
+        ccl.append(chlorineCost)
+        mcl.append(muriaticCost)
+        dcl.append(deCost)
+        bscl.append(bakingsodaCost)
+        rcl.append(rowCost)
+        totalCost+=rowCost
+    dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
+    reportMonth= str(monthNow)+" "+str(yearNow)
+    if itemCounter<1:
+        chlorineTotal="n/a"
+        muraticTotal="n/a"
+        dePowderTotal="n/a"
+        bakingSodaTotal="n/a"
+    #date display format August 5, 2018
+    context={
+        "rcl":rcl,
+        "tc":totalCost,
+        "ic":itemCounter,
+        "ct":chlorineTotal,
+        "mt":muriaticTotal,
+        "dt":dePowderTotal,
+        "bt":bakingSodaTotal,
+        "dg":dateGenerated,
+        "rm":reportMonth,
+        "chemicalItems":chemicalReport,
+    }
     for item in chemicalReport:
         chlorineTotal+=item.act_chlorine
         muraticTotal+=item.act_muriatic
@@ -1305,15 +1350,31 @@ def getReportMonthYear(request):
         muriaticTotal=0
         dePowderTotal=0
         bakingSodaTotal=0
-        totalCost=02
+        totalCost=0
         itemCounter=0
+        ccl=[]
+        mcl=[]
+        dcl=[]
+        bscl=[]
+        rcl=[]
         #retrieve price
         for item in chemicalReport:
             chlorineTotal+=item.act_chlorine
+            chlorineCost=computeCost("Chlorine", item.act_chlorine, item.datetimeAccomplished)
             muriaticTotal+=item.act_muriatic
+            muriaticCost=computeCost("Muriatic Acid", item.act_muriatic, item.datetimeAccomplished)
             dePowderTotal+=item.act_depowder
+            deCost=computeCost("DE Powder", item.act_depowder, item.datetimeAccomplished)
             bakingSodaTotal+=item.act_bakingsoda
+            bakingsodaCost=computeCost("Baking Soda", item.act_bakingsoda, item.datetimeAccomplished)
             itemCounter+=1
+            rowCost=chlorineCost+muriaticCost+deCost+bakingsodaCost
+            ccl.append(chlorineCost)
+            mcl.append(muriaticCost)
+            dcl.append(deCost)
+            bscl.append(bakingsodaCost)
+            totalCost+=rowCost
+            rcl.append(rowCost)
         dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
         reportMonth= str(monthAsIs)+" "+str(yearNow)
         if itemCounter<1:
@@ -1323,6 +1384,8 @@ def getReportMonthYear(request):
             bakingSodaTotal="n/a"
         #date display format August 5, 2018
         context={
+            "rcl":rcl,
+            "tc":totalCost,
             "ic":itemCounter,
             "ct":chlorineTotal,
             "mt":muriaticTotal,
@@ -1673,12 +1736,31 @@ def getCalendarColorByStatus(status):
         color="grey"
     return color
 
-def getItemPrice(chemical):
-    if(chemical == "Chlorine"):
-        print("chemical price for chlorine computed")
-    elif(chemical == "Muriatic Acid"):
-        print("chemical price for Muriatic Acid computed")
-    elif(chemical == "Baking Soda"):
-        print("chemical price for Baking Soda computed")
-    elif(chemical == "DE Powder"):
-        print("chemical price for DE Powder computed")
+def computeCost(chemicalname, quantity, priceDate):
+    returnVal=0
+    try:
+        chemicalReference=Chemical_Price_Reference.objects.filter(chemical=chemicalname, effectiveDate__lte=priceDate).order_by(effectiveDate).reverse()[0]
+        if(chemical == "Chlorine"):
+            print("============================ chemical price for chlorine computed ============================")
+            chemicalPrice=chemicalReference.price
+            returnVal=quantity*chemicalPrice
+        elif(chemical == "Muriatic Acid"):
+            print("============================ chemical price for Muriatic Acid computed ============================")
+            chemicalPrice=chemicalReference.price
+            returnVal=quantity*chemicalPrice
+        elif(chemical == "Baking Soda"):
+            print("============================ chemical price for Baking Soda computed ============================")
+            chemicalPrice=chemicalReference.price
+            returnVal=quantity*chemicalPrice
+        elif(chemical == "DE Powder"):
+            print("============================ chemical price for DE Powder computed ============================")
+            chemicalPrice=chemicalReference.price
+            returnVal=quantity*chemicalPrice
+        else:
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxError: No Chemical price retirevedxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            returnVal="Error"
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxError: No Chemical price retirevedxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+        returnVal="Error"
+    return returnVal
+        

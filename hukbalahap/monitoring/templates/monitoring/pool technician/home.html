@@ -1,11 +1,60 @@
 {% extends "monitoring/pool technician/starter.html" %}
 
    {% block content %}
+   <h1>Pool Dashboard</h1>
+   <div class="row">
+     <div class="col-md-12">
+       <div class="box box-solid" >
+           <div class="box-header">
+             <h4>Legend</h4>
+          </div>
+            <div class="box-body">
+              <table class="table">
+                     <tr>
+                       <td width="1%"><svg width="18" height="18">
+                         <rect width="15" height="15"
+                         style="fill: green ;stroke-width:1;stroke:rgb(0,0,0)"  />
+                       Sorry, your browser does not support inline SVG.
+                     </svg></td>
+                       <td align="left">Normal</td>
+
+                         <td width="1%"><svg width="18" height="18">
+                           <rect width="15" height="15"
+                           style="fill: yellow ;stroke-width:1;stroke:rgb(0,0,0)"  />
+                         Sorry, your browser does not support inline SVG.
+                       </svg></td>
+                         <td align="left" width="250">Low</td>
+
+
+                         <td width="1%"><svg width="18" height="18">
+                           <rect width="15" height="15"
+                           style="fill: red ;stroke-width:1;stroke:rgb(0,0,0)"  />
+                         Sorry, your browser does not support inline SVG.
+                       </svg></td>
+                         <td align="left">Crtitically Low</td>
+
+                         <td width="1%"><svg width="18" height="18">
+                           <rect width="15" height="15"
+                           style="fill: white ;stroke-width:1;stroke:rgb(0,0,0)"  />
+                         Sorry, your browser does not support inline SVG.
+                       </svg></td>
+                         <td align="left">Not Connected</td>
+
+
+
+                     </tr>
+
+
+                   </table>
+                 </class>
+            </div>
+         </div>
+     </div>
+     </div>
    <div class="row">
      <div class="col-md-10">
        <div style="margin:15px;">
-       <h1>Pool Dashboard</h1>
-      <div class="row" style="padding-top:50px">
+      <div class="row" style="padding-top:10px">
           <div class="col-md-4">
             <label>Pool Name</label>
             <select class="form-control" name="poolPK">
@@ -25,47 +74,7 @@
       </div>
      </div>
     </div>
-    <div class="col-md-2">
-           <div class="box box-solid" >
-               <div class="box-header with-border">
-                 <h3 class="box-title" >Legend</h3>
-              </div>
-                <div class="box-body">
-                  <table class="table">
-                         <tr>
-                             <td><svg width="18" height="18">
-                               <rect width="15" height="15"
-                               style="fill: green ;stroke-width:1;stroke:rgb(0,0,0)" />
-                             Sorry, your browser does not support inline SVG.
-                             </svg></td>
-                           <td>Normal</td>
-                         </tr>
-                         <tr>
-                             <td><svg width="18" height="18">
-                               <rect width="15" height="15"
-                               style="fill: yellow ;stroke-width:1;stroke:rgb(0,0,0)" />
-                             Sorry, your browser does not support inline SVG.
-                             </svg></td>
-                           <td>Low</td>
-                         </tr>
-                         <tr>
-                             <td><svg width="18" height="18">
-                               <rect width="15" height="15"
-                               style="fill: red ;stroke-width:1;stroke:rgb(0,0,0)" />
-                             Sorry, your browser does not support inline SVG.
-                             </svg></td>
-                           <td>Critically Low</td>
-                         </tr>
-
-                       </table>
-                     </class>
-                </div>
-             </div>
-        </div>
-   </div>
-   <div class="row">
-
-   </div>
+  </div>
 
 
 <div class="row">

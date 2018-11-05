@@ -1399,6 +1399,26 @@ def getReportMonthYear(request):
         return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
     else:
         return render(request,'monitoring/BadRequest.html')
+
+@login_required(login_url="/monitoring/login")
+def changePrice(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
+    try:
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        if usertype.type != adminType:
+            if request.method == 'POST':
+                return render(request, 'monitoring/pool technician/change-price.html',locals())
+
+                    #logic here
+            else:
+
+                return render(request, 'monitoring/pool technician/change-price.html',locals())
+        else:
+            return render(request,'monitoring/BadRequest.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
 ### reusable methods
 def Quality(observedVal, idealVal, badVal, weightVal):
     try:

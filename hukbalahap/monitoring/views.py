@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404,redirect
-from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref, MaintenanceSchedule, Notification_Table
+from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref, MaintenanceSchedule, Notification_Table,Chemical_Price_Reference
 from .forms import SignUpForm, SignUpType, Pool,EditDetailsForm,ChangePasswordForm,RegisterPool
 from django.views.generic import TemplateView
 from django.db.models import Q
@@ -1106,8 +1106,86 @@ def chemicalConsumption(request):
     for schedule in chemicalReport:
         schedule.act
     #TODO: chemical consumption report
+<<<<<<< HEAD
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
 
+=======
+    chlorineTotal=0
+    muriaticTotal=0
+    dePowderTotal=0
+    bakingSodaTotal=0
+    itemCounter=0
+    totalCost=0
+    itemCounter=0
+    ccl=[]
+    mcl=[]
+    dcl=[]
+    bscl=[]
+    rcl=[]
+    #retrieve price
+    for item in chemicalReport:
+        chlorineTotal+=item.act_chlorine
+        chlorineCost=computeCost("Chlorine", item.act_chlorine, item.datetimeAccomplished)
+        muriaticTotal+=item.act_muriatic
+        muriaticCost=computeCost("Muriatic Acid", item.act_muriatic, item.datetimeAccomplished)
+        dePowderTotal+=item.act_depowder
+        deCost=computeCost("DE Powder", item.act_depowder, item.datetimeAccomplished)
+        bakingSodaTotal+=item.act_bakingsoda
+        bakingsodaCost=computeCost("Baking Soda", item.act_bakingsoda, item.datetimeAccomplished)
+        itemCounter+=1
+        rowCost=chlorineCost+muriaticCost+deCost+bakingsodaCost
+        ccl.append(chlorineCost)
+        mcl.append(muriaticCost)
+        dcl.append(deCost)
+        bscl.append(bakingsodaCost)
+        rcl.append(rowCost)
+        totalCost+=rowCost
+    dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
+    reportMonth= str(monthNow)+" "+str(yearNow)
+    if itemCounter<1:
+        chlorineTotal="n/a"
+        muraticTotal="n/a"
+        dePowderTotal="n/a"
+        bakingSodaTotal="n/a"
+    #date display format August 5, 2018
+    context={
+        "rcl":rcl,
+        "tc":totalCost,
+        "ic":itemCounter,
+        "ct":chlorineTotal,
+        "mt":muriaticTotal,
+        "dt":dePowderTotal,
+        "bt":bakingSodaTotal,
+        "dg":dateGenerated,
+        "rm":reportMonth,
+        "chemicalItems":chemicalReport,
+    }
+    for item in chemicalReport:
+        chlorineTotal+=item.act_chlorine
+        muraticTotal+=item.act_muriatic
+        dePowderTotal+=item.act_depowder
+        bakingSodaTotal+=item.act_bakingsoda
+        itemCounter+=1
+    dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
+    reportMonth= datetime.datetime.now().strftime('%B %Y')
+    if itemCounter<1:
+        chlorineTotal="n/a"
+        muraticTotal="n/a"
+        dePowderTotal="n/a"
+        bakingSodaTotal="n/a"
+    #date display format August 5, 2018
+    context={
+        "ic":itemCounter,
+        "ct":chlorineTotal,
+        "mt":muriaticTotal,
+        "dt":dePowderTotal,
+        "bt":bakingSodaTotal,
+        "dg":dateGenerated,
+        "rm":reportMonth,
+        "chemicalItems":chemicalReport
+    }
+    return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
+>>>>>>> 68029616cfaa98c4a96cc957535aec945c139cf7
 
 @login_required(login_url="/monitoring/login")
 def addPool(request):
@@ -1284,7 +1362,95 @@ def disconnectPool(request):
             return render(request, 'monitoring/pool owner/disconnect-pool.html',locals())
     else:
         return render(request, 'monitoring/pool owner/result-not-found.html')
+<<<<<<< HEAD
 
+=======
+    
+def getReportMonthYear(request):
+    if 0==0:
+        yearNow=request.POST['yearOption']
+        monthNow=request.POST['monthOption']
+        monthAsIs=monthNow
+        monthNow=datetime.datetime.strptime(monthNow, '%B').strftime('%m')
+        #yearNow=datetime.datetime.strptime(yearNow, '%Y')
+        monthNow=str(monthNow)
+        yearNow=str(yearNow)
+        chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow, date__month=monthNow).exclude(status="Late").filter(status="Accomplished")
+        #TODO: chemical consumption report
+        chlorineTotal=0
+        muriaticTotal=0
+        dePowderTotal=0
+        bakingSodaTotal=0
+        totalCost=0
+        itemCounter=0
+        ccl=[]
+        mcl=[]
+        dcl=[]
+        bscl=[]
+        rcl=[]
+        #retrieve price
+        for item in chemicalReport:
+            chlorineTotal+=item.act_chlorine
+            compareDate=convertToDateTime(item.datetimeAccomplished.month, item.datetimeAccomplished.day, item.datetimeAccomplished.year)
+            chlorineCost=computeCost("Chlorine", item.act_chlorine, compareDate)
+            muriaticTotal+=item.act_muriatic
+            muriaticCost=computeCost("Muriatic Acid", item.act_muriatic, compareDate)
+            dePowderTotal+=item.act_depowder
+            deCost=computeCost("DE Powder", item.act_depowder, compareDate)
+            bakingSodaTotal+=item.act_bakingsoda
+            bakingsodaCost=computeCost("Baking Soda", item.act_bakingsoda, compareDate)
+            itemCounter+=1
+            rowCost=chlorineCost+muriaticCost+deCost+bakingsodaCost
+            ccl.append(chlorineCost)
+            mcl.append(muriaticCost)
+            dcl.append(deCost)
+            bscl.append(bakingsodaCost)
+            totalCost+=rowCost
+            rcl.append(rowCost)
+        dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
+        reportMonth= str(monthAsIs)+" "+str(yearNow)
+        if itemCounter<1:
+            chlorineTotal="n/a"
+            muraticTotal="n/a"
+            dePowderTotal="n/a"
+            bakingSodaTotal="n/a"
+        #date display format August 5, 2018
+        context={
+            "rcl":rcl,
+            "tc":totalCost,
+            "ic":itemCounter,
+            "ct":chlorineTotal,
+            "mt":muriaticTotal,
+            "dt":dePowderTotal,
+            "bt":bakingSodaTotal,
+            "dg":dateGenerated,
+            "rm":reportMonth,
+            "chemicalItems":chemicalReport,
+        }
+        return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
+    else:
+        return render(request,'monitoring/BadRequest.html')
+
+@login_required(login_url="/monitoring/login")
+def changePrice(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
+    try:
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        if usertype.type != adminType:
+            if request.method == 'POST':
+                return render(request, 'monitoring/pool technician/change-price.html',locals())
+
+                    #logic here
+            else:
+
+                return render(request, 'monitoring/pool technician/change-price.html',locals())
+        else:
+            return render(request,'monitoring/BadRequest.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
+>>>>>>> 68029616cfaa98c4a96cc957535aec945c139cf7
 ### reusable methods
 def Quality(observedVal, idealVal, badVal, weightVal):
     try:
@@ -1622,3 +1788,46 @@ def getCalendarColorByStatus(status):
     else:
         color="grey"
     return color
+<<<<<<< HEAD
+=======
+
+def computeCost(chemicalname, quantity, priceDate):
+    returnVal=0
+    try:
+        print("============================ 1 ============================")
+        chemicalReference=Chemical_Price_Reference.objects.filter(chemical=chemicalname, effectiveDate__lte=priceDate).order_by().reverse()[0]
+        print("============================ 2 ============================")
+        if(chemicalname == "Chlorine"):
+            print("============================ chemical price for chlorine computed ============================")
+            chemicalPrice=chemicalReference.price/chemicalReference.quantity
+            returnVal=quantity*chemicalPrice
+        elif(chemicalname == "Muriatic Acid"):
+            print("============================ chemical price for Muriatic Acid computed ============================")
+            chemicalPrice=chemicalReference.price/chemicalReference.quantity
+            returnVal=quantity*chemicalPrice
+        elif(chemicalname == "Baking Soda"):
+            print("============================ chemical price for Baking Soda computed ============================")
+            chemicalPrice=chemicalReference.price/chemicalReference.quantity
+            returnVal=quantity*chemicalPrice
+        elif(chemicalname == "DE Powder"):
+            print("============================ chemical price for DE Powder computed ============================")
+            chemicalPrice=chemicalReference.price/chemicalReference.quantity
+            returnVal=quantity*chemicalPrice
+        else:
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxError: No Chemical price retirevedxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Try Error: No Chemical price retirevedxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    returnVal=round(returnVal, 2)
+    return returnVal
+
+def convertToDateTime(month, day, year):
+    yearCompare=year
+    monthCompare=month
+    dayCompare=day
+    compareDate=str(monthCompare)+"/"+str(dayCompare)+"/"+str(yearCompare)
+    compareDate=datetime.datetime.strptime(compareDate, '%m/%d/%Y').strftime('%Y-%m-%d')
+    #compareDate=datetime.datetime.strptime(compareDate, '%m/%d/%Y').date
+    returnVal=compareDate
+    return returnVal
+        
+>>>>>>> 68029616cfaa98c4a96cc957535aec945c139cf7

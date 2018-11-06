@@ -41,6 +41,21 @@
         labels: ['Temperature level']
     });
 
+    new Morris.Line({
+        element: 'forecastChart',
+        data: [
+          {y: '', item1: , item2: }, //kaw na magpalit netong mga nakasulat
+
+        ],
+        xkey: 'y',
+        ykeys: ['item1', 'item2'],
+        labels: ['Item 1', 'Item 2'],
+        lineColors: ['#a0d0e0', '#3c8dbc'],
+        hideHover: 'auto'
+    });
+
+
+
     $('.applyBtn').on('click', function() {
         var dateValue = $('.date-value').text()
         var datestart = dateValue.split('-')[0]
@@ -67,13 +82,8 @@
 </script>
 {% endblock %}
 {% block content %}
-  <div>
-    <ol class="breadcrumb" style="background-color: #ecf0f5;font-size:20px;">
-      <li><a href="{% url 'monitoring:index' %}"><i class="fa fa-arrow-circle-o-left "></i> Back</a></li>
-    </ol>
-  </div>
-  <h1>{{pool.pool_name}}</h1>
 
+  <h1 class="page-header" style="font-size:35px;border-bottom:1px solid #6c6c6d;">{{pool.pool_name}}</h1>
 
 
   <table>
@@ -102,6 +112,7 @@
         <ul class="nav nav-tabs">
           <li class="active"><a href="#waterParameter" data-toggle="tab"><h4>Water Parameter Trends</h4></a></li>
           <li><a href="#poolCalendar" data-toggle="tab"><h4>Pool Calendar Schedule</h4></a></li>
+          <li><a href="#poolForecast" data-toggle="tab"><h4>Water Parameter Forecast</h4></a></li>
           <li><a href="#chemicalContent" data-toggle="tab"><h4>Record Chemical Volumes added</h4></a></li>
           <li><a href="#chemicalUsage" data-toggle="tab"><h4>Chemical Usage</h4></a></li>
         </ul>
@@ -246,6 +257,33 @@
 
           </div>
           <!-- /.tab-pane -->
+
+          <div class="tab-pane" id="poolForecast">
+
+            <!-- LINE CHART -->
+            <div class="box box-info">
+              <div class="box-header with-border">
+
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="box-body chart-responsive">
+                <div class="chart" id="forecastChart" style="height: 150px;">
+
+                </div>
+              </div>
+              <!-- /.box-body -->
+            </div>
+
+
+
+          </div>
+
+
+
+
 
           <div class="tab-pane" id="chemicalContent">
 

@@ -157,7 +157,7 @@
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">HEADER</li>
         <!-- Optionally, you can add icons to the links -->
-        <li class="active"><a href="{% url 'monitoring:index' %}"><i class="fa fa-home"></i> <span>Home</span></a></li>
+        <li class=""><a href="{% url 'monitoring:index' %}"><i class="fa fa-home"></i> <span>Home</span></a></li>
         <li class="treeview">
           <a href="#"><i class="fa fa-calendar"></i> <span>Pool Schedule</span>
             <span class="pull-right-container">
@@ -178,7 +178,7 @@
           </a>
           <ul class="treeview-menu" style="background-color:#3c8dbc;">
             <li><a  href="{% url 'monitoring:addItem' %}">Add Chemical to Inventory</a></li>
-            <li><a  href="{% url 'monitoring:viewMaintenance' %}">View Chemical Inventory</a></li>
+            <li><a  href="{% url 'monitoring:changePrice' %}">Change Item Price</a></li>
           </ul>
         </li>
       </ul>

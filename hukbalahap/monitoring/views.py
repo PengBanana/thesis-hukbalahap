@@ -1106,10 +1106,9 @@ def chemicalConsumption(request):
     for schedule in chemicalReport:
         schedule.act
     #TODO: chemical consumption report
-<<<<<<< HEAD
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
 
-=======
+
     chlorineTotal=0
     muriaticTotal=0
     dePowderTotal=0
@@ -1185,7 +1184,6 @@ def chemicalConsumption(request):
         "chemicalItems":chemicalReport
     }
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
->>>>>>> 68029616cfaa98c4a96cc957535aec945c139cf7
 
 @login_required(login_url="/monitoring/login")
 def addPool(request):
@@ -1362,10 +1360,7 @@ def disconnectPool(request):
             return render(request, 'monitoring/pool owner/disconnect-pool.html',locals())
     else:
         return render(request, 'monitoring/pool owner/result-not-found.html')
-<<<<<<< HEAD
 
-=======
-    
 def getReportMonthYear(request):
     if 0==0:
         yearNow=request.POST['yearOption']
@@ -1450,7 +1445,6 @@ def changePrice(request):
             return render(request,'monitoring/BadRequest.html')
     except:
         return render(request,'monitoring/BadRequest.html')
->>>>>>> 68029616cfaa98c4a96cc957535aec945c139cf7
 ### reusable methods
 def Quality(observedVal, idealVal, badVal, weightVal):
     try:
@@ -1788,8 +1782,6 @@ def getCalendarColorByStatus(status):
     else:
         color="grey"
     return color
-<<<<<<< HEAD
-=======
 
 def computeCost(chemicalname, quantity, priceDate):
     returnVal=0
@@ -1829,5 +1821,3 @@ def convertToDateTime(month, day, year):
     #compareDate=datetime.datetime.strptime(compareDate, '%m/%d/%Y').date
     returnVal=compareDate
     return returnVal
-        
->>>>>>> 68029616cfaa98c4a96cc957535aec945c139cf7

@@ -1119,14 +1119,15 @@ def chemicalConsumption(request):
     rcl=[]
     #retrieve price
     for item in chemicalReport:
+        compareDate=convertToDateTime(item.datetimeAccomplished.month, item.datetimeAccomplished.day, item.datetimeAccomplished.year)
         chlorineTotal+=item.act_chlorine
-        chlorineCost=computeCost("Chlorine", item.act_chlorine, item.datetimeAccomplished)
+        chlorineCost=computeCost("Chlorine", item.act_chlorine, compareDate)
         muriaticTotal+=item.act_muriatic
-        muriaticCost=computeCost("Muriatic Acid", item.act_muriatic, item.datetimeAccomplished)
+        muriaticCost=computeCost("Muriatic Acid", item.act_muriatic, compareDate)
         dePowderTotal+=item.act_depowder
-        deCost=computeCost("DE Powder", item.act_depowder, item.datetimeAccomplished)
+        deCost=computeCost("DE Powder", item.act_depowder, compareDate)
         bakingSodaTotal+=item.act_bakingsoda
-        bakingsodaCost=computeCost("Baking Soda", item.act_bakingsoda, item.datetimeAccomplished)
+        bakingsodaCost=computeCost("Baking Soda", item.act_bakingsoda, compareDate)
         itemCounter+=1
         rowCost=chlorineCost+muriaticCost+deCost+bakingsodaCost
         ccl.append(chlorineCost)

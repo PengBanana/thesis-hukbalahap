@@ -332,16 +332,23 @@
                         </tr>
                         </thead>
                         <tbody>
-
+                        {% for item in chemicalItems %}
                         <tr>
-                          <td>October 31, 2018</td>
-                          <td>2:00PM - 4:00PM</td>
-                          <td>Alvin De Guzman</td>
-                          <td>  <label class="label label-success" style="font-size:15px"> On-Time</label>
+                        {% for xitem in sd%}
+                            {% if forloop.counter == forloop.parent.counter %}
+                          <td>xitem</td>
+                            {% endif %}
+                        {% endfor %}
+                        {% for xitem in st%}
+                            {% if forloop.counter == forloop.parent.counter %}
+                          <td>{{ xitem }}</td>
+                            {% endif %}
+                        {% endfor %}
+                          <td>item.user</td>
+                          <td>  <label class="label label-success" style="font-size:15px"> item.status</label>
                             </td>
-
                         </tr>
-
+                        {% endfor %}
                         <tr>
                           <td>October 29, 2018</td>
                           <td>2:00PM - 4:00PM</td>

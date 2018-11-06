@@ -51,5 +51,5 @@ urlpatterns = [
     url(r'^disconnectPool/$', views.disconnectPool, name='disconnectPool'),
     url(r'^addItem/$', views.addItem, name='addItem'),
     url(r'^changePrice/$', views.changePrice, name='changePrice'),
-    ###url(r'^getReportMonthYear/$', views.getReportMonthYear, name='getReportMonthYear'),
+    url(r'^getReportMonthYear/$', views.getReportMonthYear, name='getReportMonthYear'),
 ]

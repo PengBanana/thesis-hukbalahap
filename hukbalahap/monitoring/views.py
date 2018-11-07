@@ -1035,7 +1035,54 @@ def submitMaintenanceChemicals(request):
     except:
         return render(request,'monitoring/BadRequest.html')
 
-
+def filterPoolDetails(request, poolitem_id):
+    if 0==0:
+        #get from and to date
+        #dc=request.POST['dchlorineLevel']
+        #poolstat
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        notifications = getNotification(request)
+        notifCount=notifications.count()
+        poolref = Pool.objects.get(id=poolitem_id)
+        today=datetime.date.today()
+        today= today - timedelta(0)
+        ph = Final_Ph.objects.all().filter(pool=poolref, final_phdatetime__gte=today)
+        turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime=today)
+        temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__year=today.year, final_temperaturedatetime__month=today.month, final_temperaturedatetime__day=today.day)
+        debugger=today
+        #pool calendar stuff
+        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False).reverse()
+        sd=[]
+        st=[]
+        pt=[]
+        ss=[]
+        for item in poolSchedule:
+            dateString=str(item.scheduledStart.month)+" "+str(item.scheduledStart.day)+", "+str(item.scheduledStart.year)+"-"+str(item.scheduledEnd.month)+" "+str(item.scheduledEnd.day)+", "+str(item.scheduledEnd.year)
+            sd.append(dateString)
+            timeString=str(item.scheduledStart.hour)+" "+str(item.scheduledStart.minute)+"-"+str(item.scheduledEnd.hour)+" "+str(item.scheduledEnd.minute)
+            st.append(timeString)
+            pt.append(item.user)
+            ss.append(item.status)
+        content= {
+            #poolstat stuff
+            'debugger':debugger,
+            'pool':poolref,
+            'ph':ph,
+            'turbidity':turbidity,
+            'temperature':temperature,
+            'notifications':notifications,
+        }
+        print('----------------------------- Success in processing Pool Details ---------------------------')
+        if not usertype.type == adminType:
+            return render(request, 'monitoring/pool technician/pool-stat.html', content)
+        else:
+            return render(request, 'monitoring/pool owner/pool-stat.html', content)
+    else:
+        print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Error in viewing pool Details xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+        return render(request,'monitoring/BadRequest.html')
+    
+##reusable methods
 @login_required(login_url="/monitoring/login")
 def computeChlorine(request):
     notifications = getNotification(request)

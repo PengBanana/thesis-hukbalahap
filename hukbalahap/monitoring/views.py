@@ -22,7 +22,6 @@ def login(request):
         username = request.POST['username']
         password = request.POST['password']
         userx = authenticate(username=username, password=password)
-
         if userx is not None:
             userStat =Status.objects.get(id=userx.pk)
             notDeactivated =  Status_Ref.objects.get(pk=1)
@@ -237,6 +236,7 @@ def poolDetails_view(request, poolitem_id):
             ss.append(item.status)
         content= {
             #poolstat stuff
+            'poolid':poolitem_id,
             'debugger':debugger,
             'pool':poolref,
             'ph':ph,
@@ -1041,8 +1041,12 @@ def filterPoolDetails(request, poolitem_id):
     if 0==0:
         #get from and to date
         #dc=request.POST['dchlorineLevel']
-        fromDate=""
-        toDate=""
+        #mm/dd/yyyy
+        fromDate=request.POST['startDate']
+        toDate=request.POST['endDate']
+        #'08/01/2018' value has an invalid format. It must be in YYYY-MM-DD
+        fromDate=datetime.datetime.strptime(fromDate, '%m/%d/%Y').strftime('%Y-%m-%d')
+        toDate=datetime.datetime.strptime(toDate, '%m/%d/%Y').strftime('%Y-%m-%d')
         #poolstat
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
@@ -1055,10 +1059,10 @@ def filterPoolDetails(request, poolitem_id):
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime__gte=fromDate, final_turbiditydatetime__lte=toDate)
         temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__gte=fromDate, final_temperaturedatetime__lte=toDate)
         debugger=str(fromDate)+" - "+str(toDate)
-        print("------------------------- Filter Pool Date ---------------------")
+        print("------------------------- Filter Pool Date "+debugger+" ---------------------")
         print(debugger)
         #pool calendar stuff
-        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False).reverse()
+        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False, scheduledStart__gte=fromDate, scheduledEnd__lte=toDate).reverse()
         sd=[]
         st=[]
         pt=[]
@@ -1070,8 +1074,10 @@ def filterPoolDetails(request, poolitem_id):
             st.append(timeString)
             pt.append(item.user)
             ss.append(item.status)
+        
         content= {
             #poolstat stuff
+            'poolid':poolitem_id,
             'debugger':debugger,
             'pool':poolref,
             'ph':ph,
@@ -1170,13 +1176,8 @@ def personnelEfficiency(request):
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):
     yearNow=datetime.date.today().year
+    monthNow=datetime.date.today().month
     chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow).exclude(status="Late").filter(status="Accomplished")
-    for schedule in chemicalReport:
-        schedule.act
-    #TODO: chemical consumption report
-    return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
-
-
     chlorineTotal=0
     muriaticTotal=0
     dePowderTotal=0
@@ -1226,30 +1227,6 @@ def chemicalConsumption(request):
         "dg":dateGenerated,
         "rm":reportMonth,
         "chemicalItems":chemicalReport,
-    }
-    for item in chemicalReport:
-        chlorineTotal+=item.act_chlorine
-        muraticTotal+=item.act_muriatic
-        dePowderTotal+=item.act_depowder
-        bakingSodaTotal+=item.act_bakingsoda
-        itemCounter+=1
-    dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
-    reportMonth= datetime.datetime.now().strftime('%B %Y')
-    if itemCounter<1:
-        chlorineTotal="n/a"
-        muraticTotal="n/a"
-        dePowderTotal="n/a"
-        bakingSodaTotal="n/a"
-    #date display format August 5, 2018
-    context={
-        "ic":itemCounter,
-        "ct":chlorineTotal,
-        "mt":muriaticTotal,
-        "dt":dePowderTotal,
-        "bt":bakingSodaTotal,
-        "dg":dateGenerated,
-        "rm":reportMonth,
-        "chemicalItems":chemicalReport
     }
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
 

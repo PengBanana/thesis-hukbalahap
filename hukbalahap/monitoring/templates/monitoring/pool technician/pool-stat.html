@@ -85,7 +85,8 @@
 
   <h1 class="page-header" style="font-size:35px;border-bottom:1px solid #6c6c6d;">{{pool.pool_name}}</h1>
 
-
+<form method="post" action={% url 'monitoring:filterPoolDetails' poolid %}>
+    {% csrf_token %}
   <table>
     <tr>
       <td style="padding-left:10px;padding-bottom:13px;">
@@ -95,7 +96,7 @@
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
             </div>
-            <input type="text" class="form-control pull-right" id="startDate" placeholder="mm/dd/yy">
+            <input type="text" class="form-control pull-right" name="startDate" placeholder="mm/dd/yyyy">
           </div>
           <!-- /.input group -->
         </div>
@@ -107,17 +108,18 @@
               <div class="input-group-addon">
                 <i class="fa fa-calendar"></i>
               </div>
-              <input type="text" class="form-control pull-right" id="endDate" placeholder="mm/dd/yy">
+              <input type="text" class="form-control pull-right" name="endDate" placeholder="mm/dd/yyyy">
             </div>
             <!-- /.input group -->
           </div>
           </td>
       <td style="padding-left:10px;">
-        <button type="button" class="applyBtn btn btn-success">apply
+        <button type="submit" class="applyBtn btn btn-success">APPLY
           </button>
       </td>
     </tr>
   </table>
+</form>
   <div class="row">
     <div class="col-md-12">
       <div class="nav-tabs-custom">

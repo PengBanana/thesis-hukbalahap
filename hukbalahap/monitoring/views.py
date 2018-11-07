@@ -237,6 +237,7 @@ def poolDetails_view(request, poolitem_id):
             ss.append(item.status)
         content= {
             #poolstat stuff
+            'poolid':poolitem_id,
             'debugger':debugger,
             'pool':poolref,
             'ph':ph,
@@ -1041,8 +1042,12 @@ def filterPoolDetails(request, poolitem_id):
     if 0==0:
         #get from and to date
         #dc=request.POST['dchlorineLevel']
-        fromDate=""
-        toDate=""
+        #mm/dd/yyyy
+        fromDate=request.POST['startDate']
+        toDate=request.POST['endDate']
+        #'08/01/2018' value has an invalid format. It must be in YYYY-MM-DD
+        fromDate=datetime.datetime.strptime(fromDate, '%m/%d/%Y').strftime('%Y-%m-%d')
+        toDate=datetime.datetime.strptime(toDate, '%m/%d/%Y').strftime('%Y-%m-%d')
         #poolstat
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
@@ -1055,10 +1060,10 @@ def filterPoolDetails(request, poolitem_id):
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime__gte=fromDate, final_turbiditydatetime__lte=toDate)
         temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__gte=fromDate, final_temperaturedatetime__lte=toDate)
         debugger=str(fromDate)+" - "+str(toDate)
-        print("------------------------- Filter Pool Date ---------------------")
+        print("------------------------- Filter Pool Date "+debugger+" ---------------------")
         print(debugger)
         #pool calendar stuff
-        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False).reverse()
+        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False, scheduledStart__gte=fromDate, scheduledEnd__lte=toDate).reverse()
         sd=[]
         st=[]
         pt=[]
@@ -1072,6 +1077,7 @@ def filterPoolDetails(request, poolitem_id):
             ss.append(item.status)
         content= {
             #poolstat stuff
+            'poolid':poolitem_id,
             'debugger':debugger,
             'pool':poolref,
             'ph':ph,

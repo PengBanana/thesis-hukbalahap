@@ -600,11 +600,11 @@ def editDetails(request):
                 form2 = ChangePasswordForm(current_user, request.POST)
                 if form2.is_valid():
                     userForm = form2.save()
-                    alert = 'success.'
+                    alert = 'success'
 
                     content = {
                         'form2': form2,
-                        'alertmsg':alert,
+                        'alert':alert,
                         'curr_fname' : curr_fname,
                         'curr_lname' : curr_lname,
                         'username' : current_user.username,

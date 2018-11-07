@@ -297,7 +297,7 @@ def addUser(request):
                 return render(request, 'monitoring/pool owner/add-user.html',locals())
         else:
             return render(request,'monitoring/BadRequest.html')
-    
+
 
 @login_required(login_url="/monitoring/login")
 def setMaintenance(request):
@@ -1083,7 +1083,7 @@ def filterPoolDetails(request, poolitem_id):
     else:
         print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Error in viewing pool Details xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
         return render(request,'monitoring/BadRequest.html')
-    
+
 ##reusable methods
 @login_required(login_url="/monitoring/login")
 def computeChlorine(request):

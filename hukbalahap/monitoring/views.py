@@ -1071,13 +1071,19 @@ def filterPoolDetails(request, poolitem_id):
             dateString=str(item.scheduledStart.month)+" "+str(item.scheduledStart.day)+", "+str(item.scheduledStart.year)+"-"+str(item.scheduledEnd.month)+" "+str(item.scheduledEnd.day)+", "+str(item.scheduledEnd.year)
             sd.append(dateString)
             timeString=str(item.scheduledStart.hour)+" "+str(item.scheduledStart.minute)+"-"+str(item.scheduledEnd.hour)+" "+str(item.scheduledEnd.minute)
-            st.append(timeString)
-            pt.append(item.user)
+            st.append(timeString)#working here
+            allUsers = User.objects.all()
+            pooltechUser = allUsers.filter(id=item.user.id)
+            pt.append(str(item.user.first_name)+" "+str(item.user.last_name))
             ss.append(item.status)
-        
         content= {
             #poolstat stuff
             'poolid':poolitem_id,
+            'poolSchedule':poolSchedule,    
+            'sd':sd,
+            'st':st,
+            'pt':pt,
+            'ss':ss,
             'debugger':debugger,
             'pool':poolref,
             'ph':ph,

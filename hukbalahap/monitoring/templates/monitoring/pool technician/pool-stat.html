@@ -41,7 +41,18 @@
         labels: ['Temperature level']
     });
 
+    new Morris.Line({
+        element: 'forecastChart',
+        data: [
+          //{y: '', item1: , item2: }, //kaw na magpalit netong mga nakasulat
 
+        ],
+        xkey: 'y',
+        ykeys: ['item1', 'item2'],
+        labels: ['Item 1', 'Item 2'],
+        lineColors: ['#a0d0e0', '#3c8dbc'],
+        hideHover: 'auto'
+    });
 
     $('.applyBtn').on('click', function() {
         var dateValue = $('.date-value').text()
@@ -205,52 +216,28 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for item in chemicalItems %}
+                        {% for item in poolSchedule %}
                         <tr>
-                        {% for xitem in sd%}
-                            {% if forloop.counter == forloop.parent.counter %}
-                          <td>xitem</td>
+                        {% for xitem in sd %}
+                            {% if forloop.counter == forloop.parentloop.counter %}
+                            <td> {{ xitem }} </td>
                             {% endif %}
                         {% endfor %}
-                        {% for xitem in st%}
-                            {% if forloop.counter == forloop.parent.counter %}
-                          <td>{{ xitem }}</td>
+                            
+                        {% for yitem in st %}
+                            {% if forloop.counter == forloop.parentloop.counter %}
+                            <td> {{ yitem }} </td>
                             {% endif %}
                         {% endfor %}
-                          <td>item.user</td>
-                          <td>  <label class="label label-success" style="font-size:15px"> item.status</label>
+                            {% for yitem in pt %}
+                            {% if forloop.counter == forloop.parentloop.counter %}
+                          <td>{{ yitem }}</td>
+                            {% endif %}
+                        {% endfor %}
+                          <td>  <label class="label label-success" style="font-size:15px"> {{ item.status }}</label>
                             </td>
                         </tr>
                         {% endfor %}
-                        <tr>
-                          <td>October 29, 2018</td>
-                          <td>2:00PM - 4:00PM</td>
-                          <td>Alvin De Guzman</td>
-                          <td>  <label class="label label-warning" style="font-size:15px"> Delayed</label>
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-                          <td>October 11, 2018</td>
-                          <td>2:00PM - 4:00PM</td>
-                          <td>Alvin De Guzman</td>
-                          <td>  <label class="label label-danger" style="font-size:15px"> Overdue</label>
-                            </td>
-
-                        </tr>
-
-                        <tr> <!-- papalitan ko pa kulay kapag scheduledd-->
-                          <td>October 31, 2018</td>
-                          <td>2:00PM - 4:00PM</td>
-                          <td>Alvin De Guzman</td>
-                          <td>  <label class="label label-default" style="font-size:15px">Scheduled</label>
-                            </td>
-
-                        </tr>
-
-
                         </tbody>
                       </table>
                     </div>

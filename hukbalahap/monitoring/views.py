@@ -484,6 +484,7 @@ def profile(request,item_id):
         notifications = getNotification(request)
         notifCount=notifications.count()
         if usertype.type == adminType:
+            print("sad 1")
             user = User.objects.get(id=item_id)
             userSchedule = MaintenanceSchedule.objects.all().filter(user=user)
             msg = None
@@ -510,7 +511,6 @@ def profile(request,item_id):
                             'btnFlag':btnFlag,
                             'notifications':notifications,
                         }
-
                 elif (request.method == 'POST' ) & ('editDetails' in request.POST):
                     form1 =EditDetailsForm(request.POST)
                     form2 = ChangePasswordForm(user, request.POST)
@@ -532,11 +532,13 @@ def profile(request,item_id):
                             'notifications':notifications,
                         }
                 elif (request.method == 'POST' ) & ('deactivate' in request.POST):
+                    print("sad 4")
                     Status.objects.filter(pk=user.pk).update(status=2)
                     return render(request, 'monitoring/pool owner/home-owner.html', content)
 
 
                 else:
+                    print("sad 5")
                     form1 = EditDetailsForm()
                     form2 = ChangePasswordForm(request.user)
                     content = {
@@ -562,6 +564,7 @@ def profile(request,item_id):
                         }
                     return render(request, 'monitoring/pool owner/home-owner.html', content)
                 else:
+                    print("sad 6")
                     btnFlag = 'Inactive'
                     content = {
                         "userSchedule":userSchedule,
@@ -570,11 +573,12 @@ def profile(request,item_id):
                         'btnFlag':btnFlag,
                         'notifications':notifications,
                         }
-
             return render(request, 'monitoring/pool owner/technician-profile.html', content)
         else:
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx bad request at edit details 1 xxxxxxxxxxxxxxxxxxxxx")
             return render(request,'monitoring/BadRequest.html')
     except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx bad request at edit details 2 xxxxxxxxxxxxxxxxxxxxx")
         return render(request,'monitoring/BadRequest.html')
 
 
@@ -596,8 +600,8 @@ def editDetails(request):
                 form2 = ChangePasswordForm(current_user, request.POST)
                 if form2.is_valid():
                     userForm = form2.save()
-                    alert = 'Password Successfully Changed.'
-                    update_session_auth_hash()
+                    alert = 'success.'
+
                     content = {
                         'form2': form2,
                         'alertmsg':alert,
@@ -1102,9 +1106,13 @@ def personnelEfficiency(request):
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):
     yearNow=datetime.date.today().year
-    monthNow=datetime.date.today().month
-    chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow, date__month=monthNow).exclude(status="Late").filter(status="Accomplished")
+    chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow).exclude(status="Late").filter(status="Accomplished")
+    for schedule in chemicalReport:
+        schedule.act
     #TODO: chemical consumption report
+    return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
+
+
     chlorineTotal=0
     muriaticTotal=0
     dePowderTotal=0
@@ -1119,15 +1127,14 @@ def chemicalConsumption(request):
     rcl=[]
     #retrieve price
     for item in chemicalReport:
-        compareDate=convertToDateTime(item.datetimeAccomplished.month, item.datetimeAccomplished.day, item.datetimeAccomplished.year)
         chlorineTotal+=item.act_chlorine
-        chlorineCost=computeCost("Chlorine", item.act_chlorine, compareDate)
+        chlorineCost=computeCost("Chlorine", item.act_chlorine, item.datetimeAccomplished)
         muriaticTotal+=item.act_muriatic
-        muriaticCost=computeCost("Muriatic Acid", item.act_muriatic, compareDate)
+        muriaticCost=computeCost("Muriatic Acid", item.act_muriatic, item.datetimeAccomplished)
         dePowderTotal+=item.act_depowder
-        deCost=computeCost("DE Powder", item.act_depowder, compareDate)
+        deCost=computeCost("DE Powder", item.act_depowder, item.datetimeAccomplished)
         bakingSodaTotal+=item.act_bakingsoda
-        bakingsodaCost=computeCost("Baking Soda", item.act_bakingsoda, compareDate)
+        bakingsodaCost=computeCost("Baking Soda", item.act_bakingsoda, item.datetimeAccomplished)
         itemCounter+=1
         rowCost=chlorineCost+muriaticCost+deCost+bakingsodaCost
         ccl.append(chlorineCost)
@@ -1422,7 +1429,7 @@ def getReportMonthYear(request):
         return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
     else:
         return render(request,'monitoring/BadRequest.html')
-   
+
 @login_required(login_url="/monitoring/login")
 def changePrice(request):
     notifications = getNotification(request)

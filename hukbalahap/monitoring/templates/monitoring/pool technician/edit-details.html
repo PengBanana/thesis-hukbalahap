@@ -2,6 +2,13 @@
 {% block content %}
 <div class="row">
   <div class="col-xs-12">
+
+    {% if alertmsg == 'success' %}
+    <div class="alert alert-success alert-dismissible fade in">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <p>Password successfully changed</p>
+    </div>
+    {% endif %}
   <section class="content">
     <div class="row">
       <div class="col-xs-12">
@@ -10,7 +17,7 @@
             <h3 class="box-title">Account Detail Settings</h3><br>
           </div>
           <!-- /.box-header -->
-          
+
           <div class="box-body ">
             <table id="example2" class="table table-bordered table-hover">
               <thead>

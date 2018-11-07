@@ -22,7 +22,6 @@ def login(request):
         username = request.POST['username']
         password = request.POST['password']
         userx = authenticate(username=username, password=password)
-
         if userx is not None:
             userStat =Status.objects.get(id=userx.pk)
             notDeactivated =  Status_Ref.objects.get(pk=1)
@@ -1075,6 +1074,7 @@ def filterPoolDetails(request, poolitem_id):
             st.append(timeString)
             pt.append(item.user)
             ss.append(item.status)
+        
         content= {
             #poolstat stuff
             'poolid':poolitem_id,
@@ -1176,13 +1176,8 @@ def personnelEfficiency(request):
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):
     yearNow=datetime.date.today().year
+    monthNow=datetime.date.today().month
     chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow).exclude(status="Late").filter(status="Accomplished")
-    for schedule in chemicalReport:
-        schedule.act
-    #TODO: chemical consumption report
-    return render(request, 'monitoring/pool owner/chemical-consumption-report.html')
-
-
     chlorineTotal=0
     muriaticTotal=0
     dePowderTotal=0
@@ -1232,30 +1227,6 @@ def chemicalConsumption(request):
         "dg":dateGenerated,
         "rm":reportMonth,
         "chemicalItems":chemicalReport,
-    }
-    for item in chemicalReport:
-        chlorineTotal+=item.act_chlorine
-        muraticTotal+=item.act_muriatic
-        dePowderTotal+=item.act_depowder
-        bakingSodaTotal+=item.act_bakingsoda
-        itemCounter+=1
-    dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
-    reportMonth= datetime.datetime.now().strftime('%B %Y')
-    if itemCounter<1:
-        chlorineTotal="n/a"
-        muraticTotal="n/a"
-        dePowderTotal="n/a"
-        bakingSodaTotal="n/a"
-    #date display format August 5, 2018
-    context={
-        "ic":itemCounter,
-        "ct":chlorineTotal,
-        "mt":muriaticTotal,
-        "dt":dePowderTotal,
-        "bt":bakingSodaTotal,
-        "dg":dateGenerated,
-        "rm":reportMonth,
-        "chemicalItems":chemicalReport
     }
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
 

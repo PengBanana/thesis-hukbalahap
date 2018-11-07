@@ -41,19 +41,6 @@
         labels: ['Temperature level']
     });
 
-    new Morris.Line({
-        element: 'forecastChart',
-        data: [
-          {y: '', item1: , item2: }, //kaw na magpalit netong mga nakasulat
-
-        ],
-        xkey: 'y',
-        ykeys: ['item1', 'item2'],
-        labels: ['Item 1', 'Item 2'],
-        lineColors: ['#a0d0e0', '#3c8dbc'],
-        hideHover: 'auto'
-    });
-
 
 
     $('.applyBtn').on('click', function() {
@@ -65,7 +52,7 @@
         $('.date-form').submit();
         //console.log(dateValue.split('-')[0] )
         //console.log(dateValue.split('-')[1] )
-    })
+    });
 
 
 
@@ -78,7 +65,7 @@
           'info'        : true,
           'autoWidth'   : false
         })
-      })
+      });
 </script>
 {% endblock %}
 {% block content %}

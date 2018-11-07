@@ -50,5 +50,7 @@ urlpatterns = [
     url(r'^setPoolConnection/$', views.setPoolConnection, name='setPoolConnection'),
     url(r'^disconnectPool/$', views.disconnectPool, name='disconnectPool'),
     url(r'^addItem/$', views.addItem, name='addItem'),
+    url(r'^changePrice/$', views.changePrice, name='changePrice'),
     url(r'^getReportMonthYear/$', views.getReportMonthYear, name='getReportMonthYear'),
+    url(r'^filterPoolDetails/(?P<poolitem_id>[0-9]+)/$', views.filterPoolDetails, name='filterPoolDetails'),
 ]

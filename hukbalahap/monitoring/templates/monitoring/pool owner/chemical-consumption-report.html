@@ -10,7 +10,7 @@ tfoot {  font-weight: bold;}
         <div class="row">
           <div class="col-xs-12">
             <div class="row"  style="padding-bottom:10px;">
-              <div class="col-xs-2">    
+              <div class="col-xs-2">
             <form method="post" action={% url 'monitoring:getReportMonthYear' %}>
                 {% csrf_token %}
                 <select class="form-control" style="width: 100%;" name="monthOption">
@@ -153,8 +153,8 @@ tfoot {  font-weight: bold;}
             </form>
             </div>
             <div class="box">
-              <center><h3 class="box-title">Chemical Consumption Report</h3></center>
-                
+              <center><h2 class="box-title">Chemical Consumption Report</h2></center>
+
               <center>Date Generated: {{ dg }}</center>
               <center>Report for: {{ rm }}</center>
               <!-- /.box-header -->
@@ -162,11 +162,13 @@ tfoot {  font-weight: bold;}
                 <table id="example2" class="table table-bordered ">
                   <thead>
                     <th>Date</th>
-                    <th>Chlorine</th>
-                    <th>DE Powder</th>
-                    <th>Ash Powder</th>
-                    <th>Muriatic</th>
-                    <th>Estimated<br>Amount Spent</th>
+                    <th>Chlorine(ml)</th>
+                    <th>DE Powder(lbs)</th>
+                    <th>Baking Soda(lbs)</th>
+                    <th>Muriatic Acid(ml)</th>
+                    <th>Estimated<br>Amount Spent(PHP)</th>
+                    <th><br>Forecasted Quarterly Cost</th>
+                    <th>Forecasted Yearly Cost</th>
                   </thead>
                 {% if ic > 0 %}
                 {% for item in chemicalItems %}
@@ -176,7 +178,11 @@ tfoot {  font-weight: bold;}
                     <td align="right">{{ item.act_depowder }}</td>
                     <td align="right">{{ item.act_bakingsoda }}</td>
                     <td align="right">{{ item.act_muriatic }}</td>
-                    <td align="right">Function Unavailable</td>
+                {% for cost in rcl%}
+                {% if forloop.counter == forloop.parentloop.counter %}
+                    <td align="right">{{ cost }}</td>
+                {% endif %}
+                {% endfor%}
                 </tr>
                 {% endfor %}
                 <tfoot>
@@ -186,7 +192,7 @@ tfoot {  font-weight: bold;}
                     <td align="right">{{ dt }}</td>
                     <td align="right">{{ bt }}</td>
                     <td align="right">{{ mt }}</td>
-                    <td align="right">Function Unavailable</td>
+                    <td align="right">{{ tc }}</td>
                 </tr>
                 </tfoot>
                 {% else %}
@@ -198,8 +204,16 @@ tfoot {  font-weight: bold;}
                     <td></td>
                     <td></td>
                 </tr>
+
                 {% endif %}
+
                 </table>
+                <div class="row">
+                    <div class="col-md-5">
+                    </div>
+                    <div class="col-md-7">
+                        <p style="font-size:20px;">End of Report</p></div>
+                </div>
               </div>
               <!-- /.box-body -->
             </div>

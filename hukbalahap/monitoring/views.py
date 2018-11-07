@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404,redirect
-from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref, MaintenanceSchedule, Notification_Table
+from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref, MaintenanceSchedule, Notification_Table,Chemical_Price_Reference
 from .forms import SignUpForm, SignUpType, Pool,EditDetailsForm,ChangePasswordForm,RegisterPool
 from django.views.generic import TemplateView
 from django.db.models import Q
@@ -470,7 +470,8 @@ def index(request):
 
 @login_required(login_url="/monitoring/login")
 def poolDetails_view(request, poolitem_id):
-    try:
+    if 0==0:
+        #poolstat
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
         notifications = getNotification(request)
@@ -482,7 +483,29 @@ def poolDetails_view(request, poolitem_id):
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime=today)
         temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__year=today.year, final_temperaturedatetime__month=today.month, final_temperaturedatetime__day=today.day)
         debugger=today
+        #pool calendar stuff
+        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False).reverse()
+        sd=[]
+        st=[]
+        pt=[]
+        ss=[]
+        for item in poolSchedule:
+            dateString=str(item.scheduledStart.month)+"/"+str(item.scheduledStart.day)+"/"+str(item.scheduledStart.year)+"-"+str(item.scheduledEnd.month)+"/"+str(item.scheduledEnd.day)+"/"+str(item.scheduledEnd.year)
+            sd.append(dateString)
+            timeString=str(item.scheduledStart.hour)+":"+str(item.scheduledStart.minute)+"-"+str(item.scheduledEnd.hour)+":"+str(item.scheduledEnd.minute)
+            st.append(timeString)
+            allUsers = User.objects.all()
+            pooltechUser = allUsers.filter(id=item.user.id)
+            pt.append(str(item.user.first_name)+" "+str(item.user.last_name))
+            ss.append(item.status)
         content= {
+            #poolstat stuff
+            'poolid':poolitem_id,
+            'poolSchedule':poolSchedule,    
+            'sd':sd,
+            'st':st,
+            'pt':pt,
+            'ss':ss,
             'debugger':debugger,
             'pool':poolref,
             'ph':ph,
@@ -490,13 +513,13 @@ def poolDetails_view(request, poolitem_id):
             'temperature':temperature,
             'notifications':notifications,
         }
-        print('wwwwwwwwwew')
+        print('----------------------------- Success in processing Pool Details ---------------------------')
         if not usertype.type == adminType:
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
         else:
             return render(request, 'monitoring/pool owner/pool-stat.html', content)
-    except:
-        print('yopooooo')
+    else:
+        print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Error in viewing pool Details xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
         return render(request,'monitoring/BadRequest.html')
 
 
@@ -504,7 +527,7 @@ def poolDetails_view(request, poolitem_id):
 
 @login_required(login_url="/monitoring/login")
 def addUser(request):
-    try:
+
         notifications = getNotification(request)
         notifCount=notifications.count()
         usertype = Type.objects.get(pk=request.user.pk)
@@ -543,8 +566,6 @@ def addUser(request):
                 return render(request, 'monitoring/pool owner/add-user.html',locals())
         else:
             return render(request,'monitoring/BadRequest.html')
-    except:
-        return render(request,'monitoring/BadRequest.html')
 
 
 @login_required(login_url="/monitoring/login")
@@ -745,6 +766,7 @@ def profile(request,item_id):
         notifications = getNotification(request)
         notifCount=notifications.count()
         if usertype.type == adminType:
+            print("sad 1")
             user = User.objects.get(id=item_id)
             userSchedule = MaintenanceSchedule.objects.all().filter(user=user)
             msg = None
@@ -771,7 +793,6 @@ def profile(request,item_id):
                             'btnFlag':btnFlag,
                             'notifications':notifications,
                         }
-
                 elif (request.method == 'POST' ) & ('editDetails' in request.POST):
                     form1 =EditDetailsForm(request.POST)
                     form2 = ChangePasswordForm(user, request.POST)
@@ -793,11 +814,13 @@ def profile(request,item_id):
                             'notifications':notifications,
                         }
                 elif (request.method == 'POST' ) & ('deactivate' in request.POST):
+                    print("sad 4")
                     Status.objects.filter(pk=user.pk).update(status=2)
                     return render(request, 'monitoring/pool owner/home-owner.html', content)
 
 
                 else:
+                    print("sad 5")
                     form1 = EditDetailsForm()
                     form2 = ChangePasswordForm(request.user)
                     content = {
@@ -823,6 +846,7 @@ def profile(request,item_id):
                         }
                     return render(request, 'monitoring/pool owner/home-owner.html', content)
                 else:
+                    print("sad 6")
                     btnFlag = 'Inactive'
                     content = {
                         "userSchedule":userSchedule,
@@ -831,11 +855,12 @@ def profile(request,item_id):
                         'btnFlag':btnFlag,
                         'notifications':notifications,
                         }
-
             return render(request, 'monitoring/pool owner/technician-profile.html', content)
         else:
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx bad request at edit details 1 xxxxxxxxxxxxxxxxxxxxx")
             return render(request,'monitoring/BadRequest.html')
     except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx bad request at edit details 2 xxxxxxxxxxxxxxxxxxxxx")
         return render(request,'monitoring/BadRequest.html')
 
 
@@ -857,11 +882,11 @@ def editDetails(request):
                 form2 = ChangePasswordForm(current_user, request.POST)
                 if form2.is_valid():
                     userForm = form2.save()
-                    alert = 'Password Successfully Changed.'
-                    update_session_auth_hash()
+                    alert = 'success'
+
                     content = {
                         'form2': form2,
-                        'alertmsg':alert,
+                        'alert':alert,
                         'curr_fname' : curr_fname,
                         'curr_lname' : curr_lname,
                         'username' : current_user.username,
@@ -1281,7 +1306,79 @@ def submitMaintenanceChemicals(request):
     except:
         return render(request,'monitoring/BadRequest.html')
 
+def filterPoolDetails(request, poolitem_id):
+    if 0==0:
+        #get from and to date
+        #dc=request.POST['dchlorineLevel']
+        #mm/dd/yyyy
+        fromDate=request.POST['startDate']
+        toDate=request.POST['endDate']
+        #'08/01/2018' value has an invalid format. It must be in YYYY-MM-DD
+        fromDate=datetime.datetime.strptime(fromDate, '%m/%d/%Y').strftime('%Y-%m-%d')
+        toDate=datetime.datetime.strptime(toDate, '%m/%d/%Y').strftime('%Y-%m-%d')
+        #poolstat
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        notifications = getNotification(request)
+        notifCount=notifications.count()
+        poolref = Pool.objects.get(id=poolitem_id)
+        today=datetime.date.today()
+        today= today - timedelta(0)
+        ph = Final_Ph.objects.all().filter(pool=poolref, final_phdatetime__gte=fromDate, final_phdatetime__lte=toDate)
+        turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime__gte=fromDate, final_turbiditydatetime__lte=toDate)
+        temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__gte=fromDate, final_temperaturedatetime__lte=toDate)
+        debugger=str(fromDate)+" - "+str(toDate)
+        print("------------------------- Filter Pool Date "+debugger+" ---------------------")
+        print(debugger)
+        #pool calendar stuff
+        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False, scheduledStart__gte=fromDate, scheduledEnd__lte=toDate).reverse()
+        sd=[]
+        st=[]
+        pt=[]
+        ss=[]
+        for item in poolSchedule:#working here
+            startDateString=str(item.scheduledStart.month)+"/"+str(item.scheduledStart.day)+"/"+str(item.scheduledStart.year)
+            endDateString=str(item.scheduledEnd.month)+"/"+str(item.scheduledEnd.day)+"/"+str(item.scheduledEnd.year)
+            startDateString = datetime.datetime.strptime(startDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+            endDateString = datetime.datetime.strptime(endDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+            dateString=startDateString+" - "+endDateString
+            sd.append(dateString)
+            timeString=str(item.scheduledStart.hour)+" "+str(item.scheduledStart.minute)+"-"+str(item.scheduledEnd.hour)+" "+str(item.scheduledEnd.minute)
+            startTimeString=str(item.scheduledStart.hour)+":"+str(item.scheduledStart.minute)
+            endTimeString=str(item.scheduledEnd.hour)+":"+str(item.scheduledEnd.minute)
+            startTimeString = datetime.datetime.strptime(startTimeString, '%H:%M').strftime('%I:%M%p')
+            endTimeString = datetime.datetime.strptime(endTimeString, '%H:%M').strftime('%I:%M%p')
+            timeString=startTimeString+" - "+endTimeString
+            st.append(timeString)
+            allUsers = User.objects.all()
+            pooltechUser = allUsers.filter(id=item.user.id)
+            pt.append(str(item.user.first_name)+" "+str(item.user.last_name))
+            ss.append(item.status)
+        content= {
+            #poolstat stuff
+            'poolid':poolitem_id,
+            'poolSchedule':poolSchedule,    
+            'sd':sd,
+            'st':st,
+            'pt':pt,
+            'ss':ss,
+            'debugger':debugger,
+            'pool':poolref,
+            'ph':ph,
+            'turbidity':turbidity,
+            'temperature':temperature,
+            'notifications':notifications,
+        }
+        print('----------------------------- Success in processing Pool Details ---------------------------')
+        if not usertype.type == adminType:
+            return render(request, 'monitoring/pool technician/pool-stat.html', content)
+        else:
+            return render(request, 'monitoring/pool owner/pool-stat.html', content)
+    else:
+        print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Error in viewing pool Details xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+        return render(request,'monitoring/BadRequest.html')
 
+##reusable methods
 @login_required(login_url="/monitoring/login")
 def computeChlorine(request):
     notifications = getNotification(request)
@@ -1364,21 +1461,39 @@ def personnelEfficiency(request):
 def chemicalConsumption(request):
     yearNow=datetime.date.today().year
     monthNow=datetime.date.today().month
-    chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow, date__month=monthNow).exclude(status="Late").filter(status="Accomplished")
-    #TODO: chemical consumption report
+    chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow).exclude(status="Late").filter(status="Accomplished")
     chlorineTotal=0
     muriaticTotal=0
     dePowderTotal=0
     bakingSodaTotal=0
     itemCounter=0
+    totalCost=0
+    itemCounter=0
+    ccl=[]
+    mcl=[]
+    dcl=[]
+    bscl=[]
+    rcl=[]
+    #retrieve price
     for item in chemicalReport:
         chlorineTotal+=item.act_chlorine
-        muraticTotal+=item.act_muriatic
+        chlorineCost=computeCost("Chlorine", item.act_chlorine, item.datetimeAccomplished)
+        muriaticTotal+=item.act_muriatic
+        muriaticCost=computeCost("Muriatic Acid", item.act_muriatic, item.datetimeAccomplished)
         dePowderTotal+=item.act_depowder
+        deCost=computeCost("DE Powder", item.act_depowder, item.datetimeAccomplished)
         bakingSodaTotal+=item.act_bakingsoda
+        bakingsodaCost=computeCost("Baking Soda", item.act_bakingsoda, item.datetimeAccomplished)
         itemCounter+=1
+        rowCost=chlorineCost+muriaticCost+deCost+bakingsodaCost
+        ccl.append(chlorineCost)
+        mcl.append(muriaticCost)
+        dcl.append(deCost)
+        bscl.append(bakingsodaCost)
+        rcl.append(rowCost)
+        totalCost+=rowCost
     dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
-    reportMonth= datetime.datetime.now().strftime('%B %Y')
+    reportMonth= str(monthNow)+" "+str(yearNow)
     if itemCounter<1:
         chlorineTotal="n/a"
         muraticTotal="n/a"
@@ -1386,6 +1501,8 @@ def chemicalConsumption(request):
         bakingSodaTotal="n/a"
     #date display format August 5, 2018
     context={
+        "rcl":rcl,
+        "tc":totalCost,
         "ic":itemCounter,
         "ct":chlorineTotal,
         "mt":muriaticTotal,
@@ -1393,7 +1510,7 @@ def chemicalConsumption(request):
         "bt":bakingSodaTotal,
         "dg":dateGenerated,
         "rm":reportMonth,
-        "chemicalItems":chemicalReport
+        "chemicalItems":chemicalReport,
     }
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
 
@@ -1455,10 +1572,32 @@ def addItem(request):
             if request.method == 'POST':
                 return render(request, 'monitoring/pool technician/add-item.html',locals())
 
-                    #logic here 
+                    #logic here
             else:
 
                 return render(request, 'monitoring/pool technician/add-item.html',locals())
+        else:
+            return render(request,'monitoring/BadRequest.html')
+    except:
+        return render(request,'monitoring/BadRequest.html')
+
+
+
+@login_required(login_url="/monitoring/login")
+def changePrice(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
+    try:
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        if usertype.type != adminType:
+            if request.method == 'POST':
+                return render(request, 'monitoring/pool technician/change-price.html',locals())
+
+                    #logic here
+            else:
+
+                return render(request, 'monitoring/pool technician/change-price.html',locals())
         else:
             return render(request,'monitoring/BadRequest.html')
     except:
@@ -1550,7 +1689,7 @@ def disconnectPool(request):
             return render(request, 'monitoring/pool owner/disconnect-pool.html',locals())
     else:
         return render(request, 'monitoring/pool owner/result-not-found.html')
-    
+
 def getReportMonthYear(request):
     if 0==0:
         yearNow=request.POST['yearOption']
@@ -1566,13 +1705,32 @@ def getReportMonthYear(request):
         muriaticTotal=0
         dePowderTotal=0
         bakingSodaTotal=0
+        totalCost=0
         itemCounter=0
+        ccl=[]
+        mcl=[]
+        dcl=[]
+        bscl=[]
+        rcl=[]
+        #retrieve price
         for item in chemicalReport:
             chlorineTotal+=item.act_chlorine
+            compareDate=convertToDateTime(item.datetimeAccomplished.month, item.datetimeAccomplished.day, item.datetimeAccomplished.year)
+            chlorineCost=computeCost("Chlorine", item.act_chlorine, compareDate)
             muriaticTotal+=item.act_muriatic
+            muriaticCost=computeCost("Muriatic Acid", item.act_muriatic, compareDate)
             dePowderTotal+=item.act_depowder
+            deCost=computeCost("DE Powder", item.act_depowder, compareDate)
             bakingSodaTotal+=item.act_bakingsoda
+            bakingsodaCost=computeCost("Baking Soda", item.act_bakingsoda, compareDate)
             itemCounter+=1
+            rowCost=chlorineCost+muriaticCost+deCost+bakingsodaCost
+            ccl.append(chlorineCost)
+            mcl.append(muriaticCost)
+            dcl.append(deCost)
+            bscl.append(bakingsodaCost)
+            totalCost+=rowCost
+            rcl.append(rowCost)
         dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
         reportMonth= str(monthAsIs)+" "+str(yearNow)
         if itemCounter<1:
@@ -1582,6 +1740,8 @@ def getReportMonthYear(request):
             bakingSodaTotal="n/a"
         #date display format August 5, 2018
         context={
+            "rcl":rcl,
+            "tc":totalCost,
             "ic":itemCounter,
             "ct":chlorineTotal,
             "mt":muriaticTotal,
@@ -1593,6 +1753,26 @@ def getReportMonthYear(request):
         }
         return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
     else:
+        return render(request,'monitoring/BadRequest.html')
+
+@login_required(login_url="/monitoring/login")
+def changePrice(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
+    try:
+        usertype = Type.objects.get(pk=request.user.pk)
+        adminType= Usertype_Ref.objects.get(pk=1)
+        if usertype.type != adminType:
+            if request.method == 'POST':
+                return render(request, 'monitoring/pool technician/change-price.html',locals())
+
+                    #logic here
+            else:
+
+                return render(request, 'monitoring/pool technician/change-price.html',locals())
+        else:
+            return render(request,'monitoring/BadRequest.html')
+    except:
         return render(request,'monitoring/BadRequest.html')
 ### reusable methods
 def Quality(observedVal, idealVal, badVal, weightVal):
@@ -1916,7 +2096,7 @@ def calendarGetDate(b):
     returnDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y %H:%M:00')
     #startDate = datetime.datetime.strptime(dString, '%m/%d/%Y %H:%M:00').strftime('%B %d, %Y')
     return returnDate
-    
+
 def getCalendarColorByStatus(status):
     if status == "Notified":
         color="#00cccc"
@@ -1931,6 +2111,46 @@ def getCalendarColorByStatus(status):
     else:
         color="grey"
     return color
+
+def computeCost(chemicalname, quantity, priceDate):
+    returnVal=0
+    try:
+        print("============================ 1 ============================")
+        chemicalReference=Chemical_Price_Reference.objects.filter(chemical=chemicalname, effectiveDate__lte=priceDate).order_by().reverse()[0]
+        print("============================ 2 ============================")
+        if(chemicalname == "Chlorine"):
+            print("============================ chemical price for chlorine computed ============================")
+            chemicalPrice=chemicalReference.price/chemicalReference.quantity
+            returnVal=quantity*chemicalPrice
+        elif(chemicalname == "Muriatic Acid"):
+            print("============================ chemical price for Muriatic Acid computed ============================")
+            chemicalPrice=chemicalReference.price/chemicalReference.quantity
+            returnVal=quantity*chemicalPrice
+        elif(chemicalname == "Baking Soda"):
+            print("============================ chemical price for Baking Soda computed ============================")
+            chemicalPrice=chemicalReference.price/chemicalReference.quantity
+            returnVal=quantity*chemicalPrice
+        elif(chemicalname == "DE Powder"):
+            print("============================ chemical price for DE Powder computed ============================")
+            chemicalPrice=chemicalReference.price/chemicalReference.quantity
+            returnVal=quantity*chemicalPrice
+        else:
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxError: No Chemical price retirevedxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Try Error: No Chemical price retirevedxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    returnVal=round(returnVal, 2)
+    return returnVal
+
+def convertToDateTime(month, day, year):
+    yearCompare=year
+    monthCompare=month
+    dayCompare=day
+    compareDate=str(monthCompare)+"/"+str(dayCompare)+"/"+str(yearCompare)
+    compareDate=datetime.datetime.strptime(compareDate, '%m/%d/%Y').strftime('%Y-%m-%d')
+    #compareDate=datetime.datetime.strptime(compareDate, '%m/%d/%Y').date
+    returnVal=compareDate
+    return returnVal
+
 
 def phAlarm(pHStandardDev):
     if pHStandardDev < 7.2 or pHStandardDev > 7.8:

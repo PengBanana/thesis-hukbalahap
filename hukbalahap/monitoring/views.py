@@ -1057,7 +1057,7 @@ def filterPoolDetails(request, poolitem_id):
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime__gte=fromDate, final_turbiditydatetime__lte=toDate)
         temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__gte=fromDate, final_temperaturedatetime__lte=toDate)
         debugger=str(fromDate)+" - "+str(toDate)
-        print(------------------------- Filter Pool Date ---------------------)
+        print("------------------------- Filter Pool Date ---------------------")
         print(debugger)
         #pool calendar stuff
         poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False).reverse()

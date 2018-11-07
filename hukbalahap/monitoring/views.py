@@ -243,7 +243,7 @@ def poolDetails_view(request, poolitem_id):
 
 @login_required(login_url="/monitoring/login")
 def addUser(request):
-    try:
+
         notifications = getNotification(request)
         notifCount=notifications.count()
         usertype = Type.objects.get(pk=request.user.pk)
@@ -282,9 +282,7 @@ def addUser(request):
                 return render(request, 'monitoring/pool owner/add-user.html',locals())
         else:
             return render(request,'monitoring/BadRequest.html')
-    except:
-        return render(request,'monitoring/BadRequest.html')
-
+    
 
 @login_required(login_url="/monitoring/login")
 def setMaintenance(request):

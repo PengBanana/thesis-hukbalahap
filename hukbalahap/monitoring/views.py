@@ -14,6 +14,64 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from datetime import timedelta
 
+#email api imports
+from googleapiclient.discovery import build
+from httplib2 import Http
+from oauth2client import file, client, tools
+from email.mime.text import MIMEText
+from httplib2 import Http
+from base64 import urlsafe_b64encode
+
+#email api code start
+# If modifying these scopes, delete the file token.json.
+SCOPES = 'https://mail.google.com/'
+store = file.Storage('token.json')
+creds = store.get()
+if not creds or creds.invalid:
+    flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
+    creds = tools.run_flow(flow, store)
+service = build('gmail', 'v1', http=creds.authorize(Http()))
+
+def create_message(sender, to, subject, message_text):
+  """Create a message for an email.
+
+  Args:
+    sender: Email address of the sender.
+    to: Email address of the receiver.
+    subject: The subject of the email message.
+    message_text: The text of the email message.
+
+  Returns:
+    An object containing a base64url encoded email object.
+  """
+  message = MIMEText(message_text)
+  message['to'] = to
+  message['from'] = sender
+  message['subject'] = subject
+  encoded_message = urlsafe_b64encode(message.as_bytes())
+  return {'raw': encoded_message.decode()}
+
+def send_message(service, user_id, message):
+  """Send an email message.
+
+  Args:
+    service: Authorized Gmail API service instance.
+    user_id: User's email address. The special value "me"
+    can be used to indicate the authenticated user.
+    message: Message to be sent.
+
+  Returns:
+    Sent Message.
+  """
+  try:
+    message = (service.users().messages().send(userId=user_id, body=message)
+               .execute())
+    print('Message ID: %s' % message['id'])
+    return message
+  except errors.HttpError as error:
+    print('An error occurred: %s' % error)
+#email api code end
+
 ###rendering definitions
 def login(request):
     msg = None
@@ -58,6 +116,7 @@ def logout_view(request):
 @login_required(login_url="/monitoring/login")
 def index(request):
     #notification code
+    #sendMail('luismerleee@gmail.com', 'luismerleee@gmail.com', 'test', 'testing')
     notifications = getNotification(request)
     notifCount=notifications.count()
     try:
@@ -239,7 +298,7 @@ def poolDetails_view(request, poolitem_id):
         content= {
             #poolstat stuff
             'poolid':poolitem_id,
-            'poolSchedule':poolSchedule,    
+            'poolSchedule':poolSchedule,
             'sd':sd,
             'st':st,
             'pt':pt,
@@ -1095,7 +1154,7 @@ def filterPoolDetails(request, poolitem_id):
         content= {
             #poolstat stuff
             'poolid':poolitem_id,
-            'poolSchedule':poolSchedule,    
+            'poolSchedule':poolSchedule,
             'sd':sd,
             'st':st,
             'pt':pt,
@@ -1888,3 +1947,7 @@ def convertToDateTime(month, day, year):
     #compareDate=datetime.datetime.strptime(compareDate, '%m/%d/%Y').date
     returnVal=compareDate
     return returnVal
+
+def sendMail(sender, to, subject, body):
+    message = create_message(sender, to, subject, body)
+    sendMail = send_message(service, sender, message)

@@ -222,20 +222,43 @@ def poolDetails_view(request, poolitem_id):
         temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__year=today.year, final_temperaturedatetime__month=today.month, final_temperaturedatetime__day=today.day)
         debugger=today
         #pool calendar stuff
-        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False).reverse()
+        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__gte=fromDate, scheduledEnd__lte=toDate).reverse()
+        poolSchedule= poolSchedule.exclude(scheduledStart__isnull=True)
         sd=[]
         st=[]
         pt=[]
         ss=[]
         for item in poolSchedule:
-            dateString=str(item.scheduledStart.month)+"/"+str(item.scheduledStart.day)+"/"+str(item.scheduledStart.year)+"-"+str(item.scheduledEnd.month)+"/"+str(item.scheduledEnd.day)+"/"+str(item.scheduledEnd.year)
+            #for pool calendar data
+            startDateString=str(item.scheduledStart.month)+"/"+str(item.scheduledStart.day)+"/"+str(item.scheduledStart.year)
+            endDateString=str(item.scheduledEnd.month)+"/"+str(item.scheduledEnd.day)+"/"+str(item.scheduledEnd.year)
+            startDateString = datetime.datetime.strptime(startDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+            endDateString = datetime.datetime.strptime(endDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+            dateString=startDateString+" - "+endDateString
             sd.append(dateString)
-            timeString=str(item.scheduledStart.hour)+":"+str(item.scheduledStart.minute)+"-"+str(item.scheduledEnd.hour)+":"+str(item.scheduledEnd.minute)
+            timeString=str(item.scheduledStart.hour)+" "+str(item.scheduledStart.minute)+"-"+str(item.scheduledEnd.hour)+" "+str(item.scheduledEnd.minute)
+            startTimeString=str(item.scheduledStart.hour)+":"+str(item.scheduledStart.minute)
+            endTimeString=str(item.scheduledEnd.hour)+":"+str(item.scheduledEnd.minute)
+            startTimeString = datetime.datetime.strptime(startTimeString, '%H:%M').strftime('%I:%M%p')
+            endTimeString = datetime.datetime.strptime(endTimeString, '%H:%M').strftime('%I:%M%p')
+            timeString=startTimeString+" - "+endTimeString
             st.append(timeString)
             allUsers = User.objects.all()
-            pooltechUser = allUsers.filter(id=item.user.id)
             pt.append(str(item.user.first_name)+" "+str(item.user.last_name))
             ss.append(item.status)
+        #chemical usage data stuff
+        accomplishDates=[]#working here
+        chemicalTechnician=[]
+        #for chemical usage data
+        chemicalSchedule = poolSchedule.exclude(status="Scheduled", datetimeAccomplished__isnull=True)
+        chemicalSchedule = chemicalSchedule.exclude(status="Unfinished")
+        for item in chemicalSchedule:#working here
+            #for pool calendar data
+            accomplishDateString=str(item.datetimeAccomplished.month)+"/"+str(item.datetimeAccomplished.day)+"/"+str(item.datetimeAccomplished.year)
+            accomplishDateString = datetime.datetime.strptime(accomplishDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+            accomplishDates.append(accomplishDateString)
+            allUsers = User.objects.all()
+            chemicalTechnician.append(str(item.user.first_name)+" "+str(item.user.last_name))
         content= {
             #poolstat stuff
             'poolid':poolitem_id,
@@ -250,6 +273,9 @@ def poolDetails_view(request, poolitem_id):
             'turbidity':turbidity,
             'temperature':temperature,
             'notifications':notifications,
+            'cs':chemicalSchedule,
+            'ct':chemicalTechnician,
+            'ad':accomplishDates
         }
         print('----------------------------- Success in processing Pool Details ---------------------------')
         if not usertype.type == adminType:
@@ -1069,12 +1095,14 @@ def filterPoolDetails(request, poolitem_id):
         print("------------------------- Filter Pool Date "+debugger+" ---------------------")
         print(debugger)
         #pool calendar stuff
-        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False, scheduledStart__gte=fromDate, scheduledEnd__lte=toDate).reverse()
+        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__gte=fromDate, scheduledEnd__lte=toDate).reverse()
+        poolSchedule= poolSchedule.exclude(scheduledStart__isnull=True)
         sd=[]
         st=[]
         pt=[]
         ss=[]
-        for item in poolSchedule:#working here
+        for item in poolSchedule:
+            #for pool calendar data
             startDateString=str(item.scheduledStart.month)+"/"+str(item.scheduledStart.day)+"/"+str(item.scheduledStart.year)
             endDateString=str(item.scheduledEnd.month)+"/"+str(item.scheduledEnd.day)+"/"+str(item.scheduledEnd.year)
             startDateString = datetime.datetime.strptime(startDateString, '%m/%d/%Y').strftime('%B %m, %Y')
@@ -1089,9 +1117,21 @@ def filterPoolDetails(request, poolitem_id):
             timeString=startTimeString+" - "+endTimeString
             st.append(timeString)
             allUsers = User.objects.all()
-            pooltechUser = allUsers.filter(id=item.user.id)
             pt.append(str(item.user.first_name)+" "+str(item.user.last_name))
             ss.append(item.status)
+        #chemical usage data stuff
+        accomplishDates=[]#working here
+        chemicalTechnician=[]
+        #for chemical usage data
+        chemicalSchedule = poolSchedule.exclude(status="Scheduled", datetimeAccomplished__isnull=True)
+        chemicalSchedule = chemicalSchedule.exclude(status="Unfinished")
+        for item in chemicalSchedule:#working here
+            #for pool calendar data
+            accomplishDateString=str(item.datetimeAccomplished.month)+"/"+str(item.datetimeAccomplished.day)+"/"+str(item.datetimeAccomplished.year)
+            accomplishDateString = datetime.datetime.strptime(accomplishDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+            accomplishDates.append(accomplishDateString)
+            allUsers = User.objects.all()
+            chemicalTechnician.append(str(item.user.first_name)+" "+str(item.user.last_name))
         content= {
             #poolstat stuff
             'poolid':poolitem_id,
@@ -1106,6 +1146,9 @@ def filterPoolDetails(request, poolitem_id):
             'turbidity':turbidity,
             'temperature':temperature,
             'notifications':notifications,
+            'cs':chemicalSchedule,
+            'ct':chemicalTechnician,
+            'ad':accomplishDates
         }
         print('----------------------------- Success in processing Pool Details ---------------------------')
         if not usertype.type == adminType:

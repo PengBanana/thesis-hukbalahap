@@ -1043,6 +1043,8 @@ def filterPoolDetails(request, poolitem_id):
     if 0==0:
         #get from and to date
         #dc=request.POST['dchlorineLevel']
+        fromDate=""
+        toDate=""
         #poolstat
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
@@ -1051,10 +1053,12 @@ def filterPoolDetails(request, poolitem_id):
         poolref = Pool.objects.get(id=poolitem_id)
         today=datetime.date.today()
         today= today - timedelta(0)
-        ph = Final_Ph.objects.all().filter(pool=poolref, final_phdatetime__gte=today)
-        turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime=today)
-        temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__year=today.year, final_temperaturedatetime__month=today.month, final_temperaturedatetime__day=today.day)
-        debugger=today
+        ph = Final_Ph.objects.all().filter(pool=poolref, final_phdatetime__gte=fromDate, final_phdatetime__lte=toDate)
+        turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime__gte=fromDate, final_turbiditydatetime__lte=toDate)
+        temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__gte=fromDate, final_temperaturedatetime__lte=toDate)
+        debugger=str(fromDate)+" - "+str(toDate)
+        print(------------------------- Filter Pool Date ---------------------)
+        print(debugger)
         #pool calendar stuff
         poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False).reverse()
         sd=[]

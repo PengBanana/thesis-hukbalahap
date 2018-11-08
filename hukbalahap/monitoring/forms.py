@@ -1,5 +1,5 @@
 from django import forms
-from monitoring.models import Usertype_Ref,Type,Pool
+from monitoring.models import Usertype_Ref,Type,Pool,ipaddress_ref
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm,AuthenticationForm
 
@@ -36,10 +36,10 @@ class RegisterPool(forms.ModelForm):
     pool_depth = forms.DecimalField(max_digits=8, decimal_places=2, required= True, label=('Pool Depth'),widget = forms.TextInput( attrs = {'class': 'form-control','id': 'pool_depth'}))
     pool_availabletimestart = forms.TimeField( required= True, label=('Open Time'),widget = forms.TextInput( attrs = {'class': 'form-control timepicker','id': 'pool_availabletimestart'}))
     pool_availabletimeend = forms.TimeField( required= True, label=('Close Time'),widget = forms.TextInput( attrs = {'class': 'form-control timepicker','id': 'pool_availabletimeend'}))
-
+    pool_ip = forms.ModelChoiceField(queryset=ipaddress_ref.objects.only('ipaddress'), required=True,widget=forms.Select(attrs={'class': 'form-control','autocomplete':'off', 'id': 'pool_ip'}))
     class Meta:
         model = Pool
-        fields = ('pool_name','pool_location','pool_length','pool_width','pool_depth','pool_availabletimestart','pool_availabletimeend')
+        fields = ('pool_name','pool_location','pool_length','pool_width','pool_depth','pool_availabletimestart','pool_availabletimeend','pool_ip')
 
 class SignUpType(forms.ModelForm):
     type = forms.ModelChoiceField(queryset=Usertype_Ref.objects.all(), required=True,widget=forms.Select(attrs={'class': 'form-control','autocomplete':'off'}))

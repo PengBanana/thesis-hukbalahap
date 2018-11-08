@@ -1196,13 +1196,17 @@ def filterPoolDetails(request, poolitem_id):
         #water level forecast working here
         forecastData_ph = Final_Ph.objects.filter(pool=poolref).order_by('final_phdatetime').reverse()[:12]
         #forecastData_ph = Final_Ph.objects.filter(pool=poolref, final_phdatetime=today).order_by('final_phdatetime').reverse()[:12]
-        forecastData_turbidity = Final_Turbidity.objects.filter(pool=poolref, final_turbiditydatetime = today).order_by('final_turbiditydatetime').reverse()[:12]
-        forecastData_temperature = Final_Temperature.objects.filter(pool=poolref, final_temperaturedatetime=today).order_by('final_temperaturedatetime').reverse()[:12]
-        forecast_ph=getForecast(forecastData_ph)
-        forecast_turbidity=getForecast(forecastData_turbidity)
-        forecast_temperature=getForecast(forecastData_temperature)  
+        forecast_ph=getForecast(forecastData_ph, 6.8, 7.2)
+        timeCounter=0
+        timeToForecast=datetime.datetime.today()
+        forecast_time=[]
+        while timeCounter<12:
+            timeCounter+=1
+            timeToForecast+=timedelta(hours=1)
+            forecast_time.append(timeToForecast)
         content= {
-            #poolstat stuff
+            'forecastData':forecast_ph,
+            'forecastTimeData':forecast_time,
             'poolid':poolitem_id,
             'poolSchedule':poolSchedule,
             'sd':sd,
@@ -2044,25 +2048,67 @@ def sendMail(sender, to, subject, body):
     message = create_message(sender, to, subject, body)
     sendMail = send_message(service, sender, message)
     
-def getForecast(data_list):
+def getForecast(data_list, lowerlimit, upperlimit):
     returnVal=0
-    dataSum=0
     dataCount=0
+    rateOfChanges=[]
     try:
         for item in data_list:
             dataCount+=1
             try:
-                dataSum+=item.final_temperaturelevel
+                if(dataCount%2==0):
+                    dataItem2=item.final_temperaturelevel
+                    change=dataItem-dataItem2
+                    rateOfChanges.append(change)
+                else:
+                    dataItem=item.final_temperaturelevel
             except:
                 try:
-                    dataSum+=item.final_phlevel
+                    if(dataCount%2==0):
+                        dataItem2=item.final_phlevel
+                        change=dataItem-dataItem2
+                        rateOfChanges.append(change)
+                    else:
+                        dataItem=item.final_phlevel
                 except:
                     try:
-                        dataSum+=item.final_turbiditylevel
+                        if(dataCount%2==0):
+                            dataItem2=item.final_turbiditylevel
+                            change=dataItem-dataItem2
+                            rateOfChanges.append(change)
+                        else:
+                            dataItem=item.final_turbiditylevel
                     except:
                         print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Error in computing forecast 1 xxxxxxxxxxxxxxxxxxxxx")
-        dataAverage=dataSum/dataCount
-        
+        rateCount=0
+        rateSum=0
+        for item in rateOfChanges:
+            rateCount+=1
+            rateSum+=item
+        rateAverage=rateSum/rateCount
+        currentLevel=data_list[0]
+        currentLevel=currentLevel.final_phlevel
+        predictionCount=0
+        returnVal=[]
+        if(rateAverage>0):
+            while predictionCount<=12:
+                predictionCount+=1
+                if(currentLevel<8.2):
+                    currentLevel+=rateAverage
+                    if currentLevel>8.2:
+                        currentLevel=8.2
+                currentLevel=round(currentLevel, 2)
+                returnVal.append(currentLevel)
+        else:
+            while predictionCount<=12:
+                predictionCount+=1
+                if(currentLevel>6.8):
+                    currentLevel+=rateAverage
+                    if currentLevel<6.8:
+                        currentLevel=6.8
+                currentLevel=round(currentLevel, 2)
+                returnVal.append(currentLevel)
+        return returnVal
     except:
         print("xxxxxxxxxxxxxxxxxxxxxxxxx Error in computing forecast 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     return returnVal

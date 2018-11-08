@@ -20,7 +20,7 @@ class Pool(models.Model):
 	pool_depth = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	pool_availabletimestart = models.TimeField(null=True, blank=True)
 	pool_availabletimeend = models.TimeField(null=True, blank=True)
-	pool_ip = models.ForeignKey(ipaddress_ref, on_delete=models.CASCADE, default=1)
+	pool_ip = models.OneToOneField(ipaddress_ref, on_delete=models.CASCADE, default=1)
 
 	def __str__(self):
 		return self.pool_name + " | " + self.pool_location

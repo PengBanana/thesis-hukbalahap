@@ -6,6 +6,12 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 # Non-Dependent Classes
+class ipaddress_ref(models.Model):
+	ipaddress = models.CharField(max_length=15)
+
+	def __str__(self):
+		return str(self.ipaddress)
+
 class Pool(models.Model):
 	pool_location = models.CharField(max_length=250, default="")
 	pool_name = models.CharField(max_length=250, default="")
@@ -14,6 +20,7 @@ class Pool(models.Model):
 	pool_depth = models.DecimalField(max_digits=8, decimal_places=2, default="")
 	pool_availabletimestart = models.TimeField(null=True, blank=True)
 	pool_availabletimeend = models.TimeField(null=True, blank=True)
+	pool_ip = models.OneToOneField(ipaddress_ref, on_delete=models.CASCADE, default=1)
 
 	def __str__(self):
 		return self.pool_name + " | " + self.pool_location
@@ -40,7 +47,7 @@ class Type(models.Model):
 	type = models.ForeignKey(Usertype_Ref, default = 2, on_delete=models.CASCADE)
 
 	def __str__(self):
-		return str(self.user)
+		return str(self.user) + " | " + str(self.type)
 
 @receiver(post_save, sender=User)
 def create_user_type(sender, instance, created, **kwargs):

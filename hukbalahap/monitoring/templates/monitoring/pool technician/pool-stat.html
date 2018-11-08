@@ -9,10 +9,26 @@
             {y: '{{item.final_phdatetime|date:"Y-m-d H:00:00"}}', item1: '{{item.final_phlevel}}' }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ],
-        xkey: 'y',
+        xkey: ['y'],
         ykeys: ['item1'],
         lineColors: ['#3c8dbc'],
-        labels: ['PH level']
+        labels: ['PH level'],
+        hideHover: 'auto'
+    });
+    
+    new Morris.Line({
+        element: 'forecastChart',
+        data: [
+            {% for xitem in forecastTimeData %}
+            {y:'{{xitem|date:"Y-m-d H:00:00"}}', 
+            item1:{% for yitem in forecastData %}{% if forloop.counter == forloop.parentloop.counter %}{{yitem}}{% endif %}{% endfor %} }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        xkey: ['y'],
+        ykeys: ['item1'],
+        lineColors: ['#3c8dbc'],
+        labels: ['PH Level Forecast'],
+        hideHover: 'auto'
     });
 
     new Morris.Line({
@@ -22,10 +38,11 @@
             {y: '{{item.final_temperaturedatetime|date:"Y-m-d H:00:00"}}', item1: '{{item.final_temperaturelevel}}' }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ],
-        xkey: 'y',
+        xkey: ['y'],
         ykeys: ['item1'],
         lineColors: ['#3c8dbc'],
-        labels: ['Temperature level']
+        labels: ['Temperature level'],
+        hideHover: 'auto'
     });
 
     new Morris.Line({
@@ -35,24 +52,14 @@
             {y: '{{item.final_turbiditydatetime|date:"Y-m-d H:00:00"}}', item1: '{{item.final_turbiditylevel}}' }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ],
-        xkey: 'y',
+        xkey: ['y'],
         ykeys: ['item1'],
         lineColors: ['#3c8dbc'],
-        labels: ['Temperature level']
-    });
-
-    new Morris.Line({
-        element: 'forecastChart',
-        data: [
-          //{y: '', item1: , item2: }, //kaw na magpalit netong mga nakasulat
-
-        ],
-        xkey: 'y',
-        ykeys: ['item1', 'item2'],
-        labels: ['Item 1', 'Item 2'],
-        lineColors: ['#a0d0e0', '#3c8dbc'],
+        labels: ['Temperature level'],
         hideHover: 'auto'
     });
+    
+    
 
     $('.applyBtn').on('click', function() {
         var dateValue = $('.date-value').text()
@@ -64,19 +71,6 @@
         //console.log(dateValue.split('-')[0] )
         //console.log(dateValue.split('-')[1] )
     });
-
-
-
-      $(function () {
-        $('#example2').DataTable({
-          'paging'      : true,
-          'lengthChange': false,
-          'searching'   : true,
-          'ordering'    : true,
-          'info'        : true,
-          'autoWidth'   : false
-        })
-      });
 </script>
 {% endblock %}
 {% block content %}
@@ -264,7 +258,7 @@
                 </div>
               </div>
               <div class="box-body chart-responsive">
-                <div class="chart" id="forecastChart" style="height: 150px;">
+                <div class="chart" id="forecastChart" style="height: 150px; width: 960px">
 
                 </div>
               </div>
@@ -309,7 +303,6 @@
                 {% endfor %}
                   <td>{{ item.act_chlorine }}</td>
                   <td>{{ item.act_depowder }}</td>
-                  <td>{{ item.act_chlorine }}</td>
                   <td>{{ item.act_bakingsoda }}</td>
                   <td>{{ item.act_muriatic }}</td>
                 {% for bitem in ct %}

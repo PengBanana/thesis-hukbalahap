@@ -1193,6 +1193,14 @@ def filterPoolDetails(request, poolitem_id):
             accomplishDates.append(accomplishDateString)
             allUsers = User.objects.all()
             chemicalTechnician.append(str(item.user.first_name)+" "+str(item.user.last_name))
+        #water level forecast working here
+        forecastData_ph = Final_Ph.objects.filter(pool=poolref).order_by('final_phdatetime').reverse()[:12]
+        #forecastData_ph = Final_Ph.objects.filter(pool=poolref, final_phdatetime=today).order_by('final_phdatetime').reverse()[:12]
+        forecastData_turbidity = Final_Turbidity.objects.filter(pool=poolref, final_turbiditydatetime = today).order_by('final_turbiditydatetime').reverse()[:12]
+        forecastData_temperature = Final_Temperature.objects.filter(pool=poolref, final_temperaturedatetime=today).order_by('final_temperaturedatetime').reverse()[:12]
+        forecast_ph=getForecast(forecastData_ph)
+        forecast_turbidity=getForecast(forecastData_turbidity)
+        forecast_temperature=getForecast(forecastData_temperature)  
         content= {
             #poolstat stuff
             'poolid':poolitem_id,
@@ -1335,7 +1343,7 @@ def chemicalConsumption(request):
         rcl.append(rowCost)
         totalCost+=rowCost
     dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
-    reportMonth= str(monthNow)+" "+str(yearNow)#working here
+    reportMonth= str(monthNow)+" "+str(yearNow)
     chlorineQuarterlyForecast=generateForecastedAmount(ccl, 3)
     muriaticQuarterlyForecast=generateForecastedAmount(mcl, 3)
     dePowderQuarterlyForecast=generateForecastedAmount(dcl, 3)
@@ -1587,7 +1595,7 @@ def getReportMonthYear(request):
             rcl.append(rowCost)
         dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
         reportMonth= str(monthAsIs)+" "+str(yearNow)
-        reportMonth= str(monthNow)+" "+str(yearNow)#working here
+        reportMonth= str(monthNow)+" "+str(yearNow)
         chlorineQuarterlyForecast=generateForecastedAmount(ccl, 3)
         muriaticQuarterlyForecast=generateForecastedAmount(mcl, 3)
         dePowderQuarterlyForecast=generateForecastedAmount(dcl, 3)
@@ -2035,3 +2043,26 @@ def generateForecastedAmount(costs, multiplier):
 def sendMail(sender, to, subject, body):
     message = create_message(sender, to, subject, body)
     sendMail = send_message(service, sender, message)
+    
+def getForecast(data_list):
+    returnVal=0
+    dataSum=0
+    dataCount=0
+    try:
+        for item in data_list:
+            dataCount+=1
+            try:
+                dataSum+=item.final_temperaturelevel
+            except:
+                try:
+                    dataSum+=item.final_phlevel
+                except:
+                    try:
+                        dataSum+=item.final_turbiditylevel
+                    except:
+                        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Error in computing forecast 1 xxxxxxxxxxxxxxxxxxxxx")
+        dataAverage=dataSum/dataCount
+        
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxx Error in computing forecast 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    return returnVal

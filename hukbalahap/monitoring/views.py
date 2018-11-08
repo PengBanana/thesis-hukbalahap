@@ -217,6 +217,8 @@ def poolDetails_view(request, poolitem_id):
         poolref = Pool.objects.get(id=poolitem_id)
         today=datetime.date.today()
         today= today - timedelta(0)
+        fromDate=today
+        toDate=today
         ph = Final_Ph.objects.all().filter(pool=poolref, final_phdatetime__gte=today)
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime=today)
         temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__year=today.year, final_temperaturedatetime__month=today.month, final_temperaturedatetime__day=today.day)
@@ -247,12 +249,12 @@ def poolDetails_view(request, poolitem_id):
             pt.append(str(item.user.first_name)+" "+str(item.user.last_name))
             ss.append(item.status)
         #chemical usage data stuff
-        accomplishDates=[]#working here
+        accomplishDates=[]
         chemicalTechnician=[]
         #for chemical usage data
         chemicalSchedule = poolSchedule.exclude(status="Scheduled", datetimeAccomplished__isnull=True)
         chemicalSchedule = chemicalSchedule.exclude(status="Unfinished")
-        for item in chemicalSchedule:#working here
+        for item in chemicalSchedule:
             #for pool calendar data
             accomplishDateString=str(item.datetimeAccomplished.month)+"/"+str(item.datetimeAccomplished.day)+"/"+str(item.datetimeAccomplished.year)
             accomplishDateString = datetime.datetime.strptime(accomplishDateString, '%m/%d/%Y').strftime('%B %m, %Y')
@@ -1120,12 +1122,12 @@ def filterPoolDetails(request, poolitem_id):
             pt.append(str(item.user.first_name)+" "+str(item.user.last_name))
             ss.append(item.status)
         #chemical usage data stuff
-        accomplishDates=[]#working here
+        accomplishDates=[]
         chemicalTechnician=[]
         #for chemical usage data
         chemicalSchedule = poolSchedule.exclude(status="Scheduled", datetimeAccomplished__isnull=True)
         chemicalSchedule = chemicalSchedule.exclude(status="Unfinished")
-        for item in chemicalSchedule:#working here
+        for item in chemicalSchedule:
             #for pool calendar data
             accomplishDateString=str(item.datetimeAccomplished.month)+"/"+str(item.datetimeAccomplished.day)+"/"+str(item.datetimeAccomplished.year)
             accomplishDateString = datetime.datetime.strptime(accomplishDateString, '%m/%d/%Y').strftime('%B %m, %Y')

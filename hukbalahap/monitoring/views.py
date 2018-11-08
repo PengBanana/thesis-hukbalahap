@@ -1276,7 +1276,17 @@ def chemicalConsumption(request):
         rcl.append(rowCost)
         totalCost+=rowCost
     dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
-    reportMonth= str(monthNow)+" "+str(yearNow)
+    reportMonth= str(monthNow)+" "+str(yearNow)#working here
+    chlorineQuarterlyForecast=generateForecastedAmount(ccl, 3)
+    muriaticQuarterlyForecast=generateForecastedAmount(mcl, 3)
+    dePowderQuarterlyForecast=generateForecastedAmount(dcl, 3)
+    bakingSodaQuarterlyForecast=generateForecastedAmount(bscl, 3)
+    sumQuarterlyCost=chlorineQuarterlyForecast+muriaticQuarterlyForecast+dePowderQuarterlyForecast+bakingSodaQuarterlyForecast
+    chlorineYearlyForecast=generateForecastedAmount(ccl, 12)
+    muriaticYearlyForecast=generateForecastedAmount(mcl, 12)
+    dePowderYearlyForecast=generateForecastedAmount(dcl, 12)
+    bakingSodaYearlyForecast=generateForecastedAmount(bscl, 12)
+    sumYearlyCost=chlorineYearlyForecast+muriaticYearlyForecast+dePowderYearlyForecast+bakingSodaYearlyForecast
     if itemCounter<1:
         chlorineTotal="n/a"
         muraticTotal="n/a"
@@ -1284,6 +1294,8 @@ def chemicalConsumption(request):
         bakingSodaTotal="n/a"
     #date display format August 5, 2018
     context={
+        "syc":sumYearlyCost,
+        "sqc":sumQuarterlyCost,
         "rcl":rcl,
         "tc":totalCost,
         "ic":itemCounter,
@@ -1516,6 +1528,17 @@ def getReportMonthYear(request):
             rcl.append(rowCost)
         dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
         reportMonth= str(monthAsIs)+" "+str(yearNow)
+        reportMonth= str(monthNow)+" "+str(yearNow)#working here
+        chlorineQuarterlyForecast=generateForecastedAmount(ccl, 3)
+        muriaticQuarterlyForecast=generateForecastedAmount(mcl, 3)
+        dePowderQuarterlyForecast=generateForecastedAmount(dcl, 3)
+        bakingSodaQuarterlyForecast=generateForecastedAmount(bscl, 3)
+        sumQuarterlyCost=chlorineQuarterlyForecast+muriaticQuarterlyForecast+dePowderQuarterlyForecast+bakingSodaQuarterlyForecast
+        chlorineYearlyForecast=generateForecastedAmount(ccl, 12)
+        muriaticYearlyForecast=generateForecastedAmount(mcl, 12)
+        dePowderYearlyForecast=generateForecastedAmount(dcl, 12)
+        bakingSodaYearlyForecast=generateForecastedAmount(bscl, 12)
+        sumYearlyCost=chlorineYearlyForecast+muriaticYearlyForecast+dePowderYearlyForecast+bakingSodaYearlyForecast
         if itemCounter<1:
             chlorineTotal="n/a"
             muraticTotal="n/a"
@@ -1523,6 +1546,8 @@ def getReportMonthYear(request):
             bakingSodaTotal="n/a"
         #date display format August 5, 2018
         context={
+            "syc":sumYearlyCost,
+            "sqc":sumQuarterlyCost,
             "rcl":rcl,
             "tc":totalCost,
             "ic":itemCounter,
@@ -1932,4 +1957,18 @@ def convertToDateTime(month, day, year):
     compareDate=datetime.datetime.strptime(compareDate, '%m/%d/%Y').strftime('%Y-%m-%d')
     #compareDate=datetime.datetime.strptime(compareDate, '%m/%d/%Y').date
     returnVal=compareDate
+    return returnVal
+
+def generateForecastedAmount(costs, multiplier):
+    returnVal=0
+    itemSum=0
+    itemCount=0
+    try:
+        for item in costs:
+            itemSum+=item
+            itemCount+=1
+        monthlyAverage=itemSum/itemCount
+        returnVal=monthlyAverage*multiplier
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxx Error Cannot compute Forecasted Amount Quarterly xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     return returnVal

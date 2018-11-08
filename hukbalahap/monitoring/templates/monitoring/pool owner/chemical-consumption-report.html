@@ -157,6 +157,8 @@ tfoot {  font-weight: bold;}
 
               <center>Date Generated: {{ dg }}</center>
               <center>Report for: {{ rm }}</center>
+                <center>Forecasted Quarterly Cost: Php {{ sqc }}</center>
+                    <center>Forecasted Yearly Cost: Php {{ syc }}</center>
               <!-- /.box-header -->
               <div class="box-body">
                 <table id="example2" class="table table-bordered ">
@@ -167,8 +169,6 @@ tfoot {  font-weight: bold;}
                     <th>Baking Soda(lbs)</th>
                     <th>Muriatic Acid(ml)</th>
                     <th>Estimated<br>Amount Spent(PHP)</th>
-                    <th><br>Forecasted Quarterly Cost</th>
-                    <th>Forecasted Yearly Cost</th>
                   </thead>
                 {% if ic > 0 %}
                 {% for item in chemicalItems %}

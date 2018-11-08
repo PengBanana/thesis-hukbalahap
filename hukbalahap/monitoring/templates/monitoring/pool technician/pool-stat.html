@@ -291,22 +291,33 @@
                 <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Time</th>
-                  <th>Chemical</th>
-                  <th>Amount Used</th>
+                  <th>Chlorine(ml)</th>
+                  <th>DE Powder(lbs)</th>
+                  <th>Baking Soda(lbs)</th>
+                  <th>Muriatic Acid(ml)</th>
+                  <th>Added By:</th>
 
                 </tr>
                 </thead>
                 <tbody>
-
+        {% for item in cs %}
                 <tr>
-                  <td>October 31, 2018</td>
-                  <td>2:00PM - 4:00PM</td>
-                  <td>Baking Soda</td>
-                  <td> ??</td>
-
+                {% for aitem in ad %}
+                {% if forloop.counter == forloop.parentloop.counter %}
+                  <td>{{ aitem }}</td>
+                {% endif %}
+                {% endfor %}
+                  <td>{{ item.act_chlorine }}</td>
+                  <td>{{ item.act_depowder }}</td>
+                  <td>{{ item.act_bakingsoda }}</td>
+                  <td>{{ item.act_muriatic }}</td>
+                {% for bitem in ct %}
+                {% if forloop.counter == forloop.parentloop.counter %}
+                  <td>{{bitem}}</td>
+                {% endif %}
+                {% endfor %}
                 </tr>
-
+        {% endfor %}
 
 
 

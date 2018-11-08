@@ -14,6 +14,64 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from datetime import timedelta
 
+#email api imports
+from googleapiclient.discovery import build
+from httplib2 import Http
+from oauth2client import file, client, tools
+from email.mime.text import MIMEText
+from httplib2 import Http
+from base64 import urlsafe_b64encode
+
+#email api code start
+# If modifying these scopes, delete the file token.json.
+SCOPES = 'https://mail.google.com/'
+store = file.Storage('token.json')
+creds = store.get()
+if not creds or creds.invalid:
+    flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
+    creds = tools.run_flow(flow, store)
+service = build('gmail', 'v1', http=creds.authorize(Http()))
+
+def create_message(sender, to, subject, message_text):
+  """Create a message for an email.
+
+  Args:
+    sender: Email address of the sender.
+    to: Email address of the receiver.
+    subject: The subject of the email message.
+    message_text: The text of the email message.
+
+  Returns:
+    An object containing a base64url encoded email object.
+  """
+  message = MIMEText(message_text)
+  message['to'] = to
+  message['from'] = sender
+  message['subject'] = subject
+  encoded_message = urlsafe_b64encode(message.as_bytes())
+  return {'raw': encoded_message.decode()}
+
+def send_message(service, user_id, message):
+  """Send an email message.
+
+  Args:
+    service: Authorized Gmail API service instance.
+    user_id: User's email address. The special value "me"
+    can be used to indicate the authenticated user.
+    message: Message to be sent.
+
+  Returns:
+    Sent Message.
+  """
+  try:
+    message = (service.users().messages().send(userId=user_id, body=message)
+               .execute())
+    print('Message ID: %s' % message['id'])
+    return message
+  except errors.HttpError as error:
+    print('An error occurred: %s' % error)
+#email api code end
+
 #start of import by migs and  francis###
 import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
 from time import sleep
@@ -320,6 +378,7 @@ def logout_view(request):
 @login_required(login_url="/monitoring/login")
 def index(request):
     #notification code
+    #sendMail('luismerleee@gmail.com', 'luismerleee@gmail.com', 'test', 'testing')
     notifications = getNotification(request)
     notifCount=notifications.count()
     try:
@@ -479,29 +538,54 @@ def poolDetails_view(request, poolitem_id):
         poolref = Pool.objects.get(id=poolitem_id)
         today=datetime.date.today()
         today= today - timedelta(0)
+        fromDate=today
+        toDate=today
         ph = Final_Ph.objects.all().filter(pool=poolref, final_phdatetime__gte=today)
         turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime=today)
         temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__year=today.year, final_temperaturedatetime__month=today.month, final_temperaturedatetime__day=today.day)
         debugger=today
         #pool calendar stuff
-        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False).reverse()
+        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__gte=fromDate, scheduledEnd__lte=toDate).reverse()
+        poolSchedule= poolSchedule.exclude(scheduledStart__isnull=True)
         sd=[]
         st=[]
         pt=[]
         ss=[]
         for item in poolSchedule:
-            dateString=str(item.scheduledStart.month)+"/"+str(item.scheduledStart.day)+"/"+str(item.scheduledStart.year)+"-"+str(item.scheduledEnd.month)+"/"+str(item.scheduledEnd.day)+"/"+str(item.scheduledEnd.year)
+            #for pool calendar data
+            startDateString=str(item.scheduledStart.month)+"/"+str(item.scheduledStart.day)+"/"+str(item.scheduledStart.year)
+            endDateString=str(item.scheduledEnd.month)+"/"+str(item.scheduledEnd.day)+"/"+str(item.scheduledEnd.year)
+            startDateString = datetime.datetime.strptime(startDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+            endDateString = datetime.datetime.strptime(endDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+            dateString=startDateString+" - "+endDateString
             sd.append(dateString)
-            timeString=str(item.scheduledStart.hour)+":"+str(item.scheduledStart.minute)+"-"+str(item.scheduledEnd.hour)+":"+str(item.scheduledEnd.minute)
+            timeString=str(item.scheduledStart.hour)+" "+str(item.scheduledStart.minute)+"-"+str(item.scheduledEnd.hour)+" "+str(item.scheduledEnd.minute)
+            startTimeString=str(item.scheduledStart.hour)+":"+str(item.scheduledStart.minute)
+            endTimeString=str(item.scheduledEnd.hour)+":"+str(item.scheduledEnd.minute)
+            startTimeString = datetime.datetime.strptime(startTimeString, '%H:%M').strftime('%I:%M%p')
+            endTimeString = datetime.datetime.strptime(endTimeString, '%H:%M').strftime('%I:%M%p')
+            timeString=startTimeString+" - "+endTimeString
             st.append(timeString)
             allUsers = User.objects.all()
-            pooltechUser = allUsers.filter(id=item.user.id)
             pt.append(str(item.user.first_name)+" "+str(item.user.last_name))
             ss.append(item.status)
+        #chemical usage data stuff
+        accomplishDates=[]
+        chemicalTechnician=[]
+        #for chemical usage data
+        chemicalSchedule = poolSchedule.exclude(status="Scheduled", datetimeAccomplished__isnull=True)
+        chemicalSchedule = chemicalSchedule.exclude(status="Unfinished")
+        for item in chemicalSchedule:
+            #for pool calendar data
+            accomplishDateString=str(item.datetimeAccomplished.month)+"/"+str(item.datetimeAccomplished.day)+"/"+str(item.datetimeAccomplished.year)
+            accomplishDateString = datetime.datetime.strptime(accomplishDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+            accomplishDates.append(accomplishDateString)
+            allUsers = User.objects.all()
+            chemicalTechnician.append(str(item.user.first_name)+" "+str(item.user.last_name))
         content= {
             #poolstat stuff
             'poolid':poolitem_id,
-            'poolSchedule':poolSchedule,    
+            'poolSchedule':poolSchedule,
             'sd':sd,
             'st':st,
             'pt':pt,
@@ -512,6 +596,9 @@ def poolDetails_view(request, poolitem_id):
             'turbidity':turbidity,
             'temperature':temperature,
             'notifications':notifications,
+            'cs':chemicalSchedule,
+            'ct':chemicalTechnician,
+            'ad':accomplishDates
         }
         print('----------------------------- Success in processing Pool Details ---------------------------')
         if not usertype.type == adminType:
@@ -1331,12 +1418,14 @@ def filterPoolDetails(request, poolitem_id):
         print("------------------------- Filter Pool Date "+debugger+" ---------------------")
         print(debugger)
         #pool calendar stuff
-        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__isnull=False, scheduledStart__gte=fromDate, scheduledEnd__lte=toDate).reverse()
+        poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__gte=fromDate, scheduledEnd__lte=toDate).reverse()
+        poolSchedule= poolSchedule.exclude(scheduledStart__isnull=True)
         sd=[]
         st=[]
         pt=[]
         ss=[]
-        for item in poolSchedule:#working here
+        for item in poolSchedule:
+            #for pool calendar data
             startDateString=str(item.scheduledStart.month)+"/"+str(item.scheduledStart.day)+"/"+str(item.scheduledStart.year)
             endDateString=str(item.scheduledEnd.month)+"/"+str(item.scheduledEnd.day)+"/"+str(item.scheduledEnd.year)
             startDateString = datetime.datetime.strptime(startDateString, '%m/%d/%Y').strftime('%B %m, %Y')
@@ -1351,13 +1440,25 @@ def filterPoolDetails(request, poolitem_id):
             timeString=startTimeString+" - "+endTimeString
             st.append(timeString)
             allUsers = User.objects.all()
-            pooltechUser = allUsers.filter(id=item.user.id)
             pt.append(str(item.user.first_name)+" "+str(item.user.last_name))
             ss.append(item.status)
+        #chemical usage data stuff
+        accomplishDates=[]
+        chemicalTechnician=[]
+        #for chemical usage data
+        chemicalSchedule = poolSchedule.exclude(status="Scheduled", datetimeAccomplished__isnull=True)
+        chemicalSchedule = chemicalSchedule.exclude(status="Unfinished")
+        for item in chemicalSchedule:
+            #for pool calendar data
+            accomplishDateString=str(item.datetimeAccomplished.month)+"/"+str(item.datetimeAccomplished.day)+"/"+str(item.datetimeAccomplished.year)
+            accomplishDateString = datetime.datetime.strptime(accomplishDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+            accomplishDates.append(accomplishDateString)
+            allUsers = User.objects.all()
+            chemicalTechnician.append(str(item.user.first_name)+" "+str(item.user.last_name))
         content= {
             #poolstat stuff
             'poolid':poolitem_id,
-            'poolSchedule':poolSchedule,    
+            'poolSchedule':poolSchedule,
             'sd':sd,
             'st':st,
             'pt':pt,
@@ -1368,6 +1469,9 @@ def filterPoolDetails(request, poolitem_id):
             'turbidity':turbidity,
             'temperature':temperature,
             'notifications':notifications,
+            'cs':chemicalSchedule,
+            'ct':chemicalTechnician,
+            'ad':accomplishDates
         }
         print('----------------------------- Success in processing Pool Details ---------------------------')
         if not usertype.type == adminType:
@@ -1493,7 +1597,17 @@ def chemicalConsumption(request):
         rcl.append(rowCost)
         totalCost+=rowCost
     dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
-    reportMonth= str(monthNow)+" "+str(yearNow)
+    reportMonth= str(monthNow)+" "+str(yearNow)#working here
+    chlorineQuarterlyForecast=generateForecastedAmount(ccl, 3)
+    muriaticQuarterlyForecast=generateForecastedAmount(mcl, 3)
+    dePowderQuarterlyForecast=generateForecastedAmount(dcl, 3)
+    bakingSodaQuarterlyForecast=generateForecastedAmount(bscl, 3)
+    sumQuarterlyCost=chlorineQuarterlyForecast+muriaticQuarterlyForecast+dePowderQuarterlyForecast+bakingSodaQuarterlyForecast
+    chlorineYearlyForecast=generateForecastedAmount(ccl, 12)
+    muriaticYearlyForecast=generateForecastedAmount(mcl, 12)
+    dePowderYearlyForecast=generateForecastedAmount(dcl, 12)
+    bakingSodaYearlyForecast=generateForecastedAmount(bscl, 12)
+    sumYearlyCost=chlorineYearlyForecast+muriaticYearlyForecast+dePowderYearlyForecast+bakingSodaYearlyForecast
     if itemCounter<1:
         chlorineTotal="n/a"
         muraticTotal="n/a"
@@ -1501,6 +1615,8 @@ def chemicalConsumption(request):
         bakingSodaTotal="n/a"
     #date display format August 5, 2018
     context={
+        "syc":sumYearlyCost,
+        "sqc":sumQuarterlyCost,
         "rcl":rcl,
         "tc":totalCost,
         "ic":itemCounter,
@@ -1733,6 +1849,17 @@ def getReportMonthYear(request):
             rcl.append(rowCost)
         dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
         reportMonth= str(monthAsIs)+" "+str(yearNow)
+        reportMonth= str(monthNow)+" "+str(yearNow)#working here
+        chlorineQuarterlyForecast=generateForecastedAmount(ccl, 3)
+        muriaticQuarterlyForecast=generateForecastedAmount(mcl, 3)
+        dePowderQuarterlyForecast=generateForecastedAmount(dcl, 3)
+        bakingSodaQuarterlyForecast=generateForecastedAmount(bscl, 3)
+        sumQuarterlyCost=chlorineQuarterlyForecast+muriaticQuarterlyForecast+dePowderQuarterlyForecast+bakingSodaQuarterlyForecast
+        chlorineYearlyForecast=generateForecastedAmount(ccl, 12)
+        muriaticYearlyForecast=generateForecastedAmount(mcl, 12)
+        dePowderYearlyForecast=generateForecastedAmount(dcl, 12)
+        bakingSodaYearlyForecast=generateForecastedAmount(bscl, 12)
+        sumYearlyCost=chlorineYearlyForecast+muriaticYearlyForecast+dePowderYearlyForecast+bakingSodaYearlyForecast
         if itemCounter<1:
             chlorineTotal="n/a"
             muraticTotal="n/a"
@@ -1740,6 +1867,8 @@ def getReportMonthYear(request):
             bakingSodaTotal="n/a"
         #date display format August 5, 2018
         context={
+            "syc":sumYearlyCost,
+            "sqc":sumQuarterlyCost,
             "rcl":rcl,
             "tc":totalCost,
             "ic":itemCounter,
@@ -2174,3 +2303,20 @@ def phAlarm(pHStandardDev):
         except:
             print("xxxxxxxxxxxxxxxxxxxxx FAILURE: phAlarmNotification cannot be processed xxxxxxxxxxxxxxx")
     
+def generateForecastedAmount(costs, multiplier):
+    returnVal=0
+    itemSum=0
+    itemCount=0
+    try:
+        for item in costs:
+            itemSum+=item
+            itemCount+=1
+        monthlyAverage=itemSum/itemCount
+        returnVal=monthlyAverage*multiplier
+    except:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxx Error Cannot compute Forecasted Amount Quarterly xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    return returnVal
+
+def sendMail(sender, to, subject, body):
+    message = create_message(sender, to, subject, body)
+    sendMail = send_message(service, sender, message)

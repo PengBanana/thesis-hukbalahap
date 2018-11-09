@@ -119,6 +119,47 @@ for x in ipobjects:
     else:
         ipExists = False
 
+#####################################
+def getPoolID(ipAddress):
+    ipAdd = ipAddress
+    ctr = 1
+    arraySize = Pool.objects.count()
+    poolIdKey = 0 
+    if arraySize > 0:
+        while(ctr <= arraySize):
+            x = str(poolobjects.get(pk = ctr).pool_ip)
+            if x == ipAdd:
+                print("IP Addresses are the same!")
+                poolIdKey = ctr
+            else:
+                print("IP Address at Counter: " + str(ctr) + " are not the same")
+            ctr = ctr + 1
+    else:
+        print("There is no pool present in the database")           
+    return poolIdKey
+
+#######################################    
+assignedPoolID = getPoolID(ipAddress)
+
+######################################
+def sensorStartChecker(ipAddress, assignedPoolID, ipExists):
+    if(ipExists == True):
+        print("IP Address is in IP Objects")
+        if(assignedPoolID != 0):
+            print("IP Address is in Pool Objects")
+            print("Assigned Pool ID: " + assignedPoolID)
+            sensorStart = True
+        else:
+            print("IP Address is NOT in Pool Objects")  
+            print("Sensor Will NOT Start!")
+    else:
+        print("IP Address is NOT in IP Objects")
+        print("IP Address: " + ipAddress + " Added!")
+        insertIP(ipAddress)
+
+######################################
+sensorStartChecker(ipAddress,assignedPoolID,ipExists)
+
 #if poolobjects.filter(pool_ip = ipAddress) != null:
 #    isAssigned = True
 #    print("isAssigned changed to True")
@@ -151,7 +192,7 @@ def voltArray(arrayLength, channel):
         if(channel == 1):
             data = 4.20019
         else:
-            data = 1.70692845395
+            data = 792.43231
         voltArray[i] = data
         i = i + 1
         sleep(.800)
@@ -422,9 +463,11 @@ class sensorReading(threading.Thread):
                 temp_batchCount += 1
 
         sleep(180)
-
-sensorRead = sensorReading()
-sensorRead.start()
+if sensorStart == True:
+    sensorRead = sensorReading()
+    sensorRead.start()
+else:
+    print("System would not Start, IP Address Not Yet Assigned In a Pool")
 
 #Sensor Reading end###
 
@@ -1290,11 +1333,6 @@ def notFound(request):
 
 
 @login_required(login_url="/monitoring/login")
-def personnel(request):
-    return render(request, 'monitoring/pool owner/personnel-efficiency.html')
-
-
-@login_required(login_url="/monitoring/login")
 def maintenanceDetails(request, schedule_id):
     notifications = getNotification(request)
     notifCount=notifications.count()
@@ -1662,13 +1700,82 @@ def success(request):
 
 @login_required(login_url="/monitoring/login")
 def personnelEfficiency(request):
-    return render(request, 'monitoring/pool owner/personnel-efficiency-report.html')
+    print("============================ Entering Personnel Efficiency ======================")
+    employeeList=User.objects.all()#working here
+    try:
+        if request.method == 'POST':
+            year=request.POST['yearFilter']
+            month=request.POST['monthFilter']
+            month=datetime.datetime.strptime(month, '%B').strftime('%m')
+            month=str(month)
+            year=str(year)
+        else:
+            today=datetime.date.today()
+            month=today.month
+            year=today.year
+            compareDate=convertToDateTime(today.month, "1", today.year)
+    except:
+        today=datetime.date.today()
+        month=today.month
+        year=today.year
+    compareDate=convertToDateTime(month, "1", year)
+    try:
+        compareDate2=convertToDateTime(month, "31", year)
+    except:
+        compareDate2=convertToDateTime(month, "30", year)
+    counts=[]
+    accomplishedCounts=[]
+    lateCounts=[]
+    unfinishedCounts=[]
+    efficiencyList=[]
+    eNames=[]
+    for employee in employeeList:
+        eName=str(employee.first_name)+" "+str(employee.last_name)
+        eNames.append(eName)
+        employeeReport=MaintenanceSchedule.objects.all().filter(user=employee)
+        employeeReport=employeeReport.filter(date__gte=compareDate)
+        employeeReport=employeeReport.filter(date__lte=compareDate2)
+        totalCount=employeeReport.exclude(status="Scheduled").count()
+        counts.append(totalCount)
+        badCount=employeeReport.exclude(status="Scheduled").exclude(status="Accomplished").count()
+        lateCount=employeeReport.filter(status="Late").count()
+        lateCounts.append(lateCount)
+        unfinishedCount=employeeReport.filter(status="Unfinished").count()
+        unfinishedCounts.append(unfinishedCount)
+        goodCount=totalCount-badCount
+        accomplishedCounts.append(goodCount)
+        try:
+            efficiency=goodCount/totalCount*100
+            efficiency=round(efficiency)
+        except:
+            efficiency=0
+        efficiencyList.append(efficiency)
+        ec=0
+        asum=0
+    for item in efficiencyList:
+        asum+=item
+        ec+=1
+    try:
+        averageAverage=asum/ec
+        averageAverage=round(averageAverage)
+    except:
+        averageAverage=0
+    content={
+        "zl":eNames,
+        "cl":counts,
+        "al":accomplishedCounts,
+        "ll":lateCounts,
+        "ul":unfinishedCounts,
+        "el":efficiencyList,
+        "avgavg":averageAverage
+    }
+    return render(request, 'monitoring/pool owner/personnel-efficiency-report.html', content)
 
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):
     yearNow=datetime.date.today().year
     monthNow=datetime.date.today().month
-    chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow).exclude(status="Late").filter(status="Accomplished")
+    chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow).exclude(status="Scheduled").exclude(status="Unfinished")
     chlorineTotal=0
     muriaticTotal=0
     dePowderTotal=0
@@ -1700,7 +1807,7 @@ def chemicalConsumption(request):
         rcl.append(rowCost)
         totalCost+=rowCost
     dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
-    reportMonth= str(monthNow)+" "+str(yearNow)
+    reportMonth= str(datetime.datetime.now().strftime('%B %Y'))
     chlorineQuarterlyForecast=generateForecastedAmount(ccl, 3)
     muriaticQuarterlyForecast=generateForecastedAmount(mcl, 3)
     dePowderQuarterlyForecast=generateForecastedAmount(dcl, 3)
@@ -1930,7 +2037,6 @@ def getReportMonthYear(request):
             rcl.append(rowCost)
         dateGenerated= datetime.datetime.now().strftime('%B %d, %Y')
         reportMonth= str(monthAsIs)+" "+str(yearNow)
-        reportMonth= str(monthNow)+" "+str(yearNow)
         chlorineQuarterlyForecast=generateForecastedAmount(ccl, 3)
         muriaticQuarterlyForecast=generateForecastedAmount(mcl, 3)
         dePowderQuarterlyForecast=generateForecastedAmount(dcl, 3)
@@ -2398,6 +2504,7 @@ def generateForecastedAmount(costs, multiplier):
             itemCount+=1
         monthlyAverage=itemSum/itemCount
         returnVal=monthlyAverage*multiplier
+        returnVal=round(returnVal, 2)
     except:
         print("xxxxxxxxxxxxxxxxxxxxxxxxxxx Error Cannot compute Forecasted Amount Quarterly xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     return returnVal

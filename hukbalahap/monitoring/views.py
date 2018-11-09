@@ -1,9 +1,10 @@
 from django.shortcuts import render, get_object_or_404,redirect
-from .models import Pool, Usertype_Ref, User,Type, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Status, Status_Ref, MaintenanceSchedule, Notification_Table,Chemical_Price_Reference
+from .models import Pool, Usertype_Ref, Type, Status_Ref, Status, MaintenanceSchedule, Temp_Turbidity, Temp_Temperature, Temp_Ph, Final_Turbidity, Final_Temperature, Final_Ph, Chlorine_Effectiveness, Notification_Table, uPool, Chemical_Price_Reference, MobileNumber, ipaddress_ref
 from .forms import SignUpForm, SignUpType, Pool,EditDetailsForm,ChangePasswordForm,RegisterPool
 from django.views.generic import TemplateView
 from django.db.models import Q
 from django.db.models import Sum, Count
+from django.contrib.auth.models import User
 import math, decimal, datetime
 from django.contrib.auth import login as auth_login, authenticate, update_session_auth_hash,logout
 from django.contrib.auth.views import logout, login
@@ -21,6 +22,10 @@ from oauth2client import file, client, tools
 from email.mime.text import MIMEText
 from httplib2 import Http
 from base64 import urlsafe_b64encode
+
+#checkerimports
+import ipaddress
+import socket
 
 #email api code start
 # If modifying these scopes, delete the file token.json.
@@ -73,15 +78,12 @@ def send_message(service, user_id, message):
 #email api code end
 
 #start of import by migs and  francis###
-import threading, time, spidev,numpy as np, Adafruit_GPIO.SPI as SPI, Adafruit_MCP3008, os, sqlite3
+import threading, time, numpy as np, os, sqlite3
 from time import sleep
 import sqlite3
-
+import socket
 #end of import
-#Sensor Reading Start
-SPI_PORT   = 0
-SPI_DEVICE = 0
-mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
+
 turbidityChannel = 1
 phChannel = 0
 sleepTime = 2
@@ -89,18 +91,67 @@ ctr = 0
 arrayLength = 60
 printInterval = .800
 samplingInterval = 20
+ipAddress = 0
+sensorStart = False
+assignedPoolID = 0
 
-def sensor():
-    for i in os.listdir('/sys/bus/w1/devices'):
-        if i != 'w1_bus_master1':
-            ds18b20 = i
-    return ds18b20
 
-def voltArray(arrayLength, mcp, channel):
+#insert checker if exist
+ipobjects = ipaddress_ref.objects.all()
+poolobjects = Pool.objects.all()
+
+def getLocalIp():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    #print(s.getsockname()[0])
+    ipadd = s.getsockname()[0]
+    s.close()
+    return ipadd
+
+ipAddress = getLocalIp()
+
+def insertIP(ip):
+    ipaddress_ref.objects.create(ipaddress = ip)
+
+for x in ipobjects:
+    if x.ipaddress == ipAddress:
+        ipExists = True
+    else:
+        ipExists = False
+
+#if poolobjects.filter(pool_ip = ipAddress) != null:
+#    isAssigned = True
+#    print("isAssigned changed to True")
+#elif poolobjects.filter(pool_ip = ipAddress) == null:
+#    isAssigned = False
+#    print("isAssigned changed to False")
+
+#if(ipExists == True):
+#    print("IP Address is in IP Objects")
+#    if(isAssigned == True):
+#        print("IP Address is in Pool Objects")
+#        assignedPoolID = poolobjects.filter(pool_ip=ipAddress).pool_id
+#        print("Assigned Pool ID: " + assignedPoolID)
+#        sensorStart = True
+#    elif(isAssigned == False):
+#        print("IP Address is NOT in Pool Objects")
+#        print("Sensor Will NOT Start!")
+#elif(ipExists == False):
+#    print("IP Address is NOT in IP Objects")
+#    print("IP Address: " + ipAddress + " Added!")
+#    insertIP(ipAddress)
+#endof checker
+
+#start of sensor code
+def voltArray(arrayLength, channel):
     voltArray = np.zeros(arrayLength,float)
     i = 0
+    data = 0
     while i < arrayLength:
-        data = mcp.read_adc(channel)
+        if(channel == 1):
+            data = 4.20019
+        else:
+            data = 1.70692845395
         voltArray[i] = data
         i = i + 1
         sleep(.800)
@@ -139,32 +190,25 @@ def getTurbidity(voltage):
     else:
         return turbValue
 
-def read(ds18b20):
-    location = '/sys/bus/w1/devices/' + ds18b20 + '/w1_slave'
-    tfile = open(location)
-    text = tfile.read()
-    tfile.close()
-    secondline = text.split("\n")[1]
-    temperaturedata = secondline.split(" ")[9]
-    temperature = float(temperaturedata[2:])
-    celsius = temperature / 1000
+def read():
+    celsius = 27
     return celsius
 
 #temp_pH queries
 def insert_to_temp_pH():
     #reads pH value voltage and translates to actual pH value
-    phVoltage = voltArray(arrayLength, mcp, phChannel)
+    phVoltage = voltArray(arrayLength, phChannel)
     finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
     phValue = round((1.5 * finalPhVoltage),2)
-    phValue = phValue + 1
+    phValue = phValue + 1.33
     Temp_Ph.objects.create(pool_id='1', temp_phlevel=phValue, temp_phdatetime=datetime.datetime.now())
     print("Temp_Ph Value Added: Enrique Razon Building, " + str(phValue) + ", " + str(datetime.datetime.now()))
 
 def del_insert_to_temp_pH():
-    phVoltage = voltArray(arrayLength, mcp, phChannel)
+    phVoltage = voltArray(arrayLength, phChannel)
     finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
     phValue = round((1.5 * finalPhVoltage),2)
-    phValue = phValue + 1
+    phValue = phValue + 1.33
     print("Deleted: " + str(Temp_Ph.objects.all()[0]))
     Temp_Ph.objects.all()[0].delete()
     Temp_Ph.objects.create(pool_id='1', temp_phlevel=phValue, temp_phdatetime=datetime.datetime.now())
@@ -178,11 +222,37 @@ def batchCount10pH():
         tempSum+=item.temp_phlevel
         tempCount+=1
     if(tempCount>0):
-        pHStandardDev = computeStandardDeviation(tempSum, tempCount, pHList)
+        tempMean = tempSum/tempCount
+        tempx = []
+        for level in pHList:
+            reading = level.temp_phlevel
+            reading -=tempMean
+            reading = reading * reading
+            tempx.append(reading)
+        newTempSum = 0
+        for read in tempx:
+            newTempSum+= read
+        pHVariance = newTempSum/tempCount
+        pHStandardDev = math.sqrt(pHVariance)
+        pHStandardDev= decimal.Decimal(pHStandardDev)+tempMean
+        pHStandardDev = round(pHStandardDev, 1)
+        print("yah")
         Final_Ph.objects.create(pool_id='1', final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
         print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))
         ##new notification
-        phAlarm(pHStandardDev)
+        if pHStandardDev < 7.2 or pHStandardDev > 7.8:
+            poolx=Pool.objects.get(id=1)
+            messagex = poolx.pool_location+" needs attention"
+            userx = User.objects.get(username="pooltech3")
+            try:
+                getNotification=Notification_Table.objects.all().filter(user=userx, number=1)
+            except Notification_Table.DoesNotExist:
+                newNotification= Notification_Table(
+                    user=userx,
+                    message=messagex,
+                    number = 1
+                )
+                newNotification.save()
         ##end of new notification
 
 def count_temp_ph():
@@ -192,14 +262,14 @@ def count_temp_ph():
 #temp_turbidity queries
 def insert_to_temp_turbidity():
     #reads turbidity voltage
-    turbVoltage = voltArray(arrayLength, mcp, turbidityChannel)
+    turbVoltage = voltArray(arrayLength, turbidityChannel)
     finalTurbVoltage = averageVolt(turbVoltage, arrayLength)*5.0/1024
     turbValue = round((getTurbidity(finalTurbVoltage)),5)
     Temp_Turbidity.objects.create(pool_id='1', temp_turbiditylevel=turbValue, temp_turbiditydatetime=datetime.datetime.now())
     print("Temp_Turbidity Value Added: Enrique Razon Building, " + str(turbValue) + ", " + str(datetime.datetime.now()))
 
 def del_insert_to_temp_turbidity():
-    turbVoltage = voltArray(arrayLength, mcp, turbidityChannel)
+    turbVoltage = voltArray(arrayLength, turbidityChannel)
     finalTurbVoltage = averageVolt(turbVoltage, arrayLength)*5.0/1024
     turbValue = round((getTurbidity(finalTurbVoltage)),5)
     print("Deleted: " + str(Temp_Turbidity.objects.all()[0]))
@@ -215,7 +285,19 @@ def batchCount10Turbidity():
         tempSum+=item.temp_turbiditylevel
         tempCount+=1
     if(tempCount>0):
-        turbidityStandardDev = computeStandardDeviation(tempSum, tempCount, turbidityList)
+        tempMean = tempSum/tempCount
+        tempx = []
+        for level in turbidityList:
+            reading = level.temp_turbiditylevel
+            reading -=tempMean
+            reading = reading * reading
+            tempx.append(reading)
+        newTempSum = 0
+        for read in tempx:
+            newTempSum+= read
+        turbidityVariance = newTempSum/tempCount
+        turbidityStandardDev = math.sqrt(turbidityVariance)
+        turbidityStandardDev = decimal.Decimal(turbidityStandardDev)+tempMean
         Final_Turbidity.objects.create(pool_id='1', final_turbiditylevel=turbidityStandardDev, final_turbiditydatetime=datetime.datetime.now())
         print("Final_Turbidity Value Added: Enrique Razon Building, " + str(turbidityStandardDev) + ", " + str(datetime.datetime.now()))
 
@@ -247,7 +329,19 @@ def batchCount10Temp():
         tempSum+=item.temp_temperaturelevel
         tempCount+=1
     if(tempCount>0):
-        tempStandardDev= computeStandardDeviation(tempSum, tempCount, temperatureList)
+        tempMean = tempSum/tempCount
+        tempx = []
+        for level in temperatureList:
+            reading = level.temp_temperaturelevel
+            reading -=tempMean
+            reading = reading*reading
+            tempx.append(reading)
+        newTempSum = 0
+        for read in tempx:
+            newTempSum+= read
+        tempVariance = newTempSum/tempCount
+        tempStandardDev = math.sqrt(tempVariance)
+        tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
         Final_Temperature.objects.create(pool_id='1', final_temperaturelevel=tempStandardDev, final_temperaturedatetime=datetime.datetime.now())
         print("Final_Temperature Value Added: Enrique Razon Building, " + str(tempStandardDev) + ", " + str(datetime.datetime.now()))
 
@@ -335,7 +429,6 @@ sensorRead = sensorReading()
 sensorRead.start()
 
 #Sensor Reading end###
-
 
 ###rendering definitions
 def login(request):
@@ -2332,7 +2425,7 @@ def generateForecastedAmount(costs, multiplier):
 def sendMail(sender, to, subject, body):
     message = create_message(sender, to, subject, body)
     sendMail = send_message(service, sender, message)
-    
+
 def getForecast(data_list, lowerlimit, upperlimit):
     returnVal=0
     dataCount=0

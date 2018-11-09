@@ -308,14 +308,12 @@ def count_temp_turbidity():
 #temp_temperature queries
 def insert_to_temp_temperature():
     #reads temperature sensor
-    serialNum = sensor()
-    tempData = read(serialNum)
+    tempData = read()
     Temp_Temperature.objects.create(pool_id='1', temp_temperaturelevel=tempData, temp_temperaturedatetime=datetime.datetime.now())
     print("Temp_Temperature Value Added: Enrique Razon Building, " + str(tempData) + ", " + str(datetime.datetime.now()))
 
 def del_insert_to_temp_temperature():
-    serialNum = sensor()
-    tempData = read(serialNum)
+    tempData = read()
     print("Deleted: " + str(Temp_Temperature.objects.all()[0]))
     Temp_Temperature.objects.all()[0].delete()
     Temp_Temperature.objects.create(pool_id='1', temp_temperaturelevel=tempData, temp_temperaturedatetime=datetime.datetime.now())

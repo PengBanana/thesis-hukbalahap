@@ -18,35 +18,45 @@
       <!-- /.box-header -->
       <!-- form start -->
 
-      <form method="POST">
+      <form method="post" action={% url 'monitoring:changePrice' %}>
         {% csrf_token %}
         <div class="row">
           <div class="col-xs-3"></div>
           <div class="col-xs-6">
 
             <div class="form-group" style="padding-top:15px;">
-              <label>Select Pool</label>
-              <select class="form-control" name="poolPK">
-
-                <option value ="pool">pool</option>
+              <label>Select Chemical:</label>
+              <select class="form-control" name="chemical">
+                <option value ="1">Chlorine</option>
+                <option value ="2">DE Powder</option>
+                <option value ="3">Baking Soda</option>
+                <option value ="4">Muriatic Acid</option>
 
               </select>
             </div>
 
             <div class="form-group" style="padding-top:15px;">
-              <label>Price</label>
-              <input class="form-control">
+              <label>New Price (PHP)</label>
+              <input class="form-control" type="number" name="Price">
+            </div>
+              
+            <div class="form-group" style="padding-top:15px;">
+              <label>Quantity (ml/lbs)</label>
+              <input class="form-control" name="Quantity">
             </div>
 
             <div class="form-group">
               <label>Effective Date:</label>
 
-              <div class="input-group">
-                <div class="input-group-addon">
-                  <i class="fa fa-calendar"></i>
-                </div>
-                <input type="text" name="dRange" class="form-control pull-right" id="reservation">
-              </div>
+              <div class="form-group">
+            <div class="input-group date">
+            <div class="input-group-addon">
+              <i class="fa fa-calendar"></i>
+            </div>
+            <input type="text" class="form-control pull-right" name="eDate" placeholder="mm/dd/yyyy">
+          </div>
+          <!-- /.input group -->
+        </div>
               <!-- /.input group -->
             </div>
 

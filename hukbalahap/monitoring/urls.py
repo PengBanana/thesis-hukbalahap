@@ -24,7 +24,6 @@ urlpatterns = [
     url(r'^logout_view/$', views.logout_view, name='logout_view'),
     url(r'^$', views.index, name='index'),
     url(r'^index/$', views.index, name='index'),
-    url(r'^personnel/$', views.personnel, name='personnel'),
     url(r'^profile/$', views.profile, name='profile'),
     url(r'^editDetails/$', views.editDetails, name='editDetails'),
     url(r'^poolDetails/(?P<poolitem_id>[0-9]+)/$', views.poolDetails_view, name='poolDetails'),

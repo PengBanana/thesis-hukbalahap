@@ -151,7 +151,7 @@ def voltArray(arrayLength, channel):
         if(channel == 1):
             data = 4.20019
         else:
-            data = 1.70692845395
+            data = 792.43231
         voltArray[i] = data
         i = i + 1
         sleep(.800)
@@ -207,6 +207,7 @@ def insert_to_temp_pH():
 def del_insert_to_temp_pH():
     phVoltage = voltArray(arrayLength, phChannel)
     finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
+    print("VOLTAAGE" + str(finalPhVoltage))
     phValue = round((1.5 * finalPhVoltage),2)
     phValue = phValue + 1.33
     print("Deleted: " + str(Temp_Ph.objects.all()[0]))

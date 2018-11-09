@@ -1549,7 +1549,7 @@ def filterPoolDetails(request, poolitem_id):
             accomplishDates.append(accomplishDateString)
             allUsers = User.objects.all()
             chemicalTechnician.append(str(item.user.first_name)+" "+str(item.user.last_name))
-        #water level forecast working here
+        #water level forecast
         forecastData_ph = Final_Ph.objects.filter(pool=poolref).order_by('final_phdatetime').reverse()[:12]
         #forecastData_ph = Final_Ph.objects.filter(pool=poolref, final_phdatetime=today).order_by('final_phdatetime').reverse()[:12]
         forecast_ph=getForecast(forecastData_ph, 6.8, 7.2)
@@ -1803,28 +1803,6 @@ def addItem(request):
     except:
         return render(request,'monitoring/BadRequest.html')
 
-
-
-@login_required(login_url="/monitoring/login")
-def changePrice(request):
-    notifications = getNotification(request)
-    notifCount=notifications.count()
-    try:
-        usertype = Type.objects.get(pk=request.user.pk)
-        adminType= Usertype_Ref.objects.get(pk=1)
-        if usertype.type != adminType:
-            if request.method == 'POST':
-                return render(request, 'monitoring/pool technician/change-price.html',locals())
-
-                    #logic here
-            else:
-
-                return render(request, 'monitoring/pool technician/change-price.html',locals())
-        else:
-            return render(request,'monitoring/BadRequest.html')
-    except:
-        return render(request,'monitoring/BadRequest.html')
-
 @login_required(login_url="/monitoring/login")
 def setPoolConnection(request):
     notifications = getNotification(request)
@@ -1992,23 +1970,27 @@ def getReportMonthYear(request):
 
 @login_required(login_url="/monitoring/login")
 def changePrice(request):
+    print("view change Price")
     notifications = getNotification(request)
-    notifCount=notifications.count()
-    try:
-        usertype = Type.objects.get(pk=request.user.pk)
-        adminType= Usertype_Ref.objects.get(pk=1)
-        if usertype.type != adminType:
-            if request.method == 'POST':
-                return render(request, 'monitoring/pool technician/change-price.html',locals())
-
-                    #logic here
+    if 0==0:
+        print("trying to post at change Price")
+        if request.method == 'POST':
+            print("=========================== change Price initiated ====================")
+            chemicalName=request.POST['chemical']
+            newPrice=request.POST['Price']
+            newQuantity=request.POST['Quantity']
+            effectiveDate=request.POST['eDate']
+            successCheck=updatePrice(chemicalName, newPrice, newQuantity, effectiveDate)
+            if(successCheck>0):
+                print("Price Successfuly updated")
             else:
-
-                return render(request, 'monitoring/pool technician/change-price.html',locals())
+                print("Failure occured in change price")
+            return render(request, 'monitoring/pool technician/change-price.html',locals())
         else:
-            return render(request,'monitoring/BadRequest.html')
-    except:
-        return render(request,'monitoring/BadRequest.html')
+            return render(request, 'monitoring/pool technician/change-price.html',locals())
+    else:
+        return render(request,'monitoring/BadRequest.html') 
+    
 ### reusable methods
 def Quality(observedVal, idealVal, badVal, weightVal):
     try:
@@ -2468,3 +2450,65 @@ def getForecast(data_list, lowerlimit, upperlimit):
     except:
         print("xxxxxxxxxxxxxxxxxxxxxxxxx Error in computing forecast 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     return returnVal
+
+def updatePrice(chemicalName, newPrice, newQuantity, effectiveDateNew):
+    try:
+        effectiveDateNew=datetime.datetime.strptime(effectiveDateNew, '%m/%d/%Y').strftime('%Y-%m-%d')
+        returnVal=1
+        if(chemicalName=="1"):
+            returnVal=1
+            itemCount = Chemical_Price_Reference.objects.filter(chemical = "Chlorine", effectiveDate=effectiveDateNew).count()
+            if itemCount > 0:
+                item = Chemical_Price_Reference.objects.get(chemical = "Chlorine", effectiveDate=effectiveDateNew)
+                item.price = newPrice
+            else:
+                item=Chemical_Price_Reference(
+                chemical = "Chlorine",
+                    quantity = newQuantity,
+                    price = newPrice,
+                    effectiveDate = effectiveDateNew
+                )
+        elif(chemicalName=="2"):
+            returnVal=1
+            Chemical_Price_Reference.objects.filter(chemical = "DE Powder", effectiveDate=effectiveDateNew).count()
+            if itemCount > 0:
+                item = Chemical_Price_Reference.objects.get(chemical = "DE Powder", effectiveDate=effectiveDateNew)
+                item.price = newPrice
+            else:
+                item=Chemical_Price_Reference(
+                chemical = "DE Powder",
+                    quantity = newQuantity,
+                    price = newPrice,
+                    effectiveDate = effectiveDateNew
+                )
+        elif(chemicalName=="3"):
+            returnVal=1
+            Chemical_Price_Reference.objects.filter(chemical = "Baking Soda", effectiveDate=effectiveDateNew).count()
+            if itemCount > 0:
+                item = Chemical_Price_Reference.objects.get(chemical = "Baking Soda", effectiveDate=effectiveDateNew)
+                item.price = newPrice
+            else:
+                item=Chemical_Price_Reference(
+                chemical = "Baking Soda",
+                    quantity = newQuantity,
+                    price = newPrice,
+                    effectiveDate = effectiveDateNew
+                )
+        elif(chemicalName=="4"):
+            returnVal=1
+            Chemical_Price_Reference.objects.filter(chemical = "Muriatic Acid", effectiveDate=effectiveDateNew).count()
+            if itemCount > 0:
+                item = Chemical_Price_Reference.objects.get(chemical = "Muriatic Acid", effectiveDate=effectiveDateNew)
+                item.price = newPrice
+            else:
+                item=Chemical_Price_Reference(
+                chemical = "Muriatic Acid",
+                    quantity = newQuantity,
+                    price = newPrice,
+                    effectiveDate = effectiveDateNew
+                )
+        item.save()
+        return returnVal
+    except:
+        returnVal=0
+        return returnVal

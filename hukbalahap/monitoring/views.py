@@ -119,6 +119,45 @@ for x in ipobjects:
     else:
         ipExists = False
 
+#####################################
+def getPoolID(ipAddress):
+    ipAdd = ipAddress
+    ctr = 1
+    arraySize = Pool.objects.count()
+    poolIdKey = 0 
+    if arraySize > 0:
+        while(ctr <= arraySize):
+            x = str(poolobjects.get(pk = ctr).pool_ip)
+            if x == ipAdd:
+                print("IP Addresses are the same!")
+                poolIdKey = ctr
+            else:
+                print("IP Address at Counter: " + str(ctr) + " are not the same")
+            ctr = ctr + 1
+    else:
+        print("There is no pool present in the database")           
+    return poolIdKey
+
+#######################################    
+assignedPoolID = getPoolID(ipAddress)
+
+######################################
+def sensorStartChecker(ipAddress, assignedPoolID, ipExists):
+    if(ipExists == True):
+        print("IP Address is in IP Objects")
+        if(assignedPoolID != 0):
+            print("IP Address is in Pool Objects")
+            print("Assigned Pool ID: " + assignedPoolID)
+            sensorStart = True
+        else:
+            print("IP Address is NOT in Pool Objects")  
+            print("Sensor Will NOT Start!")
+    else:
+        print("IP Address is NOT in IP Objects")
+        print("IP Address: " + ipAddress + " Added!")
+        insertIP(ipAddress)
+sensorStartChecker(ipAddress,assignedPoolID,ipExists)
+
 #if poolobjects.filter(pool_ip = ipAddress) != null:
 #    isAssigned = True
 #    print("isAssigned changed to True")
@@ -207,7 +246,6 @@ def insert_to_temp_pH():
 def del_insert_to_temp_pH():
     phVoltage = voltArray(arrayLength, phChannel)
     finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
-    print("VOLTAAGE" + str(finalPhVoltage))
     phValue = round((1.5 * finalPhVoltage),2)
     phValue = phValue + 1.33
     print("Deleted: " + str(Temp_Ph.objects.all()[0]))

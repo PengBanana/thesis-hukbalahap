@@ -29,58 +29,86 @@ from base64 import urlsafe_b64encode
 import ipaddress
 import socket
 
+#check internet connection imports
+from urllib.request import urlopen
+from urllib.error import HTTPError, URLError
+
+def internet_status():
+    try:
+        urlopen('http://www.google.com', timeout=1)
+        print("Internet Connection is Present")
+        return True
+    except HTTPError as err:
+        print("HTTP Error Occured")
+        return False
+    except URLError as e:
+        print("URL Error Occured")
+        return False
+   #inform them of the specific error here
+    except Exception as e:
+        print("General Error Occured")
+        return False
+   #inform them that a general error has occurred
+
+internet_connection = internet_status()
+
 #set TIME_ZONE
 current_timezone = pytz.timezone('Asia/Manila')
 timezone.activate(current_timezone)
 
 #email api code start
 # If modifying these scopes, delete the file token.json.
-SCOPES = 'https://mail.google.com/'
-store = file.Storage('token.json')
-creds = store.get()
-if not creds or creds.invalid:
-    flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
-    creds = tools.run_flow(flow, store)
-service = build('gmail', 'v1', http=creds.authorize(Http()))
+if(internet_connection == True):
+    print("Importing Google Mail API")
+    SCOPES = 'https://mail.google.com/'
+    store = file.Storage('token.json')
+    creds = store.get()
+    if not creds or creds.invalid:
+        flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
+        creds = tools.run_flow(flow, store)
+    service = build('gmail', 'v1', http=creds.authorize(Http()))
 
-def create_message(sender, to, subject, message_text):
-  """Create a message for an email.
+    def create_message(sender, to, subject, message_text):
+      """Create a message for an email.
 
-  Args:
-    sender: Email address of the sender.
-    to: Email address of the receiver.
-    subject: The subject of the email message.
-    message_text: The text of the email message.
+      Args:
+        sender: Email address of the sender.
+        to: Email address of the receiver.
+        subject: The subject of the email message.
+        message_text: The text of the email message.
 
-  Returns:
-    An object containing a base64url encoded email object.
-  """
-  message = MIMEText(message_text)
-  message['to'] = to
-  message['from'] = sender
-  message['subject'] = subject
-  encoded_message = urlsafe_b64encode(message.as_bytes())
-  return {'raw': encoded_message.decode()}
+      Returns:
+        An object containing a base64url encoded email object.
+      """
+      message = MIMEText(message_text)
+      message['to'] = to
+      message['from'] = sender
+      message['subject'] = subject
+      encoded_message = urlsafe_b64encode(message.as_bytes())
+      return {'raw': encoded_message.decode()}
 
-def send_message(service, user_id, message):
-  """Send an email message.
+    def send_message(service, user_id, message):
+      """Send an email message.
 
-  Args:
-    service: Authorized Gmail API service instance.
-    user_id: User's email address. The special value "me"
-    can be used to indicate the authenticated user.
-    message: Message to be sent.
+      Args:
+        service: Authorized Gmail API service instance.
+        user_id: User's email address. The special value "me"
+        can be used to indicate the authenticated user.
+        message: Message to be sent.
 
-  Returns:
-    Sent Message.
-  """
-  try:
-    message = (service.users().messages().send(userId=user_id, body=message)
-               .execute())
-    print('Message ID: %s' % message['id'])
-    return message
-  except errors.HttpError as error:
-    print('An error occurred: %s' % error)
+      Returns:
+        Sent Message.
+      """
+      try:
+        message = (service.users().messages().send(userId=user_id, body=message)
+                   .execute())
+        print('Message ID: %s' % message['id'])
+        return message
+      except errors.HttpError as error:
+        print('An error occurred: %s' % error)
+else:
+    print("No Internet Connection -- Mail API NOT Imported!")
+
 #email api code end
 
 #start of import by migs and  francis###

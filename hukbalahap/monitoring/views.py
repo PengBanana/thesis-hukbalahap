@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from datetime import timedelta
-import django.utils.timezone
+from django.utils import timezone
 
 #email api imports
 from googleapiclient.discovery import build
@@ -27,6 +27,10 @@ from base64 import urlsafe_b64encode
 #checkerimports
 import ipaddress
 import socket
+
+#set TIME_ZONE
+current_timezone = pytz.timezone('Asia/Manila')
+timezone.activate(current_timezone)
 
 #email api code start
 # If modifying these scopes, delete the file token.json.

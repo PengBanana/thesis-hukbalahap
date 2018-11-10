@@ -120,12 +120,15 @@ ipAddress = getLocalIp()
 def insertIP(ip):
     ipaddress_ref.objects.create(ipaddress = ip)
 
-for x in ipobjects:
-    if x.ipaddress == ipAddress:
-        ipExists = True
-    else:
-        ipExists = False
-print("after for loop ip exists = " + str(ipExists))
+def checkIP(ipAdd):
+    ipa = ipAdd
+    returnVal = False
+    for x in ipobjects:
+        if x.ipaddress == ipa:
+            return True
+    return False
+
+ipExists = checkIP(ipAddress)
 
 #####################################
 def getPoolID(ipAddress):
@@ -156,12 +159,12 @@ def sensorStartChecker(ipAddress, assignedPoolID, ipExists):
         if(assignedPoolID != 0):
             print("IP Address is in Pool Objects")
             print("Assigned Pool ID: " + str(assignedPoolID))
-            sensorStart = True
             print("Sensor Start = " + str(sensorStart))
-            return sensorStart
+            return True
         else:
             print("IP Address is NOT in Pool Objects")
             print("Sensor Will NOT Start!")
+            return False
     else:
         print("IP Address is NOT in IP Objects")
         print("IP Address: " + ipAddress + " Added!")
@@ -169,7 +172,6 @@ def sensorStartChecker(ipAddress, assignedPoolID, ipExists):
 
 ######################################
 sensorStart = sensorStartChecker(ipAddress,assignedPoolID,ipExists)
-print("After Checker the Sensor Start is = " + str(sensorStart))
 
 #if poolobjects.filter(pool_ip = ipAddress) != null:
 #    isAssigned = True

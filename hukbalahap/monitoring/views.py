@@ -517,7 +517,10 @@ def index(request):
     #notification code
     #sendMail('luismerleee@gmail.com', 'luismerleee@gmail.com', 'test', 'testing')
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    notifCount=notifications.filter(date=datetime.date.today()).count()
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
     try:
         usertype = Type.objects.get(user=request.user)
         adminType= Usertype_Ref.objects.get(pk=1)
@@ -671,7 +674,10 @@ def poolDetails_view(request, poolitem_id):
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
         notifications = getNotification(request)
-        notifCount=notifications.count()
+        today=datetime.date.today()
+        notificationTodayCount=notifications.filter(date=today).count()
+        print(str(notificationTodayCount)+" notifications today")
+        notifCount=notifications.filter(date=datetime.date.today()).count()
         poolref = Pool.objects.get(id=poolitem_id)
         today=datetime.date.today()
         today= today - timedelta(0)
@@ -753,7 +759,7 @@ def poolDetails_view(request, poolitem_id):
 def addUser(request):
 
         notifications = getNotification(request)
-        notifCount=notifications.count()
+        notifCount=notifications.filter(date=datetime.date.today()).count()
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
         if usertype.type == adminType:
@@ -795,6 +801,9 @@ def addUser(request):
 @login_required(login_url="/monitoring/login")
 def setMaintenance(request):
     notifications = getNotification(request)
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
     try:
         pools = Pool.objects.all()
         content = {
@@ -809,7 +818,10 @@ def setMaintenance(request):
 @login_required(login_url="/monitoring/login")
 def setMaintenanceCompute(request):
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
+    notifCount=notifications.filter(date=datetime.date.today()).count()
     if 0==0:
         poolPK = request.POST['poolPK']
         dRange = request.POST['dRange']
@@ -915,7 +927,10 @@ def setMaintenanceCompute(request):
 def submitMaintenanceRequest(request):
     try:
         notifications = getNotification(request)
-        notifCount=notifications.count()
+        today=datetime.date.today()
+        notificationTodayCount=notifications.filter(date=today).count()
+        print(str(notificationTodayCount)+" notifications today")
+        notifCount=notifications.filter(date=datetime.date.today()).count()
         poolPK = request.POST['poolPK']
         dateStart = request.POST['dateStart']
         dateEnd = request.POST['dateEnd']
@@ -960,7 +975,10 @@ def searchPT(request):
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
         notifications = getNotification(request)
-        notifCount=notifications.count()
+        today=datetime.date.today()
+        notificationTodayCount=notifications.filter(date=today).count()
+        print(str(notificationTodayCount)+" notifications today")
+        notifCount=notifications.filter(date=datetime.date.today()).count()
         if usertype.type == adminType:
             item = request.POST['item']
 
@@ -988,7 +1006,10 @@ def profile(request,item_id):
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
         notifications = getNotification(request)
-        notifCount=notifications.count()
+        today=datetime.date.today()
+        notificationTodayCount=notifications.filter(date=today).count()
+        print(str(notificationTodayCount)+" notifications today")
+        notifCount=notifications.filter(date=datetime.date.today()).count()
         if usertype.type == adminType:
             print("sad 1")
             user = User.objects.get(id=item_id)
@@ -1092,7 +1113,10 @@ def profile(request,item_id):
 def editDetails(request):
     try:
         notifications = getNotification(request)
-        notifCount=notifications.count()
+        today=datetime.date.today()
+        notificationTodayCount=notifications.filter(date=today).count()
+        print(str(notificationTodayCount)+" notifications today")
+        notifCount=notifications.filter(date=datetime.date.today()).count()
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
         if usertype.type == adminType:
@@ -1227,7 +1251,10 @@ def editDetails(request):
 @login_required(login_url="/monitoring/login")
 def filterPoolStat(request):
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
+    notifCount=notifications.filter(date=datetime.date.today()).count()
     try:
         poolPk = request.POST['poolPK']
         startDate = request.POST['dateStart']
@@ -1281,7 +1308,10 @@ def filterPoolStat(request):
 @login_required(login_url="/monitoring/login")
 def viewMaintenance(request):
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
+    notifCount=notifications.filter(date=datetime.date.today()).count()
     if 0==0:
         maintenanceSchedule = MaintenanceSchedule.objects.all().order_by("scheduledStart")
         #"October 13, 2014 11:13:00"
@@ -1338,7 +1368,10 @@ def notFound(request):
 @login_required(login_url="/monitoring/login")
 def maintenanceDetails(request, schedule_id):
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
+    notifCount=notifications.filter(date=datetime.date.today()).count()
     if 0==0:
         actual=0
         item = MaintenanceSchedule.objects.get(id=schedule_id)
@@ -1436,7 +1469,10 @@ def maintenanceDetails(request, schedule_id):
 @login_required(login_url="/monitoring/login")
 def maintenanceDetailsChemicals(request):
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
+    notifCount=notifications.filter(date=datetime.date.today()).count()
     try:
         maintenanceId=request.POST['maintenanceid']
         item = MaintenanceSchedule.objects.get(id=maintenanceId)
@@ -1466,7 +1502,10 @@ def maintenanceDetailsChemicals(request):
 @login_required(login_url="/monitoring/login")
 def submitMaintenanceChemicals(request):
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
+    notifCount=notifications.filter(date=datetime.date.today()).count()
     try:
         maintenanceId=request.POST['maintenanceId']
         muriaticAcid=request.POST['muriaticAcid']
@@ -1539,7 +1578,7 @@ def filterPoolDetails(request, poolitem_id):
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
         notifications = getNotification(request)
-        notifCount=notifications.count()
+        notifCount=notifications.filter(date=datetime.date.today()).count()
         poolref = Pool.objects.get(id=poolitem_id)
         today=datetime.date.today()
         today= today - timedelta(0)
@@ -1630,7 +1669,10 @@ def filterPoolDetails(request, poolitem_id):
 @login_required(login_url="/monitoring/login")
 def computeChlorine(request):
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
+    notifCount=notifications.filter(date=datetime.date.today()).count()
     try:
         poolref = Pool.objects.all()
         dc=request.POST['dchlorineLevel']
@@ -1704,7 +1746,7 @@ def success(request):
 @login_required(login_url="/monitoring/login")
 def personnelEfficiency(request):
     print("============================ Entering Personnel Efficiency ======================")
-    employeeList=User.objects.all()#working here
+    employeeList=User.objects.all()
     try:
         if request.method == 'POST':
             year=request.POST['yearFilter']
@@ -1846,7 +1888,10 @@ def chemicalConsumption(request):
 @login_required(login_url="/monitoring/login")
 def addPool(request):
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
+    notifCount=notifications.filter(date=datetime.date.today()).count()
     try:
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
@@ -1893,7 +1938,7 @@ def addPool(request):
 @login_required(login_url="/monitoring/login")
 def addItem(request):
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    notifCount=notifications.filter(date=datetime.date.today()).count()
     try:
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
@@ -1913,7 +1958,7 @@ def addItem(request):
 @login_required(login_url="/monitoring/login")
 def setPoolConnection(request):
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    notifCount=notifications.filter(date=datetime.date.today()).count()
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
     if usertype.type == adminType:
@@ -1958,7 +2003,10 @@ def setPoolConnection(request):
 @login_required(login_url="/monitoring/login")
 def disconnectPool(request):
     notifications = getNotification(request)
-    notifCount=notifications.count()
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
+    notifCount=notifications.filter(date=datetime.date.today()).count()
     usertype = Type.objects.get(pk=request.user.pk)
     adminType= Usertype_Ref.objects.get(pk=1)
     if usertype.type == adminType:
@@ -2078,6 +2126,9 @@ def getReportMonthYear(request):
 def changePrice(request):
     print("view change Price")
     notifications = getNotification(request)
+    today=datetime.date.today()
+    notificationTodayCount=notifications.filter(date=today).count()
+    print(str(notificationTodayCount)+" notifications today")
     if 0==0:
         print("trying to post at change Price")
         if request.method == 'POST':
@@ -2619,3 +2670,34 @@ def updatePrice(chemicalName, newPrice, newQuantity, effectiveDateNew):
     except:
         returnVal=0
         return returnVal
+
+def emailTrigger(request):
+    if 0==0:
+        turbidityLevel=Final_Turbidity.objects.last()
+        phLevel=Final_Ph.objects.last()
+        temperatureLevel=Final_Temperature.objects.last()
+        print(turbidityLevel.pool)
+        color=getQualityColorPH(phLevel.final_phlevel)
+        print(color)
+        if(color=="yellow"):
+            message="PH Level of"+ohLevel.pool+" has entered warning levels: "+str(phLevel.final_phlevel)
+            print(message)
+            sendMail("sender", "to", "Water Quality Monitoring Notification", message)
+        elif(color=="red"):
+            message="PH Level of"+phLevel.pool+" has entered critical level: "+str(phLevel.final_phlevel)
+            print(message)
+            sendMail("sender", "to", "Water Quality Monitoring Notification", message)
+        color=getQualityColorTurbidity(turbidityLevel.final_turbiditylevel)
+        print(color)
+        if(color=="yellow"):
+            message="Turbidity Level of"+turbidityLevel.pool+" has entered warning levels: "+str(turbidityLevel.final_turbiditylevel)
+            print(message)
+            sendMail("sender", "to", "Water Quality Monitoring Notification", message)
+        elif(color=="red"):
+            print("turbidity")
+            message="Turbidity Level of"+turbidityLevel.pool+" has entered critical level: "+str(turbidityLevel.final_turbiditylevel)
+            print(message)
+            sendMail("sender", "to", "Water Quality Monitoring Notification", message)
+        return render(request, 'monitoring/success/success.html')
+    else:
+        return render(request, 'monitoring/BadRequest.html')

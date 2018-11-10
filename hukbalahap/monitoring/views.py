@@ -14,6 +14,7 @@ from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from datetime import timedelta
+import django.utils.timezone
 
 #email api imports
 from googleapiclient.discovery import build
@@ -247,8 +248,8 @@ def insert_to_temp_pH():
     finalPhVoltage = averageVolt(phVoltage, arrayLength)*5.0/1024
     phValue = round((1.5 * finalPhVoltage),2)
     phValue = phValue + 1.33
-    Temp_Ph.objects.create(pool_id=assignedPoolID, temp_phlevel=phValue, temp_phdatetime=datetime.datetime.now())
-    print("Temp_Ph Value Added: Enrique Razon Building, " + str(phValue) + ", " + str(datetime.datetime.now()))
+    Temp_Ph.objects.create(pool_id=assignedPoolID, temp_phlevel=phValue, temp_phdatetime=timezone.localtime(datetime.datetime.now()))
+    print("Temp_Ph Value Added: Enrique Razon Building, " + str(phValue) + ", " + str(timezone.localtime(datetime.datetime.now())))
 
 def del_insert_to_temp_pH():
     phVoltage = voltArray(arrayLength, phChannel)
@@ -257,8 +258,8 @@ def del_insert_to_temp_pH():
     phValue = phValue + 1.33
     print("Deleted: " + str(Temp_Ph.objects.all()[0]))
     Temp_Ph.objects.all()[0].delete()
-    Temp_Ph.objects.create(pool_id=assignedPoolID, temp_phlevel=phValue, temp_phdatetime=datetime.datetime.now())
-    print("Temp_Ph Value Added: Enrique Razon Building, " + str(phValue) + ", " + str(datetime.datetime.now()))
+    Temp_Ph.objects.create(pool_id=assignedPoolID, temp_phlevel=phValue, temp_phdatetime=timezone.localtime(datetime.datetime.now()))
+    print("Temp_Ph Value Added: Enrique Razon Building, " + str(phValue) + ", " + str(timezone.localtime(datetime.datetime.now())))
 
 def batchCount10pH():
     pHList = Temp_Ph.objects.all().filter(pool_id = '1')
@@ -283,8 +284,8 @@ def batchCount10pH():
         pHStandardDev= decimal.Decimal(pHStandardDev)+tempMean
         pHStandardDev = round(pHStandardDev, 1)
         print("yah")
-        Final_Ph.objects.create(pool_id=assignedPoolID, final_phlevel=pHStandardDev, final_phdatetime=datetime.datetime.now())
-        print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(datetime.datetime.now()))
+        Final_Ph.objects.create(pool_id=assignedPoolID, final_phlevel=pHStandardDev, final_phdatetime=timezone.localtime(datetime.datetime.now()))
+        print("Final_Ph Value Added: Enrique Razon Building, " + str(pHStandardDev) + ", " + str(timezone.localtime(datetime.datetime.now())))
         ##new notification
         if pHStandardDev < 7.2 or pHStandardDev > 7.8:
             poolx=Pool.objects.get(id=1)
@@ -311,8 +312,8 @@ def insert_to_temp_turbidity():
     turbVoltage = voltArray(arrayLength, turbidityChannel)
     finalTurbVoltage = averageVolt(turbVoltage, arrayLength)*5.0/1024
     turbValue = round((getTurbidity(finalTurbVoltage)),5)
-    Temp_Turbidity.objects.create(pool_id=assignedPoolID, temp_turbiditylevel=turbValue, temp_turbiditydatetime=datetime.datetime.now())
-    print("Temp_Turbidity Value Added: Enrique Razon Building, " + str(turbValue) + ", " + str(datetime.datetime.now()))
+    Temp_Turbidity.objects.create(pool_id=assignedPoolID, temp_turbiditylevel=turbValue, temp_turbiditydatetime=timezone.localtime(datetime.datetime.now()))
+    print("Temp_Turbidity Value Added: Enrique Razon Building, " + str(turbValue) + ", " + str(timezone.localtime(datetime.datetime.now())))
 
 def del_insert_to_temp_turbidity():
     turbVoltage = voltArray(arrayLength, turbidityChannel)
@@ -320,8 +321,8 @@ def del_insert_to_temp_turbidity():
     turbValue = round((getTurbidity(finalTurbVoltage)),5)
     print("Deleted: " + str(Temp_Turbidity.objects.all()[0]))
     Temp_Turbidity.objects.all()[0].delete()
-    Temp_Turbidity.objects.create(pool_id=assignedPoolID, temp_turbiditylevel=turbValue, temp_turbiditydatetime=datetime.datetime.now())
-    print("Temp_Turbidity Value Added: Enrique Razon Building, " + str(turbValue) + ", " + str(datetime.datetime.now()))
+    Temp_Turbidity.objects.create(pool_id=assignedPoolID, temp_turbiditylevel=turbValue, temp_turbiditydatetime=timezone.localtime(datetime.datetime.now()))
+    print("Temp_Turbidity Value Added: Enrique Razon Building, " + str(turbValue) + ", " + str(timezone.localtime(datetime.datetime.now())))
 
 def batchCount10Turbidity():
     turbidityList = Temp_Turbidity.objects.all().filter(pool_id = '1')
@@ -344,8 +345,8 @@ def batchCount10Turbidity():
         turbidityVariance = newTempSum/tempCount
         turbidityStandardDev = math.sqrt(turbidityVariance)
         turbidityStandardDev = decimal.Decimal(turbidityStandardDev)+tempMean
-        Final_Turbidity.objects.create(pool_id=assignedPoolID, final_turbiditylevel=turbidityStandardDev, final_turbiditydatetime=datetime.datetime.now())
-        print("Final_Turbidity Value Added: Enrique Razon Building, " + str(turbidityStandardDev) + ", " + str(datetime.datetime.now()))
+        Final_Turbidity.objects.create(pool_id=assignedPoolID, final_turbiditylevel=turbidityStandardDev, final_turbiditydatetime=timezone.localtime(datetime.datetime.now()))
+        print("Final_Turbidity Value Added: Enrique Razon Building, " + str(turbidityStandardDev) + ", " + str(timezone.localtime(datetime.datetime.now())))
 
 def count_temp_turbidity():
     rc = Temp_Turbidity.objects.count()
@@ -355,15 +356,15 @@ def count_temp_turbidity():
 def insert_to_temp_temperature():
     #reads temperature sensor
     tempData = read()
-    Temp_Temperature.objects.create(pool_id=assignedPoolID, temp_temperaturelevel=tempData, temp_temperaturedatetime=datetime.datetime.now())
-    print("Temp_Temperature Value Added: Enrique Razon Building, " + str(tempData) + ", " + str(datetime.datetime.now()))
+    Temp_Temperature.objects.create(pool_id=assignedPoolID, temp_temperaturelevel=tempData, temp_temperaturedatetime=timezone.localtime(datetime.datetime.now()))
+    print("Temp_Temperature Value Added: Enrique Razon Building, " + str(tempData) + ", " + str(timezone.localtime(datetime.datetime.now())))
 
 def del_insert_to_temp_temperature():
     tempData = read()
     print("Deleted: " + str(Temp_Temperature.objects.all()[0]))
     Temp_Temperature.objects.all()[0].delete()
-    Temp_Temperature.objects.create(pool_id=assignedPoolID, temp_temperaturelevel=tempData, temp_temperaturedatetime=datetime.datetime.now())
-    print("Temp_Temperature Value Added: Enrique Razon Building, " + str(tempData) + ", " + str(datetime.datetime.now()))
+    Temp_Temperature.objects.create(pool_id=assignedPoolID, temp_temperaturelevel=tempData, temp_temperaturedatetime=timezone.localtime(datetime.datetime.now()))
+    print("Temp_Temperature Value Added: Enrique Razon Building, " + str(tempData) + ", " + str(timezone.localtime(datetime.datetime.now())))
 
 def batchCount10Temp():
     temperatureList = Temp_Temperature.objects.all().filter(pool_id = '1')
@@ -386,8 +387,8 @@ def batchCount10Temp():
         tempVariance = newTempSum/tempCount
         tempStandardDev = math.sqrt(tempVariance)
         tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
-        Final_Temperature.objects.create(pool_id=assignedPoolID, final_temperaturelevel=tempStandardDev, final_temperaturedatetime=datetime.datetime.now())
-        print("Final_Temperature Value Added: Enrique Razon Building, " + str(tempStandardDev) + ", " + str(datetime.datetime.now()))
+        Final_Temperature.objects.create(pool_id=assignedPoolID, final_temperaturelevel=tempStandardDev, final_temperaturedatetime=timezone.localtime(datetime.datetime.now()))
+        print("Final_Temperature Value Added: Enrique Razon Building, " + str(tempStandardDev) + ", " + str(timezone.localtime(datetime.datetime.now())))
 
 def count_temp_temperature():
     rc = Temp_Temperature.objects.count()

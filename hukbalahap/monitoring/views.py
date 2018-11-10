@@ -94,6 +94,7 @@ samplingInterval = 20
 ipAddress = 0
 sensorStart = False
 assignedPoolID = 0
+ipExists = False
 
 
 #insert checker if exist
@@ -118,6 +119,7 @@ for x in ipobjects:
         ipExists = True
     else:
         ipExists = False
+print("after for loop ip exists = " + str(ipExists))
 
 #####################################
 def getPoolID(ipAddress):
@@ -147,8 +149,10 @@ def sensorStartChecker(ipAddress, assignedPoolID, ipExists):
         print("IP Address is in IP Objects")
         if(assignedPoolID != 0):
             print("IP Address is in Pool Objects")
-            print("Assigned Pool ID: " + assignedPoolID)
+            print("Assigned Pool ID: " + str(assignedPoolID))
             sensorStart = True
+            print("Sensor Start = " + str(sensorStart))
+            return sensorStart
         else:
             print("IP Address is NOT in Pool Objects")
             print("Sensor Will NOT Start!")
@@ -158,7 +162,8 @@ def sensorStartChecker(ipAddress, assignedPoolID, ipExists):
         insertIP(ipAddress)
 
 ######################################
-sensorStartChecker(ipAddress,assignedPoolID,ipExists)
+sensorStart = sensorStartChecker(ipAddress,assignedPoolID,ipExists)
+print("After Checker the Sensor Start is = " + str(sensorStart))
 
 #if poolobjects.filter(pool_ip = ipAddress) != null:
 #    isAssigned = True
@@ -466,7 +471,7 @@ class sensorReading(threading.Thread):
 if sensorStart == True:
     sensorRead = sensorReading()
     sensorRead.start()
-else:
+elif sensorStart == False:
     print("System would not Start, IP Address Not Yet Assigned In a Pool")
 
 #Sensor Reading end###

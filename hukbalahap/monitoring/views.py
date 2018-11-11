@@ -1780,7 +1780,7 @@ def personnelEfficiency(request):
     efficiencyList=[]
     eNames=[]
     for employee in employeeList:
-        if employee.type == poolTechType
+        if employee.type == poolTechType:
             eName=str(employee.first_name)+" "+str(employee.last_name)
             eNames.append(eName)
             employeeReport=MaintenanceSchedule.objects.all().filter(user=employee)
@@ -1812,7 +1812,7 @@ def personnelEfficiency(request):
     except:
         averageAverage=0
     content={
-        'dd',displayDate,
+        'dd':displayDate,
         "zl":eNames,
         "cl":counts,
         "al":accomplishedCounts,

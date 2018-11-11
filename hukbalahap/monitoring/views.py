@@ -35,7 +35,7 @@ from urllib.error import HTTPError, URLError
 
 def internet_status():
     try:
-        urlopen('http://www.google.com', timeout=1)
+        urlopen('http://www.google.com', timeout=10)
         print("Internet Connection is Present")
         return True
     except HTTPError as err:
@@ -183,7 +183,7 @@ def getPoolID(ipAddress):
                 print("IP Addresses are the same!")
                 poolIDKey = x.pool_ip
             else:
-                print("IP Address at Counter " + x.pk + " are not the same!")
+                print("IP Address at Counter " + str(x.pk) + " are not the same!")
         return poolIDKey
     else:
         print("There is no Pool registed in the Database.")

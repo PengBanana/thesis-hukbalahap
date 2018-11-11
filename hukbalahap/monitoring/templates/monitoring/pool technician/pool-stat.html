@@ -88,7 +88,7 @@
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
             </div>
-            <input type="text" class="form-control pull-right" name="startDate" placeholder="mm/dd/yyyy">
+            <input type="text" class="form-control pull-right" id="startDate" name="startDate" placeholder="mm/dd/yyyy">
           </div>
           <!-- /.input group -->
         </div>
@@ -100,7 +100,7 @@
               <div class="input-group-addon">
                 <i class="fa fa-calendar"></i>
               </div>
-              <input type="text" class="form-control pull-right" name="endDate" placeholder="mm/dd/yyyy">
+              <input type="text" class="form-control pull-right" id="endDate" name="endDate" placeholder="mm/dd/yyyy">
             </div>
             <!-- /.input group -->
           </div>
@@ -228,9 +228,23 @@
                           <td>{{ yitem }}</td>
                             {% endif %}
                         {% endfor %}
+                        {%  if item.status == "Scheduled" %}
+                          <td>  <label class="label label-primary" style="font-size:15px"> {{ item.status }}</label>
+                            </td>
+                        {% endif %}
+                        {%  if item.status == "Unfinished" %}
+                          <td>  <label class="label label-danger" style="font-size:15px"> {{ item.status }}</label>
+                            </td>
+                        {% endif %}
+                        {%  if item.status == "Late" %}
+                          <td>  <label class="label label-warning" style="font-size:15px"> {{ item.status }}</label>
+                            </td>
+                        {% endif %}
+                        {%  if item.status == "Accomplished" %}
                           <td>  <label class="label label-success" style="font-size:15px"> {{ item.status }}</label>
                             </td>
-                        </tr>
+                        {% endif %}
+                            </tr>
                         {% endfor %}
                         </tbody>
                       </table>
@@ -258,7 +272,7 @@
                 </div>
               </div>
               <div class="box-body chart-responsive">
-                <div class="chart" id="forecastChart" style="height: 150px; width: 960px">
+                <div class="chart" id="forecastChart" style="height: 150px; width: 1300px">
 
                 </div>
               </div>

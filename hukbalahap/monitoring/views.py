@@ -423,6 +423,10 @@ def batchCount10Temp():
         tempStandardDev = math.sqrt(tempVariance)
         tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
         Final_Temperature.objects.create(pool_id=assignedPoolID, final_temperaturelevel=tempStandardDev, final_temperaturedatetime=current_timezone.localize(datetime.datetime.now()))
+        if(internet_connection == True):    
+            emailTrigger()
+        else:
+            print("No INTERNET -- Email NOT Sent!")
         print("Final_Temperature Value Added: Enrique Razon Building, " + str(tempStandardDev) + ", " + str(current_timezone.localize(datetime.datetime.now())))
 
 def count_temp_temperature():
@@ -1762,6 +1766,8 @@ def personnelEfficiency(request):
         today=datetime.date.today()
         month=today.month
         year=today.year
+    displayDate=str(month)+" "+str(year)
+    poolTechType=Usertype_Ref.objects.get(pk=2)
     compareDate=convertToDateTime(month, "1", year)
     try:
         compareDate2=convertToDateTime(month, "31", year)
@@ -1774,28 +1780,29 @@ def personnelEfficiency(request):
     efficiencyList=[]
     eNames=[]
     for employee in employeeList:
-        eName=str(employee.first_name)+" "+str(employee.last_name)
-        eNames.append(eName)
-        employeeReport=MaintenanceSchedule.objects.all().filter(user=employee)
-        employeeReport=employeeReport.filter(date__gte=compareDate)
-        employeeReport=employeeReport.filter(date__lte=compareDate2)
-        totalCount=employeeReport.exclude(status="Scheduled").count()
-        counts.append(totalCount)
-        badCount=employeeReport.exclude(status="Scheduled").exclude(status="Accomplished").count()
-        lateCount=employeeReport.filter(status="Late").count()
-        lateCounts.append(lateCount)
-        unfinishedCount=employeeReport.filter(status="Unfinished").count()
-        unfinishedCounts.append(unfinishedCount)
-        goodCount=totalCount-badCount
-        accomplishedCounts.append(goodCount)
-        try:
-            efficiency=goodCount/totalCount*100
-            efficiency=round(efficiency)
-        except:
-            efficiency=0
-        efficiencyList.append(efficiency)
-        ec=0
-        asum=0
+        if employee.type == poolTechType:
+            eName=str(employee.first_name)+" "+str(employee.last_name)
+            eNames.append(eName)
+            employeeReport=MaintenanceSchedule.objects.all().filter(user=employee)
+            employeeReport=employeeReport.filter(date__gte=compareDate)
+            employeeReport=employeeReport.filter(date__lte=compareDate2)
+            totalCount=employeeReport.exclude(status="Scheduled").count()
+            counts.append(totalCount)
+            badCount=employeeReport.exclude(status="Scheduled").exclude(status="Accomplished").count()
+            lateCount=employeeReport.filter(status="Late").count()
+            lateCounts.append(lateCount)
+            unfinishedCount=employeeReport.filter(status="Unfinished").count()
+            unfinishedCounts.append(unfinishedCount)
+            goodCount=totalCount-badCount
+            accomplishedCounts.append(goodCount)
+            try:
+                efficiency=goodCount/totalCount*100
+                efficiency=round(efficiency)
+            except:
+                efficiency=0
+            efficiencyList.append(efficiency)
+            ec=0
+            asum=0
     for item in efficiencyList:
         asum+=item
         ec+=1
@@ -1805,6 +1812,7 @@ def personnelEfficiency(request):
     except:
         averageAverage=0
     content={
+        'dd':displayDate,
         "zl":eNames,
         "cl":counts,
         "al":accomplishedCounts,
@@ -2660,3 +2668,27 @@ def updatePrice(chemicalName, newPrice, newQuantity, effectiveDateNew):
     except:
         returnVal=0
         return returnVal
+
+def emailTrigger():
+    turbidityLevel=Final_Turbidity.objects.last()
+    phLevel=Final_Ph.objects.last()
+    temperatureLevel=Final_Temperature.objects.last()
+    color=getQualityColorPH(phLevel.final_phlevel)
+    if(color=="yellow"):
+        message="PH Level of"+ohLevel.pool+" has entered warning levels: "+str(phLevel.final_phlevel)
+        print(message)
+        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+    elif(color=="red"):
+        message="PH Level of"+phLevel.pool+" has entered critical level: "+str(phLevel.final_phlevel)
+        print(message)
+        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+    color=getQualityColorTurbidity(turbidityLevel.final_turbiditylevel)
+    if(color=="yellow"):
+        message="Turbidity Level of"+turbidityLevel.pool+" has entered warning levels: "+str(turbidityLevel.final_turbiditylevel)
+        print(message)
+        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+    elif(color=="red"):
+        print("turbidity")
+        message="Turbidity Level of"+turbidityLevel.pool+" has entered critical level: "+str(turbidityLevel.final_turbiditylevel)
+        print(message)
+        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)

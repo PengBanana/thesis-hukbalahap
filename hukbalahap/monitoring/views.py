@@ -1740,6 +1740,9 @@ def success(request):
 
 def getNotification(request):
     notifications = Notification_Table.objects.all().filter(user=request.user)
+    today = datetime.date.today()
+    today-=timedelta(hours=1)
+    notifications = notifications.filter(date__gte=today)
     return notifications
 
 @login_required(login_url="/monitoring/login")
@@ -2670,25 +2673,56 @@ def updatePrice(chemicalName, newPrice, newQuantity, effectiveDateNew):
         return returnVal
 
 def emailTrigger():
-    turbidityLevel=Final_Turbidity.objects.last()
-    phLevel=Final_Ph.objects.last()
-    temperatureLevel=Final_Temperature.objects.last()
-    color=getQualityColorPH(phLevel.final_phlevel)
-    if(color=="yellow"):
-        message="PH Level of"+ohLevel.pool+" has entered warning levels: "+str(phLevel.final_phlevel)
-        print(message)
-        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
-    elif(color=="red"):
-        message="PH Level of"+phLevel.pool+" has entered critical level: "+str(phLevel.final_phlevel)
-        print(message)
-        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
-    color=getQualityColorTurbidity(turbidityLevel.final_turbiditylevel)
-    if(color=="yellow"):
-        message="Turbidity Level of"+turbidityLevel.pool+" has entered warning levels: "+str(turbidityLevel.final_turbiditylevel)
-        print(message)
-        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
-    elif(color=="red"):
-        print("turbidity")
-        message="Turbidity Level of"+turbidityLevel.pool+" has entered critical level: "+str(turbidityLevel.final_turbiditylevel)
-        print(message)
-        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+    try:
+        turbidityLevel=Final_Turbidity.objects.last()
+        phLevel=Final_Ph.objects.last()
+        temperatureLevel=Final_Temperature.objects.last()
+        color=getQualityColorPH(phLevel.final_phlevel)
+        if(color=="yellow"):
+            message="PH Level of"+ohLevel.pool+" has entered warning levels: "+str(phLevel.final_phlevel)
+            print(message)
+            sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            pool=final_phLevel.pool
+            poolPK=pool.id
+            notificationTrigger(message, poolPK)
+        elif(color=="red"):
+            message="PH Level of"+phLevel.pool+" has entered critical level: "+str(phLevel.final_phlevel)
+            print(message)
+            sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            pool=final_phLevel.pool
+            poolPK=pool.id
+            notificationTrigger(message, poolPK)
+        color=getQualityColorTurbidity(turbidityLevel.final_turbiditylevel)
+        if(color=="yellow"):
+            message="Turbidity Level of"+turbidityLevel.pool+" has entered warning levels: "+str(turbidityLevel.final_turbiditylevel)
+            print(message)
+            sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            pool=final_turbidityLevel.pool
+            poolPK=pool.id
+            notificationTrigger(message, poolPK)
+        elif(color=="red"):
+            print("turbidity")
+            message="Turbidity Level of"+turbidityLevel.pool+" has entered critical level: "+str(turbidityLevel.final_turbiditylevel)
+            print(message)
+            sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            pool=final_turbidityLevel.pool
+            poolPK=pool.id
+            notificationTrigger(message, poolPK)
+    except:
+        print("Email Sending Failed")
+
+def notificationTrigger(notificationMessage, poolNumber):
+    try:
+        employeeList=User.objects.all()#working here
+        poolTechType=Usertype_Ref.objects.get(pk=2)
+        for employee in employeeList:
+            if employee.type == poolTechType:
+                newNotification= Notification_Table(
+                    user=employee,
+                    message=notificationMessage,
+                    number = poolNumber
+                )
+                newNotification.save()
+        print("adding notification")
+    except:
+        print("Add New Notification Failed")

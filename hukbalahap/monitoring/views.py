@@ -692,6 +692,7 @@ def index(request):
             'ph':phDeviations,
             'chlorine':chlorineLevels,
             'notifications':notifications,
+            'notifCount':notifCount,
             'color':"green",
             'phColors':phColors,
             'chlorineColors':chlorineColors,
@@ -711,7 +712,7 @@ def index(request):
 
 @login_required(login_url="/monitoring/login")
 def poolDetails_view(request, poolitem_id):
-    if 0==0:
+    try:
         #poolstat
         usertype = Type.objects.get(pk=request.user.pk)
         adminType= Usertype_Ref.objects.get(pk=1)
@@ -778,6 +779,7 @@ def poolDetails_view(request, poolitem_id):
             'turbidity':turbidity,
             'temperature':temperature,
             'notifications':notifications,
+            'notifCount':notifCount,
             'cs':chemicalSchedule,
             'ct':chemicalTechnician,
             'ad':accomplishDates
@@ -787,7 +789,7 @@ def poolDetails_view(request, poolitem_id):
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
         else:
             return render(request, 'monitoring/pool owner/pool-stat.html', content)
-    else:
+    except:
         print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Error in viewing pool Details xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
         return render(request,'monitoring/BadRequest.html')
 
@@ -818,6 +820,7 @@ def addUser(request):
                         'form':form,
                         'msg' : msg,
                         'notifications':notifications,
+                        'notifCount':notifCount,
                     }
                     return render(request, 'monitoring/pool owner/add-user.html',content)
 
@@ -827,6 +830,7 @@ def addUser(request):
                         'form':form,
                         'msg' : msg,
                         'notifications':notifications,
+                        'notifCount':notifCount,
                     }
                     return render(request, 'monitoring/pool owner/add-user.html',content)
 
@@ -840,11 +844,13 @@ def addUser(request):
 @login_required(login_url="/monitoring/login")
 def setMaintenance(request):
     notifications = getNotification(request)
+    notifCount=notifications.count()
     try:
         pools = Pool.objects.all()
         content = {
             'pools':pools,
             'notifications':notifications,
+            'notifCount':notifCount,
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule.html', content)
     except:
@@ -949,6 +955,7 @@ def setMaintenanceCompute(request):
             'muriaticAcidVal':muriaticAcidVal,
             'dePowderVal':dePowderVal,
             'notifications':notifications,
+            'notifCount':notifCount,
             'color':"fill:green;stroke:black;stroke-width:1;opacity:0.5",
             'showButton':showButton,
         }
@@ -994,6 +1001,7 @@ def submitMaintenanceRequest(request):
             'debugger':debugger,
             'display':"Success",
             'notifications':notifications,
+            'notifCount':notifCount,
         }
         return render(request, 'monitoring/pool technician/set-maintenance-schedule.html', content)
     except:
@@ -1021,6 +1029,7 @@ def searchPT(request):
                     'searchedItem': item,
                     'items':filtered,
                     'notifications':notifications,
+                    'notifCount':notifCount,
                 }
             return render(request, 'monitoring/pool owner/search-technician.html', content,)
         else:
@@ -1061,6 +1070,7 @@ def profile(request,item_id):
                             'status':status,
                             'btnFlag':btnFlag,
                             'notifications':notifications,
+                            'notifCount':notifCount,
                         }
                 elif (request.method == 'POST' ) & ('editDetails' in request.POST):
                     form1 =EditDetailsForm(request.POST)
@@ -1081,13 +1091,12 @@ def profile(request,item_id):
                             'status':status,
                             'btnFlag':btnFlag,
                             'notifications':notifications,
+                            'notifCount':notifCount,
                         }
                 elif (request.method == 'POST' ) & ('deactivate' in request.POST):
                     print("sad 4")
                     Status.objects.filter(pk=user.pk).update(status=2)
                     return render(request, 'monitoring/pool owner/home-owner.html', content)
-
-
                 else:
                     print("sad 5")
                     form1 = EditDetailsForm()
@@ -1112,6 +1121,7 @@ def profile(request,item_id):
                         'status':status,
                         'btnFlag':btnFlag,
                         'notifications':notifications,
+                        'notifCount':notifCount,
                         }
                     return render(request, 'monitoring/pool owner/home-owner.html', content)
                 else:
@@ -1123,6 +1133,7 @@ def profile(request,item_id):
                         'status':status,
                         'btnFlag':btnFlag,
                         'notifications':notifications,
+                        'notifCount':notifCount,
                         }
             return render(request, 'monitoring/pool owner/technician-profile.html', content)
         else:
@@ -1160,6 +1171,7 @@ def editDetails(request):
                         'curr_lname' : curr_lname,
                         'username' : current_user.username,
                         'notifications':notifications,
+                        'notifCount':notifCount,
                     }
                     return render(request, 'monitoring/pool technician/edit-details.html',content)
             elif (request.method == 'POST' ) & ('editDetails' in request.POST):
@@ -1198,6 +1210,7 @@ def editDetails(request):
                     'curr_lname' : curr_lname,
                     'username' : current_user.username,
                     'notifications':notifications,
+                    'notifCount':notifCount,
                 }
 
 
@@ -1224,6 +1237,7 @@ def editDetails(request):
                         'curr_lname' : curr_lname,
                         'username' : current_user.username,
                         'notifications':notifications,
+                        'notifCount':notifCount,
                     }
             elif (request.method == 'POST' ) & ('editDetails' in request.POST):
                 form1 =EditDetailsForm(request.POST)
@@ -1243,6 +1257,7 @@ def editDetails(request):
                         'curr_lname' : lname,
                         'username' : current_user.username,
                         'notifications':notifications,
+                        'notifCount':notifCount,
                     }
             elif (request.method == 'POST' ) & ('deactivate' in request.POST):
                 print('suhhh')
@@ -1262,6 +1277,7 @@ def editDetails(request):
                     'curr_lname' : curr_lname,
                     'username' : current_user.username,
                     'notifications':notifications,
+                    'notifCount':notifCount,
                 }
             return render(request, 'monitoring/pool technician/edit-details.html',content)
         else:
@@ -1295,6 +1311,7 @@ def filterPoolStat(request):
             'turbidity':turbidity,
             'temperature':temperature,
             'notifications':notifications,
+            'notifCount':notifCount,
         }
         return render(request, 'monitoring/pool technician/pool-stat.html', content)
     except:
@@ -1318,6 +1335,7 @@ def filterPoolStat(request):
                 'turbidity':turbidity,
                 'temperature':temperature,
                 'notifications':notifications,
+                'notifCount':notifCount,
             }
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
         except:
@@ -1366,6 +1384,7 @@ def viewMaintenance(request):
             'backgroundColors': colors,
             'ids': eventids,
             'notifications':notifications,
+            'notifCount':notifCount,
         }
         return render(request, 'monitoring/pool technician/view-all-maintenance-schedule.html', content)
     else:
@@ -1466,6 +1485,7 @@ def maintenanceDetails(request, schedule_id):
             'showButton':showButton,
             'status':status,
             'notifications':notifications,
+            'notifCount':notifCount,
             'actual':actual,
         }
         #insert notification here content.append/content.add(function())
@@ -1499,6 +1519,7 @@ def maintenanceDetailsChemicals(request):
             'dePowder':dePowder,
             'chlorine':chlorine,
             'notifications':notifications,
+            'notifCount':notifCount,
         }
         return render(request, 'monitoring/pool technician/maintenance-details-chemicals.html', content)
     except:
@@ -1559,6 +1580,7 @@ def submitMaintenanceChemicals(request):
             'backgroundColors': colors,
             'ids': eventids,
             'notifications':notifications,
+            'notifCount':notifCount,
             'success':"Success",
             'notifications':notifications,
         }
@@ -1567,7 +1589,7 @@ def submitMaintenanceChemicals(request):
         return render(request,'monitoring/BadRequest.html')
 
 def filterPoolDetails(request, poolitem_id):
-    if 0==0:
+    try:
         #get from and to date
         #dc=request.POST['dchlorineLevel']
         #mm/dd/yyyy
@@ -1654,6 +1676,7 @@ def filterPoolDetails(request, poolitem_id):
             'turbidity':turbidity,
             'temperature':temperature,
             'notifications':notifications,
+            'notifCount':notifCount,
             'cs':chemicalSchedule,
             'ct':chemicalTechnician,
             'ad':accomplishDates
@@ -1663,9 +1686,87 @@ def filterPoolDetails(request, poolitem_id):
             return render(request, 'monitoring/pool technician/pool-stat.html', content)
         else:
             return render(request, 'monitoring/pool owner/pool-stat.html', content)
-    else:
-        print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Error in viewing pool Details xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-        return render(request,'monitoring/BadRequest.html')
+    except:
+        try:
+            #poolstat
+            usertype = Type.objects.get(pk=request.user.pk)
+            adminType= Usertype_Ref.objects.get(pk=1)
+            notifications = getNotification(request)
+            notifCount=notifications.count()
+            poolref = Pool.objects.get(id=poolitem_id)
+            today=datetime.date.today()
+            today= today - timedelta(0)
+            fromDate=today
+            toDate=today
+            ph = Final_Ph.objects.all().filter(pool=poolref, final_phdatetime__gte=today)
+            turbidity = Final_Turbidity.objects.all().filter(pool=poolref, final_turbiditydatetime=today)
+            temperature = Final_Temperature.objects.all().filter(pool=poolref, final_temperaturedatetime__year=today.year, final_temperaturedatetime__month=today.month, final_temperaturedatetime__day=today.day)
+            debugger=today
+            #pool calendar stuff
+            poolSchedule = MaintenanceSchedule.objects.filter(pool=poolref, scheduledStart__gte=fromDate, scheduledEnd__lte=toDate).reverse()
+            poolSchedule= poolSchedule.exclude(scheduledStart__isnull=True)
+            sd=[]
+            st=[]
+            pt=[]
+            ss=[]
+            for item in poolSchedule:
+                #for pool calendar data
+                startDateString=str(item.scheduledStart.month)+"/"+str(item.scheduledStart.day)+"/"+str(item.scheduledStart.year)
+                endDateString=str(item.scheduledEnd.month)+"/"+str(item.scheduledEnd.day)+"/"+str(item.scheduledEnd.year)
+                startDateString = datetime.datetime.strptime(startDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+                endDateString = datetime.datetime.strptime(endDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+                dateString=startDateString+" - "+endDateString
+                sd.append(dateString)
+                timeString=str(item.scheduledStart.hour)+" "+str(item.scheduledStart.minute)+"-"+str(item.scheduledEnd.hour)+" "+str(item.scheduledEnd.minute)
+                startTimeString=str(item.scheduledStart.hour)+":"+str(item.scheduledStart.minute)
+                endTimeString=str(item.scheduledEnd.hour)+":"+str(item.scheduledEnd.minute)
+                startTimeString = datetime.datetime.strptime(startTimeString, '%H:%M').strftime('%I:%M%p')
+                endTimeString = datetime.datetime.strptime(endTimeString, '%H:%M').strftime('%I:%M%p')
+                timeString=startTimeString+" - "+endTimeString
+                st.append(timeString)
+                allUsers = User.objects.all()
+                pt.append(str(item.user.first_name)+" "+str(item.user.last_name))
+                ss.append(item.status)
+            #chemical usage data stuff
+            accomplishDates=[]
+            chemicalTechnician=[]
+            #for chemical usage data
+            chemicalSchedule = poolSchedule.exclude(status="Scheduled", datetimeAccomplished__isnull=True)
+            chemicalSchedule = chemicalSchedule.exclude(status="Unfinished")
+            for item in chemicalSchedule:
+                #for pool calendar data
+                accomplishDateString=str(item.datetimeAccomplished.month)+"/"+str(item.datetimeAccomplished.day)+"/"+str(item.datetimeAccomplished.year)
+                accomplishDateString = datetime.datetime.strptime(accomplishDateString, '%m/%d/%Y').strftime('%B %m, %Y')
+                accomplishDates.append(accomplishDateString)
+                allUsers = User.objects.all()
+                chemicalTechnician.append(str(item.user.first_name)+" "+str(item.user.last_name))
+            content= {
+                #poolstat stuff
+                'poolid':poolitem_id,
+                'poolSchedule':poolSchedule,
+                'sd':sd,
+                'st':st,
+                'pt':pt,
+                'ss':ss,
+                'debugger':debugger,
+                'pool':poolref,
+                'ph':ph,
+                'turbidity':turbidity,
+                'temperature':temperature,
+                'notifications':notifications,
+                'notifCount':notifCount,
+                'cs':chemicalSchedule,
+                'ct':chemicalTechnician,
+                'ad':accomplishDates
+            }
+            print('----------------------------- Success in processing Pool Details ---------------------------')
+            if not usertype.type == adminType:
+                return render(request, 'monitoring/pool technician/pool-stat.html', content)
+            else:
+                return render(request, 'monitoring/pool owner/pool-stat.html', content)
+        except:
+            print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Error in viewing pool Details xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+            return render(request,'monitoring/BadRequest.html')
 
 ##reusable methods
 @login_required(login_url="/monitoring/login")
@@ -1695,6 +1796,7 @@ def computeChlorine(request):
             'pools':poolref,
             'display':display,
             'notifications':notifications,
+            'notifCount':notifCount,
         }
         return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
     except:
@@ -1703,6 +1805,7 @@ def computeChlorine(request):
             content={
                 'pools':pools,
                 'notifications':notifications,
+                'notifCount':notifCount,
             }
             return render(request, 'monitoring/pool technician/chlorine-compute.html', content)
         except:
@@ -1710,6 +1813,8 @@ def computeChlorine(request):
 
 @login_required(login_url="/monitoring/login")
 def poolTechList(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
     x=User.objects.all()
     debugger=""
     techType= Usertype_Ref.objects.get(pk=2)
@@ -1727,6 +1832,8 @@ def poolTechList(request):
         'debugger':debugger,
         'names':names,
         'status':status,
+        'notifications':notifications,
+        'notifCount':notifCount,
     }
     return render(request, 'monitoring/pool owner/view-pool-technicians.html', context)
 
@@ -1737,8 +1844,10 @@ def success(request):
 def getNotification(request):
     notifications = Notification_Table.objects.all().filter(user=request.user)
     today = datetime.date.today()
-    today-=timedelta(hours=1)
+    today-=timedelta(days=1)
+    print(today)
     notifications = notifications.filter(date__gte=today)
+    print(notifications)
     return notifications
 
 @login_required(login_url="/monitoring/login")
@@ -1747,6 +1856,8 @@ def success(request):
 
 @login_required(login_url="/monitoring/login")
 def personnelEfficiency(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
     print("============================ Entering Personnel Efficiency ======================")
     employeeList=User.objects.all()#working here
     try:
@@ -1820,12 +1931,16 @@ def personnelEfficiency(request):
         "ll":lateCounts,
         "ul":unfinishedCounts,
         "el":efficiencyList,
+        'notifications':notifications,
+        'notifCount':notifCount,
         "avgavg":averageAverage
     }
     return render(request, 'monitoring/pool owner/personnel-efficiency-report.html', content)
 
 @login_required(login_url="/monitoring/login")
 def chemicalConsumption(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
     yearNow=datetime.date.today().year
     monthNow=datetime.date.today().month
     chemicalReport=MaintenanceSchedule.objects.all().filter(date__year=yearNow).exclude(status="Scheduled").exclude(status="Unfinished")
@@ -1889,6 +2004,8 @@ def chemicalConsumption(request):
         "bt":bakingSodaTotal,
         "dg":dateGenerated,
         "rm":reportMonth,
+        'notifications':notifications,
+        'notifCount':notifCount,
         "chemicalItems":chemicalReport,
     }
     return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
@@ -1950,8 +2067,6 @@ def addItem(request):
         if usertype.type != adminType:
             if request.method == 'POST':
                 return render(request, 'monitoring/pool technician/add-item.html',locals())
-
-                    #logic here
             else:
 
                 return render(request, 'monitoring/pool technician/add-item.html',locals())
@@ -2048,6 +2163,8 @@ def disconnectPool(request):
         return render(request, 'monitoring/pool owner/result-not-found.html')
 
 def getReportMonthYear(request):
+    notifications = getNotification(request)
+    notifCount=notifications.count()
     if 0==0:
         yearNow=request.POST['yearOption']
         monthNow=request.POST['monthOption']
@@ -2119,6 +2236,8 @@ def getReportMonthYear(request):
             "dg":dateGenerated,
             "rm":reportMonth,
             "chemicalItems":chemicalReport,
+            'notifications':notifications,
+            'notifCount':notifCount,
         }
         return render(request, 'monitoring/pool owner/chemical-consumption-report.html', context)
     else:
@@ -2128,6 +2247,7 @@ def getReportMonthYear(request):
 def changePrice(request):
     print("view change Price")
     notifications = getNotification(request)
+    notifCount=notifications.count()
     if 0==0:
         print("trying to post at change Price")
         if request.method == 'POST':
@@ -2675,56 +2795,74 @@ def emailTrigger():
         turbidityLevel=Final_Turbidity.objects.last()
         phLevel=Final_Ph.objects.last()
         temperatureLevel=Final_Temperature.objects.last()
+        print("Query Finished")
         color=getQualityColorPH(phLevel.final_phlevel)
+        print(color)
         if(color=="yellow"):
-            message="PH Level of"+ohLevel.pool+" has entered warning levels: "+str(phLevel.final_phlevel)
+            message="PH Level of"+str(phLevel.pool)+" has entered warning levels: "+str(phLevel.final_phlevel)
             print(message)
-            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
-            send_message(service, "luismerleee@gmail.com", messagex)
-            pool=final_phLevel.pool
+            try:
+                messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+                send_result = send_message(service, "luismerleee@gmail.com", messagex)
+            except:
+                print("Email Failed")
+            pool=phLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)
         elif(color=="red"):
-            message="PH Level of"+phLevel.pool+" has entered critical level: "+str(phLevel.final_phlevel)
+            message="PH Level of"+str(phLevel.pool)+" has entered critical level: "+str(phLevel.final_phlevel)
             print(message)
-            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
-            send_message(service, "luismerleee@gmail.com", messagex)
-            pool=final_phLevel.pool
+            try:
+                messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+                send_result = send_message(service, "luismerleee@gmail.com", messagex)
+            except:
+                print("Email Failed")
+            pool=phLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)
         color=getQualityColorTurbidity(turbidityLevel.final_turbiditylevel)
+        print(color)
         if(color=="yellow"):
-            message="Turbidity Level of"+turbidityLevel.pool+" has entered warning levels: "+str(turbidityLevel.final_turbiditylevel)
+            message="Turbidity Level of"+str(turbidityLevel.pool)+" has entered warning levels: "+str(turbidityLevel.final_turbiditylevel)
             print(message)
-            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
-            send_message(service, "luismerleee@gmail.com", messagex)
-            pool=final_turbidityLevel.pool
+            try:
+                messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+                send_result = send_message(service, "luismerleee@gmail.com", messagex)
+            except:
+                print("Email Failed")
+            pool=turbidityLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)
         elif(color=="red"):
             print("turbidity")
-            message="Turbidity Level of"+turbidityLevel.pool+" has entered critical level: "+str(turbidityLevel.final_turbiditylevel)
+            message="Turbidity Level of"+str(turbidityLevel.pool)+" has entered critical level: "+str(turbidityLevel.final_turbiditylevel)
             print(message)
-            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
-            send_message(service, "luismerleee@gmail.com", messagex)
-            pool=final_turbidityLevel.pool
+            try:
+                messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+                send_result = send_message(service, "luismerleee@gmail.com", messagex)
+            except:
+                print("Email Failed")
+            pool=turbidityLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)
     except:
-        print("Email Sending Failed")
+        print("Email and Notification Trigger Failed")
 
 def notificationTrigger(notificationMessage, poolNumber):
     try:
         employeeList=User.objects.all()#working here
         poolTechType=Usertype_Ref.objects.get(pk=2)
         for employee in employeeList:
-            if employee.type == poolTechType:
+            usertype = Type.objects.get(user=employee)
+            print(str(usertype.type)+" == "+str(poolTechType))
+            if usertype.type == poolTechType:
                 newNotification= Notification_Table(
                     user=employee,
                     message=notificationMessage,
                     number = poolNumber
                 )
                 newNotification.save()
-        print("adding notification")
+                print("Notification added")
+        print("Notify Success")
     except:
         print("Add New Notification Failed")

@@ -122,7 +122,7 @@ class MaintenanceSchedule(models.Model):
 
 class Temp_Turbidity(models.Model):
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
-	temp_turbiditylevel = models.DecimalField(max_digits=8, decimal_places=5, default="")
+	temp_turbiditylevel = models.DecimalField(max_digits=10, decimal_places=5, default="")
 	temp_turbiditydatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):
@@ -146,7 +146,7 @@ class Temp_Ph(models.Model):
 
 class Final_Turbidity(models.Model):
 	pool = models.ForeignKey(Pool, on_delete=models.DO_NOTHING)
-	final_turbiditylevel = models.DecimalField(max_digits=8, decimal_places=5, default="")
+	final_turbiditylevel = models.DecimalField(max_digits=10, decimal_places=5, default="")
 	final_turbiditydatetime = models.DateTimeField(default=datetime.now, blank=True)
 
 	def __str__(self):

@@ -908,6 +908,7 @@ def setMaintenanceCompute(request):
                 sodaAshOutput="No Need"
                 sodaAshVal=0
                 muriaticAcid=computeMuriaticAcid(phLevel, multiplier)
+                muriaticAcidVal= muraticAcid
                 muriaticAcidVal = fixMuriaticAcidDisplay(muriaticAcid)
                 if(muriaticAcidVal=="No need"):
                     muriaticAcidVal=0
@@ -2681,14 +2682,16 @@ def emailTrigger():
         if(color=="yellow"):
             message="PH Level of"+ohLevel.pool+" has entered warning levels: "+str(phLevel.final_phlevel)
             print(message)
-            sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            send_message(service, "luismerleee@gmail.com", messagex)
             pool=final_phLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)
         elif(color=="red"):
             message="PH Level of"+phLevel.pool+" has entered critical level: "+str(phLevel.final_phlevel)
             print(message)
-            sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            send_message(service, "luismerleee@gmail.com", messagex)
             pool=final_phLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)
@@ -2696,7 +2699,8 @@ def emailTrigger():
         if(color=="yellow"):
             message="Turbidity Level of"+turbidityLevel.pool+" has entered warning levels: "+str(turbidityLevel.final_turbiditylevel)
             print(message)
-            sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            send_message(service, "luismerleee@gmail.com", messagex)
             pool=final_turbidityLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)
@@ -2704,7 +2708,8 @@ def emailTrigger():
             print("turbidity")
             message="Turbidity Level of"+turbidityLevel.pool+" has entered critical level: "+str(turbidityLevel.final_turbiditylevel)
             print(message)
-            sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+            send_message(service, "luismerleee@gmail.com", messagex)
             pool=final_turbidityLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)

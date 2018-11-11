@@ -228,9 +228,23 @@
                           <td>{{ yitem }}</td>
                             {% endif %}
                         {% endfor %}
-                          <td>  <label class="label label-success" style="font-size:15px"> {{ item.status }}</label>
+                        {%  if item.status == "Scheduled" %}
+                          <td>  <label class="label label-primary" style="font-size:15px"> {{ item.status }}</label>
                             </td>
-                        </tr>
+                        {% endif %}
+                        {%  if item.status == "Unfinished" %}
+                          <td>  <label class="label label-danger" style="font-size:15px"> {{ item.status }}</label>
+                            </td>
+                        {% endif %}
+                        {%  if item.status == "Late" %}
+                          <td>  <label class="label label-warning" style="font-size:15px"> {{ item.status }}</label>
+                            </td>
+                        {% endif %}
+                        {%  if item.status == "Accomplished" %}
+                          <td>  <label class="label label-warning" style="font-size:15px"> {{ item.status }}</label>
+                            </td>
+                        {% endif %}
+                            </tr>
                         {% endfor %}
                         </tbody>
                       </table>

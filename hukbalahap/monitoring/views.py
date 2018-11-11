@@ -160,22 +160,33 @@ ipExists = checkIP(ipAddress)
 
 #####################################
 def getPoolID(ipAddress):
-    ipAdd = ipAddress
-    ctr = 1
-    arraySize = Pool.objects.count()
-    poolIdKey = 0
-    if arraySize > 0:
-        while(ctr <= arraySize):
-            x = str(poolobjects.get(pk = ctr).pool_ip)
-            if x == ipAdd:
+    # ipAdd = ipAddress
+    # ctr = 1
+    # arraySize = Pool.objects.count()
+    # poolIdKey = 0
+    # if arraySize > 0:
+    #     while(ctr <= arraySize):
+    #         x = str(poolobjects.get(pk = ctr).pool_ip)
+    #         if x == ipAdd:
+    #             print("IP Addresses are the same!")
+    #             poolIdKey = ctr
+    #         else:
+    #             print("IP Address at Counter: " + str(ctr) + " are not the same")
+    #         ctr = ctr + 1
+    # else:
+    #     print("There is no pool present in the database")
+    ipa = ipAddress
+    poolIDKey = 0
+    if poolobjects.count() > 0:
+        for x in poolobjects:
+            if str(x.pool_ip) == ipa:
                 print("IP Addresses are the same!")
-                poolIdKey = ctr
+                poolIDKey = x.pool_ip
             else:
-                print("IP Address at Counter: " + str(ctr) + " are not the same")
-            ctr = ctr + 1
+                print("IP Address at Counter " + x.pk + " are not the same!")
+        return poolIDKey
     else:
-        print("There is no pool present in the database")
-    return poolIdKey
+        print("There is no Pool registed in the Database.")
 
 #######################################
 assignedPoolID = getPoolID(ipAddress)
@@ -187,7 +198,6 @@ def sensorStartChecker(ipAddress, assignedPoolID, ipExists):
         if(assignedPoolID != 0):
             print("IP Address is in Pool Objects")
             print("Assigned Pool ID: " + str(assignedPoolID))
-            print("Sensor Start = " + str(sensorStart))
             return True
         else:
             print("IP Address is NOT in Pool Objects")
@@ -1779,8 +1789,7 @@ def personnelEfficiency(request):
     efficiencyList=[]
     eNames=[]
     for employee in employeeList:
-        usertype = Type.objects.get(user=employee)
-        if usertype.type == poolTechType:
+        if employee.type == poolTechType:
             eName=str(employee.first_name)+" "+str(employee.last_name)
             eNames.append(eName)
             employeeReport=MaintenanceSchedule.objects.all().filter(user=employee)
@@ -1811,7 +1820,6 @@ def personnelEfficiency(request):
         averageAverage=round(averageAverage)
     except:
         averageAverage=0
-    print(eNames)
     content={
         'dd':displayDate,
         "zl":eNames,

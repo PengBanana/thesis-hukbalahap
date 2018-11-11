@@ -1036,7 +1036,6 @@ def profile(request,item_id):
         notifications = getNotification(request)
         notifCount=notifications.count()
         if usertype.type == adminType:
-            print("sad 1")
             user = User.objects.filter(id=item_id)
             userSchedule = MaintenanceSchedule.objects.all().filter(user=user)
             msg = None

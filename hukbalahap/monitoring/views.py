@@ -2682,16 +2682,22 @@ def emailTrigger():
         if(color=="yellow"):
             message="PH Level of"+ohLevel.pool+" has entered warning levels: "+str(phLevel.final_phlevel)
             print(message)
-            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
-            send_message(service, "luismerleee@gmail.com", messagex)
+            try:
+                messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+                send_message(service, "luismerleee@gmail.com", messagex)
+            except:
+                print("Email Sending Failed")
             pool=final_phLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)
         elif(color=="red"):
             message="PH Level of"+phLevel.pool+" has entered critical level: "+str(phLevel.final_phlevel)
             print(message)
-            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
-            send_message(service, "luismerleee@gmail.com", messagex)
+            try:
+                messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+                send_message(service, "luismerleee@gmail.com", messagex)
+            except:
+                print("Email Sending Failed")
             pool=final_phLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)
@@ -2699,8 +2705,11 @@ def emailTrigger():
         if(color=="yellow"):
             message="Turbidity Level of"+turbidityLevel.pool+" has entered warning levels: "+str(turbidityLevel.final_turbiditylevel)
             print(message)
-            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
-            send_message(service, "luismerleee@gmail.com", messagex)
+            try:
+                messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+                send_message(service, "luismerleee@gmail.com", messagex)
+            except:
+                print("Email Sending Failed")
             pool=final_turbidityLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)
@@ -2708,13 +2717,16 @@ def emailTrigger():
             print("turbidity")
             message="Turbidity Level of"+turbidityLevel.pool+" has entered critical level: "+str(turbidityLevel.final_turbiditylevel)
             print(message)
-            messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
-            send_message(service, "luismerleee@gmail.com", messagex)
+            try:
+                messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+                send_message(service, "luismerleee@gmail.com", messagex)
+            except:
+                print("Email Sending Failed")
             pool=final_turbidityLevel.pool
             poolPK=pool.id
             notificationTrigger(message, poolPK)
     except:
-        print("Email Sending Failed")
+        print("Email and Notification Trigger Failed")
 
 def notificationTrigger(notificationMessage, poolNumber):
     try:

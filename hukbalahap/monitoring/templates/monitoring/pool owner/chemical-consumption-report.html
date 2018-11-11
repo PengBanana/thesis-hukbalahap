@@ -155,10 +155,8 @@ tfoot {  font-weight: bold;}
             <div class="box">
               <center><h2 class="box-title">Chemical Consumption Report</h2></center>
 
-              <center>Date Generated: {{ dg }}</center>
-              <center>Report for: {{ rm }}</center>
-                <center>Forecasted Quarterly Cost: Php {{ sqc }}</center>
-                    <center>Forecasted Yearly Cost: Php {{ syc }}</center>
+              <center style="font-size:20px;">as of {{ rm }}</center>
+              
               <!-- /.box-header -->
               <div class="box-body">
                 <table id="example2" class="table table-bordered ">
@@ -208,12 +206,51 @@ tfoot {  font-weight: bold;}
                 {% endif %}
 
                 </table>
-                <div class="row">
-                    <div class="col-md-5">
+                 <div class="row">
+                    <div class="col-md-8">
                     </div>
-                    <div class="col-md-7">
-                        <p style="font-size:20px;">End of Report</p></div>
+                    <div class="col-md-4">
+                       <table style="width:100%">
+                           <tr>
+                                <td> <p style="font-size:20px;">
+                                    <b>Forecasted Quarterly Cost</b>: </p>
+                                </td>
+                                <td align="right">
+                                    <p style="font-size:20px;"> Php {{ sqc }}</p>
+                       
+                                </td>
+
+
+                           </tr>
+
+                           <tr>
+                                <td> <p style="font-size:20px;">
+                                    <b>Forecasted Yearly Cost</b>: </p>
+                                </td>
+                                <td align="right">
+                                    <p style="font-size:20px;"> Php {{ syc }}</p>
+                       
+                                </td>
+
+
+                           </tr>
+                         </table>  
+                        </div>
                 </div>
+
+               <div class="row"><div class="col-md-5"></div>
+        <div class="col-md-7"><p style="font-size:20px;">End of Report</p></div></div>
+        
+
+
+            
+
+    
+                
+
+
+
+                
               </div>
               <!-- /.box-body -->
             </div>

@@ -423,6 +423,10 @@ def batchCount10Temp():
         tempStandardDev = math.sqrt(tempVariance)
         tempStandardDev= decimal.Decimal(tempStandardDev)+tempMean
         Final_Temperature.objects.create(pool_id=assignedPoolID, final_temperaturelevel=tempStandardDev, final_temperaturedatetime=current_timezone.localize(datetime.datetime.now()))
+        if(internet_connection == True):    
+            emailTrigger()
+        else:
+            print("No INTERNET -- Email NOT Sent!")
         print("Final_Temperature Value Added: Enrique Razon Building, " + str(tempStandardDev) + ", " + str(current_timezone.localize(datetime.datetime.now())))
 
 def count_temp_temperature():
@@ -2660,3 +2664,27 @@ def updatePrice(chemicalName, newPrice, newQuantity, effectiveDateNew):
     except:
         returnVal=0
         return returnVal
+
+def emailTrigger():
+    turbidityLevel=Final_Turbidity.objects.last()
+    phLevel=Final_Ph.objects.last()
+    temperatureLevel=Final_Temperature.objects.last()
+    color=getQualityColorPH(phLevel.final_phlevel)
+    if(color=="yellow"):
+        message="PH Level of"+ohLevel.pool+" has entered warning levels: "+str(phLevel.final_phlevel)
+        print(message)
+        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+    elif(color=="red"):
+        message="PH Level of"+phLevel.pool+" has entered critical level: "+str(phLevel.final_phlevel)
+        print(message)
+        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+    color=getQualityColorTurbidity(turbidityLevel.final_turbiditylevel)
+    if(color=="yellow"):
+        message="Turbidity Level of"+turbidityLevel.pool+" has entered warning levels: "+str(turbidityLevel.final_turbiditylevel)
+        print(message)
+        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
+    elif(color=="red"):
+        print("turbidity")
+        message="Turbidity Level of"+turbidityLevel.pool+" has entered critical level: "+str(turbidityLevel.final_turbiditylevel)
+        print(message)
+        sendMail("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)

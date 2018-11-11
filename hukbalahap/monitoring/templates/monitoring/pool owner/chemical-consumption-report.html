@@ -14,7 +14,6 @@ tfoot {  font-weight: bold;}
             <form method="post" action={% url 'monitoring:getReportMonthYear' %}>
                 {% csrf_token %}
                 <select class="form-control" style="width: 100%;" name="monthOption">
-                  <option selected="selected">Month</option>
                   <option value="January">January</option>
                   <option value="February">February</option>
                   <option value="March">March</option>

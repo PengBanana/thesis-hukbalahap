@@ -1766,6 +1766,8 @@ def personnelEfficiency(request):
         today=datetime.date.today()
         month=today.month
         year=today.year
+    displayDate=str(month)+" "+str(year)
+    poolTechType=Usertype_Ref.objects.get(pk=2)
     compareDate=convertToDateTime(month, "1", year)
     try:
         compareDate2=convertToDateTime(month, "31", year)
@@ -1778,28 +1780,29 @@ def personnelEfficiency(request):
     efficiencyList=[]
     eNames=[]
     for employee in employeeList:
-        eName=str(employee.first_name)+" "+str(employee.last_name)
-        eNames.append(eName)
-        employeeReport=MaintenanceSchedule.objects.all().filter(user=employee)
-        employeeReport=employeeReport.filter(date__gte=compareDate)
-        employeeReport=employeeReport.filter(date__lte=compareDate2)
-        totalCount=employeeReport.exclude(status="Scheduled").count()
-        counts.append(totalCount)
-        badCount=employeeReport.exclude(status="Scheduled").exclude(status="Accomplished").count()
-        lateCount=employeeReport.filter(status="Late").count()
-        lateCounts.append(lateCount)
-        unfinishedCount=employeeReport.filter(status="Unfinished").count()
-        unfinishedCounts.append(unfinishedCount)
-        goodCount=totalCount-badCount
-        accomplishedCounts.append(goodCount)
-        try:
-            efficiency=goodCount/totalCount*100
-            efficiency=round(efficiency)
-        except:
-            efficiency=0
-        efficiencyList.append(efficiency)
-        ec=0
-        asum=0
+        if employee.type == poolTechType:
+            eName=str(employee.first_name)+" "+str(employee.last_name)
+            eNames.append(eName)
+            employeeReport=MaintenanceSchedule.objects.all().filter(user=employee)
+            employeeReport=employeeReport.filter(date__gte=compareDate)
+            employeeReport=employeeReport.filter(date__lte=compareDate2)
+            totalCount=employeeReport.exclude(status="Scheduled").count()
+            counts.append(totalCount)
+            badCount=employeeReport.exclude(status="Scheduled").exclude(status="Accomplished").count()
+            lateCount=employeeReport.filter(status="Late").count()
+            lateCounts.append(lateCount)
+            unfinishedCount=employeeReport.filter(status="Unfinished").count()
+            unfinishedCounts.append(unfinishedCount)
+            goodCount=totalCount-badCount
+            accomplishedCounts.append(goodCount)
+            try:
+                efficiency=goodCount/totalCount*100
+                efficiency=round(efficiency)
+            except:
+                efficiency=0
+            efficiencyList.append(efficiency)
+            ec=0
+            asum=0
     for item in efficiencyList:
         asum+=item
         ec+=1
@@ -1809,6 +1812,7 @@ def personnelEfficiency(request):
     except:
         averageAverage=0
     content={
+        'dd':displayDate,
         "zl":eNames,
         "cl":counts,
         "al":accomplishedCounts,

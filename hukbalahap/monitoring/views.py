@@ -181,7 +181,7 @@ def getPoolID(ipAddress):
         for x in poolobjects:
             if str(x.pool_ip) == ipa:
                 print("IP Addresses are the same!")
-                poolIDKey = x.pool_ip
+                poolIDKey = x.pk
             else:
                 print("IP Address at Counter " + str(x.pk) + " are not the same!")
         return poolIDKey

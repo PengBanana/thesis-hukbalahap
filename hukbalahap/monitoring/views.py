@@ -187,7 +187,7 @@ def getPoolID(ipAddress):
         return poolIDKey
     else:
         print("There is no Pool registed in the Database.")
-        
+
 #######################################
 assignedPoolID = getPoolID(ipAddress)
 
@@ -1551,7 +1551,7 @@ def submitMaintenanceChemicals(request):
         item.act_muriatic = decimal.Decimal(muriaticAcid)
         item.act_depowder = decimal.Decimal(dePowder)
         item.act_bakingsoda = decimal.Decimal(sodaAsh)
-        item.datetimeAccomplished = current_timezone.localize(datetime.dateime.now()) 
+        item.datetimeAccomplished = current_timezone.localize(datetime.datetime.now()) 
         item.status = "Accomplished"
         item.save()
         #TODO: record Chemical usage

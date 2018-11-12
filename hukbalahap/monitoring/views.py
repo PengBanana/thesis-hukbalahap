@@ -179,18 +179,15 @@ def getPoolID(ipAddress):
     poolIDKey = 0
     if poolobjects.count() > 0:
         for x in poolobjects:
-            print(str(ipa))
-            print(str(x.pool_ip.ipaddress))
-            if str(x.pool_ip.ipaddress) == ipa:
+            if str(x.pool_ip) == ipa:
                 print("IP Addresses are the same!")
-                poolIDKey = x.pk
-                return poolIDKey
+                poolIDKey = x.pool_ip
             else:
                 print("IP Address at Counter " + str(x.pk) + " are not the same!")
         return poolIDKey
     else:
         print("There is no Pool registed in the Database.")
-
+        
 #######################################
 assignedPoolID = getPoolID(ipAddress)
 
@@ -572,6 +569,7 @@ def logout_view(request):
 
 @login_required(login_url="/monitoring/login")
 def index(request):
+    emailTrigger()
     #notification code
     #sendMail('luismerleee@gmail.com', 'luismerleee@gmail.com', 'test', 'testing')
     notifications = getNotification(request)
@@ -1553,6 +1551,7 @@ def submitMaintenanceChemicals(request):
         item.act_muriatic = decimal.Decimal(muriaticAcid)
         item.act_depowder = decimal.Decimal(dePowder)
         item.act_bakingsoda = decimal.Decimal(sodaAsh)
+        item.datetimeAccomplished = current_timezone.localize(datetime.dateime.now()) 
         item.status = "Accomplished"
         item.save()
         #TODO: record Chemical usage
@@ -2810,7 +2809,7 @@ def emailTrigger():
         color=getQualityColorPH(phLevel.final_phlevel)
         print(color)
         if(color=="yellow"):
-            message="PH Level of"+str(phLevel.pool)+" has entered warning levels: "+str(phLevel.final_phlevel)
+            message="PH Level of "+str(phLevel.pool)+" has entered warning levels: "+str(phLevel.final_phlevel)
             print(message)
             try:
                 messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
@@ -2821,7 +2820,7 @@ def emailTrigger():
             poolPK=pool.id
             notificationTrigger(message, poolPK)
         elif(color=="red"):
-            message="PH Level of"+str(phLevel.pool)+" has entered critical level: "+str(phLevel.final_phlevel)
+            message="PH Level of "+str(phLevel.pool)+" has entered critical level: "+str(phLevel.final_phlevel)
             print(message)
             try:
                 messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
@@ -2834,7 +2833,7 @@ def emailTrigger():
         color=getQualityColorTurbidity(turbidityLevel.final_turbiditylevel)
         print(color)
         if(color=="yellow"):
-            message="Turbidity Level of"+str(turbidityLevel.pool)+" has entered warning levels: "+str(turbidityLevel.final_turbiditylevel)
+            message="Turbidity Level of "+str(turbidityLevel.pool)+" has entered warning levels: "+str(turbidityLevel.final_turbiditylevel)
             print(message)
             try:
                 messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)
@@ -2846,7 +2845,7 @@ def emailTrigger():
             notificationTrigger(message, poolPK)
         elif(color=="red"):
             print("turbidity")
-            message="Turbidity Level of"+str(turbidityLevel.pool)+" has entered critical level: "+str(turbidityLevel.final_turbiditylevel)
+            message="Turbidity Level of "+str(turbidityLevel.pool)+" has entered critical level: "+str(turbidityLevel.final_turbiditylevel)
             print(message)
             try:
                 messagex = create_message("luismerleee@gmail.com", "luismerleee@gmail.com", "Water Quality Monitoring Notification", message)

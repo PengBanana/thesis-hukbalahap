@@ -1876,19 +1876,21 @@ def personnelEfficiency(request):
         if request.method == 'POST':
             year=request.POST['yearFilter']
             month=request.POST['monthFilter']
+            monthToDisplay=month
             month=datetime.datetime.strptime(month, '%B').strftime('%m')
             month=str(month)
             year=str(year)
         else:
             today=datetime.date.today()
             month=today.month
+            monthToDisplay=datetime.datetime.strptime(month, '%m').strftime('%B')
             year=today.year
             compareDate=convertToDateTime(today.month, "1", today.year)
     except:
         today=datetime.date.today()
         month=today.month
         year=today.year
-    displayDate=str(month)+" "+str(year)
+    displayDate=str(monthToDisplay)+" "+str(year)
     poolTechType=Usertype_Ref.objects.get(pk=2)
     compareDate=convertToDateTime(month, "1", year)
     try:

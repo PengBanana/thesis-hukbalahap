@@ -1889,6 +1889,7 @@ def personnelEfficiency(request):
     except:
         today=datetime.date.today()
         month=today.month
+        monthToDisplay=datetime.datetime.strptime(month, '%m').strftime('%B')
         year=today.year
     displayDate=str(monthToDisplay)+" "+str(year)
     poolTechType=Usertype_Ref.objects.get(pk=2)

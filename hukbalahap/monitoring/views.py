@@ -569,7 +569,6 @@ def logout_view(request):
 
 @login_required(login_url="/monitoring/login")
 def index(request):
-    emailTrigger()
     #notification code
     #sendMail('luismerleee@gmail.com', 'luismerleee@gmail.com', 'test', 'testing')
     notifications = getNotification(request)
@@ -1551,7 +1550,7 @@ def submitMaintenanceChemicals(request):
         item.act_muriatic = decimal.Decimal(muriaticAcid)
         item.act_depowder = decimal.Decimal(dePowder)
         item.act_bakingsoda = decimal.Decimal(sodaAsh)
-        item.datetimeAccomplished = current_timezone.localize(datetime.datetime.now()) 
+        item.datetimeAccomplished = current_timezone.localize(datetime.datetime.now())
         item.status = "Accomplished"
         item.save()
         #TODO: record Chemical usage

@@ -110,7 +110,7 @@ else:
     print("No Internet Connection -- Mail API NOT Imported!")
 
 #email api code end
-
+"""
 #start of import by migs and  francis###
 import threading, time, numpy as np, os, sqlite3
 from time import sleep
@@ -525,7 +525,7 @@ elif sensorStart == False:
     print("System would not Start, IP Address Not Yet Assigned In a Pool")
 
 #Sensor Reading end###
-
+"""
 ###rendering definitions
 def login(request):
     msg = None
@@ -1488,8 +1488,8 @@ def maintenanceDetails(request, schedule_id):
             'poolname':poolname,
             'fromDate':fromDate,
             'toDate':toDate,
-            'muriaticAcid':muriaticAcid,
-            'sodaAsh':sodaAsh,
+            'muriaticAcid':muriaticAcidVal,
+            'sodaAsh':sodaAshOutput,
             'dePowder':dePowder,
             'chlorine':chlorine,
             'showButton':showButton,
@@ -2261,7 +2261,7 @@ def changePrice(request):
     print("view change Price")
     notifications = getNotification(request)
     notifCount=notifications.count()
-    if 0==0:
+    try:
         print("trying to post at change Price")
         if request.method == 'POST':
             print("=========================== change Price initiated ====================")
@@ -2277,7 +2277,7 @@ def changePrice(request):
             return render(request, 'monitoring/pool technician/change-price.html',locals())
         else:
             return render(request, 'monitoring/pool technician/change-price.html',locals())
-    else:
+    except  :
         return render(request,'monitoring/BadRequest.html')
 
 ### reusable methods
@@ -2619,11 +2619,13 @@ def getCalendarColorByStatus(status):
     return color
 
 def computeCost(chemicalname, quantity, priceDate):
+    print("================ Computing Cost =================")
     returnVal=0
     try:
         print("============================ 1 ============================")
-        chemicalReference=Chemical_Price_Reference.objects.filter(chemical=chemicalname, effectiveDate__lte=priceDate).order_by().reverse()[0]
+        chemicalReference=Chemical_Price_Reference.objects.filter(chemical=chemicalname, effectiveDate__lte=priceDate).order_by("id").reverse()[0]
         print("============================ 2 ============================")
+        print(chemicalReference)
         if(chemicalname == "Chlorine"):
             print("============================ chemical price for chlorine computed ============================")
             chemicalPrice=chemicalReference.price/chemicalReference.quantity
@@ -2748,9 +2750,16 @@ def updatePrice(chemicalName, newPrice, newQuantity, effectiveDateNew):
         if(chemicalName=="1"):
             returnVal=1
             itemCount = Chemical_Price_Reference.objects.filter(chemical = "Chlorine", effectiveDate=effectiveDateNew).count()
+            print("New Chlorine Price")
             if itemCount > 0:
-                item = Chemical_Price_Reference.objects.get(chemical = "Chlorine", effectiveDate=effectiveDateNew)
-                item.price = newPrice
+                #item = Chemical_Price_Reference.objects.get(chemical = "Chlorine", effectiveDate=effectiveDateNew)
+                #item.price = newPrice
+                item=Chemical_Price_Reference(
+                chemical = "Chlorine",
+                    quantity = newQuantity,
+                    price = newPrice,
+                    effectiveDate = effectiveDateNew
+                )
             else:
                 item=Chemical_Price_Reference(
                 chemical = "Chlorine",
@@ -2760,11 +2769,20 @@ def updatePrice(chemicalName, newPrice, newQuantity, effectiveDateNew):
                 )
         elif(chemicalName=="2"):
             returnVal=1
-            Chemical_Price_Reference.objects.filter(chemical = "DE Powder", effectiveDate=effectiveDateNew).count()
+            itemCount = Chemical_Price_Reference.objects.filter(chemical = "DE Powder", effectiveDate=effectiveDateNew).count()
+            print("New DE Powder Price")
             if itemCount > 0:
-                item = Chemical_Price_Reference.objects.get(chemical = "DE Powder", effectiveDate=effectiveDateNew)
-                item.price = newPrice
+                #item = Chemical_Price_Reference.objects.get(chemical = "DE Powder", effectiveDate=effectiveDateNew)
+                #item.price = newPrice
+                print("1")
+                item=Chemical_Price_Reference(
+                chemical = "DE Powder",
+                    quantity = newQuantity,
+                    price = newPrice,
+                    effectiveDate = effectiveDateNew
+                )
             else:
+                print("2")
                 item=Chemical_Price_Reference(
                 chemical = "DE Powder",
                     quantity = newQuantity,
@@ -2773,10 +2791,17 @@ def updatePrice(chemicalName, newPrice, newQuantity, effectiveDateNew):
                 )
         elif(chemicalName=="3"):
             returnVal=1
-            Chemical_Price_Reference.objects.filter(chemical = "Baking Soda", effectiveDate=effectiveDateNew).count()
+            itemCount = Chemical_Price_Reference.objects.filter(chemical = "Baking Soda", effectiveDate=effectiveDateNew).count()
+            print("New Baking Soda Price")
             if itemCount > 0:
-                item = Chemical_Price_Reference.objects.get(chemical = "Baking Soda", effectiveDate=effectiveDateNew)
-                item.price = newPrice
+                #item = Chemical_Price_Reference.objects.get(chemical = "Baking Soda", effectiveDate=effectiveDateNew)
+                #item.price = newPrice
+                item=Chemical_Price_Reference(
+                chemical = "Baking Soda",
+                    quantity = newQuantity,
+                    price = newPrice,
+                    effectiveDate = effectiveDateNew
+                )
             else:
                 item=Chemical_Price_Reference(
                 chemical = "Baking Soda",
@@ -2786,10 +2811,17 @@ def updatePrice(chemicalName, newPrice, newQuantity, effectiveDateNew):
                 )
         elif(chemicalName=="4"):
             returnVal=1
-            Chemical_Price_Reference.objects.filter(chemical = "Muriatic Acid", effectiveDate=effectiveDateNew).count()
+            itemCount = Chemical_Price_Reference.objects.filter(chemical = "Muriatic Acid", effectiveDate=effectiveDateNew).count()
+            print("New Muriatic Acid Price")
             if itemCount > 0:
-                item = Chemical_Price_Reference.objects.get(chemical = "Muriatic Acid", effectiveDate=effectiveDateNew)
-                item.price = newPrice
+                #item = Chemical_Price_Reference.objects.get(chemical = "Muriatic Acid", effectiveDate=effectiveDateNew)
+                #item.price = newPrice
+                item=Chemical_Price_Reference(
+                chemical = "Muriatic Acid",
+                    quantity = newQuantity,
+                    price = newPrice,
+                    effectiveDate = effectiveDateNew
+                )
             else:
                 item=Chemical_Price_Reference(
                 chemical = "Muriatic Acid",

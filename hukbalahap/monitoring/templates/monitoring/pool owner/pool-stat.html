@@ -26,7 +26,7 @@
         ],
         xkey: ['y'],
         ykeys: ['item1'],
-        lineColors: ['#3c8dbc'],
+        lineColors: ['#f39c12'],
         labels: ['PH Level Forecast'],
         hideHover: 'auto'
     });
@@ -118,7 +118,6 @@
         <ul class="nav nav-tabs">
           <li class="active"><a href="#waterParameter" data-toggle="tab"><h4>Water Parameter Trends</h4></a></li>
           <li><a href="#poolCalendar" data-toggle="tab"><h4>Pool Calendar Schedule</h4></a></li>
-          <li><a href="#poolForecast" data-toggle="tab"><h4>Water Parameter Forecast</h4></a></li>
           <li><a href="#chemicalUsage" data-toggle="tab"><h4>Chemical Usage</h4></a></li>
         </ul>
         <div class="tab-content">
@@ -127,7 +126,7 @@
 
             <!--water parameters statistics -->
 
-            <div class="box box-info">
+            <div class="box box-primary">
               <div class="box-header with-border">
                 <h3 class="box-title">pH Level</h3>
 
@@ -147,7 +146,7 @@
 
 
 
-            <div class="box box-info">
+            <div class="box box-primary">
               <div class="box-header with-border">
                 <h3 class="box-title">Temperature Level</h3>
 
@@ -165,7 +164,7 @@
             </div>
 
             <!-- LINE CHART -->
-            <div class="box box-info">
+            <div class="box box-primary">
               <div class="box-header with-border">
                 <h3 class="box-title">Turbidity Level</h3>
 
@@ -182,6 +181,24 @@
               <!-- /.box-body -->
             </div>
             <!-- /.box -->
+
+
+            <!-- LINE CHART -->
+            <div class="box box-warning">
+              <div class="box-header with-border">
+                  <h3 class="box-title">PH Level Forecast</h3>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="box-body chart-responsive">
+                <div class="chart" id="forecastChart" style="height: 150px;">
+
+                </div>
+              </div>
+              <!-- /.box-body -->
+            </div>
 
 
 
@@ -262,22 +279,7 @@
 
           <div class="tab-pane" id="poolForecast">
 
-            <!-- LINE CHART -->
-            <div class="box box-info">
-              <div class="box-header with-border">
 
-                <div class="box-tools pull-right">
-                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="box-body chart-responsive">
-                <div class="chart" id="forecastChart" style="height: 150px; width: 1300px">
-
-                </div>
-              </div>
-              <!-- /.box-body -->
-            </div>
 
 
 
@@ -285,13 +287,6 @@
 
 
 
-
-
-          <div class="tab-pane" id="chemicalContent">
-
-
-
-          </div>
 
           <div class="tab-pane" id="chemicalUsage">
             <div class="box-body">
